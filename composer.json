@@ -23,7 +23,8 @@
         "innmind/json": "^1.1",
         "innmind/graphviz": "^1.2",
         "innmind/cli": "^1.5",
-        "innmind/server-control": "^2.7"
+        "innmind/server-control": "^2.7",
+        "innmind/http-transport": "^4.0"
     },
     "autoload": {
         "psr-4": {
