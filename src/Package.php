@@ -85,4 +85,14 @@ final class Package
 
         return $self;
     }
+
+    public function remove(Name $name): self
+    {
+        $self = clone $this;
+        $self->relations = $this->relations->filter(static function(Relation $relation) use ($name): bool {
+            return !$relation->name()->equals($name);
+        });
+
+        return $self;
+    }
 }

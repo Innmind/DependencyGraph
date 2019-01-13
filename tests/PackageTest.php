@@ -64,4 +64,24 @@ class PackageTest extends TestCase
         $this->assertCount(2, $package2->relations());
         $this->assertSame([$bar, $foo], $package2->relations()->toPrimitive());
     }
+
+    public function testRemove()
+    {
+        $package = new Package(
+            Name::of('foo/bar'),
+            $this->createMock(UrlInterface::class),
+            $this->createMock(UrlInterface::class),
+            $bar = new Relation(Name::of('bar/baz')),
+            new Relation(Name::of('baz/foo')),
+            $foo = new Relation(Name::of('foo/bar'))
+        );
+
+        $package2 = $package->remove(Name::of('baz/foo'));
+
+        $this->assertInstanceOf(Package::class, $package2);
+        $this->assertNotSame($package, $package2);
+        $this->assertCount(3, $package->relations());
+        $this->assertCount(2, $package2->relations());
+        $this->assertSame([$bar, $foo], $package2->relations()->toPrimitive());
+    }
 }
