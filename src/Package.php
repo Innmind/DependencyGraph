@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph;
 
-use Innmind\DependencyGraph\Package\{
-    Name,
-    Relation,
+use Innmind\DependencyGraph\{
+    Package\Name,
+    Package\Relation,
+    Vendor,
 };
 use Innmind\Url\UrlInterface;
 use Innmind\Immutable\{
@@ -63,5 +64,25 @@ final class Package
                 return $dependsOn || $relation->name()->equals($name);
             }
         );
+    }
+
+    /**
+     * Remove all the relations not from the given vendors
+     */
+    public function keep(Vendor\Name ...$vendors): self
+    {
+        $vendors = Set::of(Vendor\Name::class, ...$vendors);
+
+        $self = clone $this;
+        $self->relations = $this->relations->filter(static function(Relation $relation) use ($vendors): bool {
+            return $vendors->reduce(
+                false,
+                static function(bool $fromVendor, Vendor\Name $vendor) use ($relation): bool {
+                    return $fromVendor || $relation->name()->vendor()->equals($vendor);
+                }
+            );
+        });
+
+        return $self;
     }
 }
