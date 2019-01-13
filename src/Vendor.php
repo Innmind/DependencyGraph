@@ -4,6 +4,10 @@ declare(strict_types = 1);
 namespace Innmind\DependencyGraph;
 
 use Innmind\DependencyGraph\Exception\LogicException;
+use Innmind\Url\{
+    UrlInterface,
+    Url,
+};
 use Innmind\Immutable\{
     SetInterface,
     Set,
@@ -22,6 +26,7 @@ final class Vendor implements \Iterator
                 throw new LogicException;
             }
         });
+        $this->packagist = Url::fromString("https://packagist.org/packages/{$this->name}/");
     }
 
     /**
@@ -45,6 +50,11 @@ final class Vendor implements \Iterator
     public function name(): string
     {
         return $this->name;
+    }
+
+    public function packagist(): UrlInterface
+    {
+        return $this->packagist;
     }
 
     public function current()

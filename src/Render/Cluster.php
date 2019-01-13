@@ -25,7 +25,8 @@ final class Cluster
 
         return Set::of(Package::class, ...$vendor)->reduce(
             Graph\Graph::directed((string) Str::of($name)->replace('-', '_'))
-                ->displayAs($name),
+                ->displayAs($name)
+                ->target($vendor->packagist()),
             function(Graph $cluster, Package $package): Graph {
                 return $cluster->add(
                     PackageNode::of($package->name())

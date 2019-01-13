@@ -27,6 +27,7 @@ digraph packages {
     rankdir="LR";
     subgraph cluster_innmind {
         label="innmind"
+        URL="https://packagist.org/packages/innmind/"
     innmind__filesystem [label="filesystem"];
     innmind__immutable [label="immutable"];
     innmind__json [label="json"];
@@ -37,6 +38,7 @@ digraph packages {
     }
     subgraph cluster_league {
         label="league"
+        URL="https://packagist.org/packages/league/"
     league__uri [label="uri"];
     league__uri_components [label="uri-components"];
     league__uri_hostname_parser [label="uri-hostname-parser"];
@@ -47,11 +49,13 @@ digraph packages {
     }
     subgraph cluster_psr {
         label="psr"
+        URL="https://packagist.org/packages/psr/"
     psr__http_message [label="http-message"];
     psr__simple_cache [label="simple-cache"];
     }
     subgraph cluster_symfony {
         label="symfony"
+        URL="https://packagist.org/packages/symfony/"
     symfony__filesystem [label="filesystem"];
     symfony__finder [label="finder"];
     symfony__polyfill_ctype [label="polyfill-ctype"];
