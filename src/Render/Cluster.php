@@ -21,7 +21,7 @@ final class Cluster
 
     public static function of(Vendor $vendor): Graph
     {
-        $name = $vendor->name();
+        $name = (string) $vendor->name();
 
         return Set::of(Package::class, ...$vendor)->reduce(
             Graph\Graph::directed((string) Str::of($name)->replace('-', '_'))

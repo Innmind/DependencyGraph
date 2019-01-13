@@ -23,7 +23,7 @@ final class Vendor implements \Iterator
     {
         $this->name = $first->name()->vendor();
         $this->packages = Set::of(Package::class, $first, ...$others)->foreach(function(Package $package): void {
-            if ($package->name()->vendor() !== $this->name) {
+            if (!$package->name()->vendor()->equals($this->name)) {
                 throw new LogicException;
             }
         });
@@ -37,7 +37,7 @@ final class Vendor implements \Iterator
     {
         return Set::of(Package::class, ...$packages)
             ->groupBy(static function(Package $package): string {
-                return $package->name()->vendor();
+                return (string) $package->name()->vendor();
             })
             ->values()
             ->reduce(
@@ -48,7 +48,7 @@ final class Vendor implements \Iterator
             );
     }
 
-    public function name(): string
+    public function name(): Vendor\Name
     {
         return $this->name;
     }

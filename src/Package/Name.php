@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph\Package;
 
-use Innmind\DependencyGraph\Exception\DomainException;
+use Innmind\DependencyGraph\{
+    Vendor,
+    Exception\DomainException,
+};
 use Innmind\Immutable\Str;
 
 final class Name
@@ -11,9 +14,9 @@ final class Name
     private $vendor;
     private $package;
 
-    public function __construct(string $vendor, string $package)
+    public function __construct(Vendor\Name $vendor, string $package)
     {
-        if (Str::of($vendor)->empty() || Str::of($package)->empty()) {
+        if (Str::of($package)->empty()) {
             throw new DomainException;
         }
 
@@ -25,10 +28,13 @@ final class Name
     {
         [$vendor, $package] = Str::of($name)->split('/');
 
-        return new self((string) $vendor, (string) $package);
+        return new self(
+            new Vendor\Name((string) $vendor),
+            (string) $package
+        );
     }
 
-    public function vendor(): string
+    public function vendor(): Vendor\Name
     {
         return $this->vendor;
     }

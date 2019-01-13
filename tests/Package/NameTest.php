@@ -5,6 +5,7 @@ namespace Tests\Innmind\DependencyGraph\Package;
 
 use Innmind\DependencyGraph\{
     Package\Name,
+    Vendor,
     Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;
@@ -13,9 +14,10 @@ class NameTest extends TestCase
 {
     public function testInterface()
     {
-        $name = new Name('vendor', 'package');
+        $name = new Name(new Vendor\Name('vendor'), 'package');
 
-        $this->assertSame('vendor', $name->vendor());
+        $this->assertInstanceOf(Vendor\Name::class, $name->vendor());
+        $this->assertSame('vendor', (string) $name->vendor());
         $this->assertSame('package', $name->package());
         $this->assertSame('vendor/package', (string) $name);
     }
@@ -28,17 +30,10 @@ class NameTest extends TestCase
         $this->assertSame('vendor/package', (string) $name);
     }
 
-    public function testThrowWhenEmptyVendor()
-    {
-        $this->expectException(DomainException::class);
-
-        new Name('', 'package');
-    }
-
     public function testThrowWhenEmptyPackage()
     {
         $this->expectException(DomainException::class);
 
-        new Name('vendor', '');
+        new Name(new Vendor\Name('vendor'), '');
     }
 }

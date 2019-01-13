@@ -7,6 +7,7 @@ use Innmind\DependencyGraph\{
     Package,
     Package\Name,
     Package\Relation,
+    Vendor,
 };
 use Innmind\Url\UrlInterface;
 use Innmind\Immutable\SetInterface;
@@ -17,10 +18,10 @@ class PackageTest extends TestCase
     public function testInterface()
     {
         $package = new Package(
-            $name = new Name('foo', 'bar'),
+            $name = new Name(new Vendor\Name('foo'), 'bar'),
             $packagist = $this->createMock(UrlInterface::class),
             $repository = $this->createMock(UrlInterface::class),
-            $relation = new Relation(new Name('bar', 'baz'))
+            $relation = new Relation(new Name(new Vendor\Name('bar'), 'baz'))
         );
 
         $this->assertSame($name, $package->name());

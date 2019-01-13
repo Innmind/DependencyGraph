@@ -19,18 +19,19 @@ class VendorTest extends TestCase
     {
         $vendor = new Vendor(
             $bar = new Package(
-                new Name('foo', 'bar'),
+                new Name(new Vendor\Name('foo'), 'bar'),
                 $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             $baz = new Package(
-                new Name('foo', 'baz'),
+                new Name(new Vendor\Name('foo'), 'baz'),
                 $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
         );
 
-        $this->assertSame('foo', $vendor->name());
+        $this->assertInstanceOf(Vendor\Name::class, $vendor->name());
+        $this->assertSame('foo', (string) $vendor->name());
         $this->assertInstanceOf(UrlInterface::class, $vendor->packagist());
         $this->assertSame('https://packagist.org/packages/foo/', (string) $vendor->packagist());
         $this->assertInstanceOf(\Iterator::class, $vendor);
@@ -43,12 +44,12 @@ class VendorTest extends TestCase
 
         new Vendor(
             new Package(
-                new Name('foo', 'bar'),
+                new Name(new Vendor\Name('foo'), 'bar'),
                 $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             new Package(
-                new Name('bar', 'baz'),
+                new Name(new Vendor\Name('bar'), 'baz'),
                 $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
@@ -59,12 +60,12 @@ class VendorTest extends TestCase
     {
         $vendors = Vendor::group(
             $foo = new Package(
-                new Name('foo', 'bar'),
+                new Name(new Vendor\Name('foo'), 'bar'),
                 $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             $bar = new Package(
-                new Name('bar', 'baz'),
+                new Name(new Vendor\Name('bar'), 'baz'),
                 $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
