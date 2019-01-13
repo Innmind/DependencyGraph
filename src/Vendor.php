@@ -17,6 +17,7 @@ final class Vendor implements \Iterator
 {
     private $name;
     private $packages;
+    private $packagist;
 
     public function __construct(Package $first, Package ...$others)
     {
