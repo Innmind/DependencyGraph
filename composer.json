@@ -1,0 +1,33 @@
+{
+    "name": "innmind/dependency-graph",
+    "type": "library",
+    "description": "Library to visualize project dependencies",
+    "keywords": ["composer", "dependency", "graph", "graphviz"],
+    "homepage": "http://github.com/Innmind/DependencyGraph",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Baptiste Langlade",
+            "email": "langlade.baptiste@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "http://github.com/Innmind/DependencyGraph/issues"
+    },
+    "require": {
+        "php": "~7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Innmind\\DependencyGraph\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Innmind\\DependencyGraph\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~7.0"
+    }
+}
