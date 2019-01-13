@@ -99,4 +99,27 @@ class VendorTest extends TestCase
         $this->assertTrue($vendor->dependsOn(Name::of('bar/baz')));
         $this->assertFalse($vendor->dependsOn(Name::of('foo/baz')));
     }
+
+    public function testDependingOn()
+    {
+        $vendor = new Vendor(
+            new Package(
+                Name::of('foo/bar'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class)
+            ),
+            $expected = new Package(
+                Name::of('foo/baz'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class),
+                new Relation(Name::of('bar/baz'))
+            )
+        );
+
+        $packages = $vendor->dependingOn(Name::of('bar/baz'));
+
+        $this->assertInstanceOf(SetInterface::class, $packages);
+        $this->assertSame(Package::class, (string) $packages->type());
+        $this->assertSame([$expected], $packages->toPrimitive());
+    }
 }

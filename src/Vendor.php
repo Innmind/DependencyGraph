@@ -68,6 +68,16 @@ final class Vendor implements \Iterator
         );
     }
 
+    /**
+     * @return SetInterface<Package>
+     */
+    public function dependingOn(Package\Name $name): SetInterface
+    {
+        return $this->packages->filter(static function(Package $package) use ($name): bool {
+            return $package->dependsOn($name);
+        });
+    }
+
     public function current()
     {
         return $this->packages->current();
