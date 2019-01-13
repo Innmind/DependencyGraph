@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph\Render;
 
-use Innmind\DependencyGraph\Package;
+use Innmind\DependencyGraph\{
+    Package,
+    Vendor,
+};
 use Innmind\Graphviz\Graph;
 use Innmind\Immutable\{
     Set,
@@ -16,9 +19,11 @@ final class Cluster
     {
     }
 
-    public static function of(string $name, Package ...$packages): Graph
+    public static function of(Vendor $vendor): Graph
     {
-        return Set::of(Package::class, ...$packages)->reduce(
+        $name = $vendor->name();
+
+        return Set::of(Package::class, ...$vendor)->reduce(
             Graph\Graph::directed((string) Str::of($name)->replace('-', '_'))
                 ->displayAs($name),
             function(Graph $cluster, Package $package): Graph {

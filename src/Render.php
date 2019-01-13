@@ -16,19 +16,11 @@ use Innmind\Graphviz\{
     Layout\Dot,
 };
 use Innmind\Stream\Readable;
-use Innmind\Immutable\{
-    MapInterface,
-    Map,
-    SetInterface,
-    Set,
-    Str,
-};
 
 final class Render
 {
     public function __invoke(Package ...$packages): Readable
     {
-        $packages = Set::of(Package::class, ...$packages);
         $graph = Graph\Graph::directed('packages', Rankdir::leftToRight());
 
         // create the dependencies between the packages
@@ -41,18 +33,14 @@ final class Render
         );
 
         // cluster packages by vendor
-        $graph = $packages
-            ->groupBy(static function(Package $package): string {
-                return $package->name()->vendor();
-            })
-            ->reduce(
-                $graph,
-                function(Graph $graph, string $name, SetInterface $vendors): Graph {
-                    return $graph->cluster(
-                        Cluster::of($name, ...$vendors)
-                    );
-                }
-            );
+        $graph = Vendor::group(...$packages)->reduce(
+            $graph,
+            function(Graph $graph, Vendor $vendor): Graph {
+                return $graph->cluster(
+                    Cluster::of($vendor)
+                );
+            }
+        );
 
         // render
         return (new Dot)($graph);
