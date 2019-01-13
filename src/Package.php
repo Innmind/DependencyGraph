@@ -54,4 +54,14 @@ final class Package
     {
         return $this->relations;
     }
+
+    public function dependsOn(Name $name): bool
+    {
+        return $this->relations->reduce(
+            false,
+            static function(bool $dependsOn, Relation $relation) use ($name): bool {
+                return $dependsOn || $relation->name()->equals($name);
+            }
+        );
+    }
 }

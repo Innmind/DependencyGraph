@@ -30,6 +30,12 @@ class NameTest extends TestCase
         $this->assertSame('vendor/package', (string) $name);
     }
 
+    public function testEquals()
+    {
+        $this->assertTrue(Name::of('foo/bar')->equals(Name::of('foo/bar')));
+        $this->assertFalse(Name::of('foo/bar')->equals(Name::of('foo/baz')));
+    }
+
     public function testThrowWhenEmptyPackage()
     {
         $this->expectException(DomainException::class);

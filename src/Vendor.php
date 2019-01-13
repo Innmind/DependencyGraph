@@ -58,6 +58,16 @@ final class Vendor implements \Iterator
         return $this->packagist;
     }
 
+    public function dependsOn(Package\Name $name): bool
+    {
+        return $this->packages->reduce(
+            false,
+            static function(bool $dependsOn, Package $package) use ($name): bool {
+                return $dependsOn || $package->dependsOn($name);
+            }
+        );
+    }
+
     public function current()
     {
         return $this->packages->current();

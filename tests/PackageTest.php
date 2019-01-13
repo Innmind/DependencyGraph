@@ -31,4 +31,17 @@ class PackageTest extends TestCase
         $this->assertSame(Relation::class, (string) $package->relations()->type());
         $this->assertSame([$relation], $package->relations()->toPrimitive());
     }
+
+    public function testDependsOn()
+    {
+        $package = new Package(
+            Name::of('foo/bar'),
+            $this->createMock(UrlInterface::class),
+            $this->createMock(UrlInterface::class),
+            new Relation(Name::of('bar/baz'))
+        );
+
+        $this->assertTrue($package->dependsOn(Name::of('bar/baz')));
+        $this->assertFalse($package->dependsOn(Name::of('foo/baz')));
+    }
 }

@@ -6,6 +6,7 @@ namespace Tests\Innmind\DependencyGraph;
 use Innmind\DependencyGraph\{
     Vendor,
     Package,
+    Package\Relation,
     Package\Name,
     Exception\LogicException,
 };
@@ -77,5 +78,25 @@ class VendorTest extends TestCase
         $this->assertSame([$foo], iterator_to_array($vendors->current()));
         $vendors->next();
         $this->assertSame([$bar], iterator_to_array($vendors->current()));
+    }
+
+    public function testDependsOn()
+    {
+        $vendor = new Vendor(
+            new Package(
+                Name::of('foo/bar'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class)
+            ),
+            new Package(
+                Name::of('foo/baz'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class),
+                new Relation(Name::of('bar/baz'))
+            )
+        );
+
+        $this->assertTrue($vendor->dependsOn(Name::of('bar/baz')));
+        $this->assertFalse($vendor->dependsOn(Name::of('foo/baz')));
     }
 }

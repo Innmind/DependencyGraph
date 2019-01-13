@@ -44,6 +44,11 @@ final class Name
         return $this->package;
     }
 
+    public function equals(self $self): bool
+    {
+        return (string) $this === (string) $self;
+    }
+
     public function __toString(): string
     {
         return $this->vendor.'/'.$this->package;
