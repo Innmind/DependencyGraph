@@ -26,7 +26,8 @@ new class extends Main {
     {
         $run = bootstrap(
             $os->filesystem(),
-            $os->control()->processes()
+            $os->control()->processes(),
+            $os->remote()->http()
         );
         $run($env);
     }

@@ -6,6 +6,7 @@ namespace Tests\Innmind\DependencyGraph;
 use function Innmind\DependencyGraph\bootstrap;
 use Innmind\OperatingSystem\Filesystem;
 use Innmind\Server\Control\Server\Processes;
+use Innmind\HttpTransport\Transport;
 use Innmind\CLI\Commands;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +16,8 @@ class BootstrapTest extends TestCase
     {
         $commands = bootstrap(
             $this->createMock(Filesystem::class),
-            $this->createMock(Processes::class)
+            $this->createMock(Processes::class),
+            $this->createMock(Transport::class)
         );
 
         $this->assertInstanceOf(Commands::class, $commands);
