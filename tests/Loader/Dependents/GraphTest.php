@@ -89,14 +89,14 @@ digraph packages {
         URL="https://packagist.org/packages/watev/"
     watev__foo [label="foo"];
     }
-    vendor__libA -> vendor__root;
-    watev__foo -> vendor__libA;
-    watev__foo -> vendor__libB;
-    vendor__libB -> vendor__root;
-    vendor__root [URL=""];
-    vendor__libA [URL=""];
-    watev__foo [URL=""];
-    vendor__libB [URL=""];
+    vendor__libA -> vendor__root [color="#c34ca0"];
+    watev__foo -> vendor__libA [color="#416be8"];
+    watev__foo -> vendor__libB [color="#416be8"];
+    vendor__libB -> vendor__root [color="#f76ead"];
+    vendor__root [shape="ellipse", width="0.75", height="0.5", color="#39b791", URL=""];
+    vendor__libA [shape="ellipse", width="0.75", height="0.5", color="#c34ca0", URL=""];
+    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL=""];
+    vendor__libB [shape="ellipse", width="0.75", height="0.5", color="#f76ead", URL=""];
 }
 DOT;
 
