@@ -56,7 +56,7 @@ class PackageTest extends TestCase
             $foo = new Relation(Name::of('foo/bar'))
         );
 
-        $package2 = $package->keep(new Vendor\Name('foo'), new Vendor\Name('bar'));
+        $package2 = $package->keep(Name::of('foo/bar'), Name::of('bar/baz'));
 
         $this->assertInstanceOf(Package::class, $package2);
         $this->assertNotSame($package, $package2);
