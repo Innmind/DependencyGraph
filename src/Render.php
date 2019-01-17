@@ -8,6 +8,7 @@ use Innmind\DependencyGraph\{
     Package\Name,
     Render\PackageNode,
     Render\Cluster,
+    Render\Locate,
 };
 use Innmind\Graphviz\{
     Graph,
@@ -15,16 +16,29 @@ use Innmind\Graphviz\{
     Node,
     Layout\Dot,
 };
+use Innmind\Url\UrlInterface;
 use Innmind\Stream\Readable;
 
 final class Render
 {
+    private $locate;
+
+    public function __construct(Locate $locate = null)
+    {
+        $this->locate = $locate ?? new class implements Locate {
+            public function __invoke(Package $package): UrlInterface
+            {
+                return $package->packagist();
+            }
+        };
+    }
+
     public function __invoke(Package ...$packages): Readable
     {
         $graph = Graph\Graph::directed('packages', Rankdir::leftToRight());
 
         // create the dependencies between the packages
-        $nodes = PackageNode::graph(...$packages);
+        $nodes = PackageNode::graph($this->locate, ...$packages);
         $graph = $nodes->reduce(
             $graph,
             function(Graph $graph, Node $node): Graph {

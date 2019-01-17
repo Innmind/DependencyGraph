@@ -27,12 +27,12 @@ final class PackageNode
     /**
      * @return SetInterface<Node>
      */
-    public static function graph(Package ...$packages): SetInterface
+    public static function graph(Locate $locate, Package ...$packages): SetInterface
     {
         $nodes = Set::of(Package::class, ...$packages)->reduce(
             Map::of('string', Node::class),
-            static function(MapInterface $nodes, Package $package): MapInterface {
-                $node = PackageNode::node($package, $nodes);
+            static function(MapInterface $nodes, Package $package) use ($locate): MapInterface {
+                $node = PackageNode::node($package, $nodes, $locate);
 
                 return $nodes->put((string) $node->name(), $node);
             }
@@ -50,11 +50,11 @@ final class PackageNode
         return Node\Node::named($name);
     }
 
-    private static function node(Package $package, MapInterface $nodes): Node
+    private static function node(Package $package, MapInterface $nodes, Locate $locate): Node
     {
         $colour = self::colorize($package->name());
         $node = self::of($package->name())
-            ->target($package->packagist())
+            ->target($locate($package))
             ->shaped(Node\Shape::ellipse()->withColor($colour));
 
         return $package->relations()->reduce(
