@@ -52,6 +52,14 @@ final class Vendor
         $packages = [];
 
         foreach ($results as $result) {
+            if (!Str::of($result['name'])->matches("~^$name/~")) {
+                continue;
+            }
+
+            if ($result['virtual'] ?? false === true) {
+                continue;
+            }
+
             try {
                 $packages[] = $this->loadPackage($result['url']);
             } catch (NoPublishedVersion $e) {
