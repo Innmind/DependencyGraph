@@ -122,4 +122,37 @@ class VendorTest extends TestCase
         $this->assertSame(Package::class, (string) $packages->type());
         $this->assertSame([$expected], $packages->toPrimitive());
     }
+
+    public function testReliedVendors()
+    {
+        $vendor = new Vendor(
+            new Package(
+                Name::of('foo/bar'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class),
+                new Relation(Name::of('bar/foo'))
+            ),
+            new Package(
+                Name::of('foo/baz'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class),
+                new Relation(Name::of('foo/baz'))
+            ),
+            new Package(
+                Name::of('foo/foo'),
+                $this->createMock(UrlInterface::class),
+                $this->createMock(UrlInterface::class),
+                new Relation(Name::of('bar/baz'))
+            )
+        );
+
+        $vendors = $vendor->reliedVendors();
+
+        $this->assertInstanceOf(SetInterface::class, $vendors);
+        $this->assertSame(Vendor\Name::class, (string) $vendors->type());
+        $this->assertCount(2, $vendors);
+        $this->assertSame('bar', (string) $vendors->current());
+        $vendors->next();
+        $this->assertSame('foo', (string) $vendors->current());
+    }
 }

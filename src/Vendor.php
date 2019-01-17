@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph;
 
-use Innmind\DependencyGraph\Exception\LogicException;
+use Innmind\DependencyGraph\{
+    Package\Relation,
+    Exception\LogicException,
+};
 use Innmind\Url\{
     UrlInterface,
     Url,
@@ -11,6 +14,8 @@ use Innmind\Url\{
 use Innmind\Immutable\{
     SetInterface,
     Set,
+    MapInterface,
+    Map,
 };
 
 final class Vendor implements \Iterator
@@ -76,6 +81,29 @@ final class Vendor implements \Iterator
         return $this->packages->filter(static function(Package $package) use ($name): bool {
             return $package->dependsOn($name);
         });
+    }
+
+    /**
+     * @return SetInterface<Vendor\Name>
+     */
+    public function reliedVendors(): SetInterface
+    {
+        $names = $this->packages->reduce(
+            Map::of('string', Vendor\Name::class),
+            static function(MapInterface $names, Package $package): MapInterface {
+                return $package->relations()->reduce(
+                    $names,
+                    static function(MapInterface $names, Relation $relation): MapInterface {
+                        return $names->put(
+                            (string) $relation->name()->vendor(),
+                            $relation->name()->vendor()
+                        );
+                    }
+                );
+            }
+        );
+
+        return Set::of(Vendor\Name::class, ...$names->values());
     }
 
     public function current()
