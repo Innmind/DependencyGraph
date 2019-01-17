@@ -93,6 +93,9 @@ final class Vendor
         )
             ->filter(static function(string $version): bool {
                 return Str::of($version)->take(4) !== 'dev-';
+            })
+            ->filter(static function(string $_, array $version): bool {
+                return !($version['abandoned'] ?? false);
             });
 
         if ($published->size() === 0) {

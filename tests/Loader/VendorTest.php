@@ -20,6 +20,6 @@ class VendorTest extends TestCase
 
         $this->assertInstanceOf(Model::class, $vendor);
         $this->assertSame('innmind', (string) $vendor->name());
-        $this->assertCount(68, $vendor);
+        $this->assertCount(59, $vendor);
     }
 }
