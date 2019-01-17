@@ -40,6 +40,7 @@ final class Graph
                 );
             }
         );
+        $root->package = $root->package->removeRelations();
         self::bind($root, $dependents);
         $dependents->foreach(static function(self $dependent) use ($dependents): void {
             self::bind($dependent, $dependents);

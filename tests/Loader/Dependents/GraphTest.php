@@ -22,7 +22,10 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/root'),
                 $this->createMock(UrlInterface::class),
-                $this->createMock(UrlInterface::class)
+                $this->createMock(UrlInterface::class),
+                new Relation(
+                    Name::of('rand/om')
+                )
             ),
             new Package(
                 Name::of('vendor/libA'),
