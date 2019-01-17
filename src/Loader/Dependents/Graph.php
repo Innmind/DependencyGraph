@@ -50,6 +50,9 @@ final class Graph
         return $root->collectPackages();
     }
 
+    /**
+     * Create biderectionnal relations between dependents and dependencies
+     */
     private static function bind(self $node, SetInterface $dependents): void
     {
         $dependents->foreach(static function(self $dependent) use ($node): void {
