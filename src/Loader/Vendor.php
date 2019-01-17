@@ -80,11 +80,13 @@ final class Vendor
         $response = ($this->fulfill)($request);
         $content = Json::decode((string) $response->body())['package'];
 
+        $relations = $this->loadRelations($content['versions']);
+
         return new Package(
             Package\Name::of($content['name']),
             Url::fromString($url),
             Url::fromString($content['repository']),
-            ...$this->loadRelations($content['versions'])
+            ...$relations
         );
     }
 
