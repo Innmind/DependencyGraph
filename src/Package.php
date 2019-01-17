@@ -86,6 +86,14 @@ final class Package
         return $self;
     }
 
+    public function removeRelations(): self
+    {
+        $self = clone $this;
+        $self->relations = $this->relations->clear();
+
+        return $self;
+    }
+
     public function remove(Name $name): self
     {
         $self = clone $this;
