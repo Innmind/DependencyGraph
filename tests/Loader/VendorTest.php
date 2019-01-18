@@ -5,6 +5,7 @@ namespace Tests\Innmind\DependencyGraph\Loader;
 
 use Innmind\DependencyGraph\{
     Loader\Vendor,
+    Loader\Package,
     Vendor as Model,
 };
 use function Innmind\HttpTransport\bootstrap as http;
@@ -14,7 +15,8 @@ class VendorTest extends TestCase
 {
     public function testInvokation()
     {
-        $load = new Vendor(http()['default']());
+        $http = http()['default']();
+        $load = new Vendor($http, new Package($http));
 
         $vendor = $load(new Model\Name('innmind'));
 

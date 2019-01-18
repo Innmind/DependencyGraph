@@ -23,7 +23,10 @@ function bootstrap(
         ),
         new Command\DependsOn(
             new Loader\Dependents(
-                new Loader\Vendor($http)
+                new Loader\Vendor(
+                    $http,
+                    new Loader\Package($http)
+                )
             ),
             $render,
             $processes

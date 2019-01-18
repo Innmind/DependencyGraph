@@ -7,6 +7,7 @@ use Innmind\DependencyGraph\{
     Command\DependsOn,
     Loader\Dependents,
     Loader\Vendor,
+    Loader\Package,
     Render,
 };
 use Innmind\CLI\{
@@ -26,13 +27,20 @@ use PHPUnit\Framework\TestCase;
 
 class DependsOnTest extends TestCase
 {
+    private $http;
+
+    public function setUp()
+    {
+        $this->http = http()['default']();
+    }
+
     public function testInterface()
     {
         $this->assertInstanceOf(
             Command::class,
             new DependsOn(
                 new Dependents(
-                    new Vendor(http()['default']())
+                    new Vendor($this->http, new Package($this->http))
                 ),
                 new Render,
                 $this->createMock(Processes::class)
@@ -56,7 +64,10 @@ USAGE;
             $expected,
             (string) new DependsOn(
                 new Dependents(
-                    new Vendor(http()['default']())
+                    new Vendor(
+                        $this->http,
+                        new Package($this->http)
+                    )
                 ),
                 new Render,
                 $this->createMock(Processes::class)
@@ -68,7 +79,10 @@ USAGE;
     {
         $command = new DependsOn(
             new Dependents(
-                new Vendor(http()['default']())
+                new Vendor(
+                    $this->http,
+                    new Package($this->http)
+                )
             ),
             new Render,
             $processes = $this->createMock(Processes::class)

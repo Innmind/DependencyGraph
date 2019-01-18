@@ -6,8 +6,9 @@ namespace Tests\Innmind\DependencyGraph\Loader;
 use Innmind\DependencyGraph\{
     Loader\Dependents,
     Loader\Vendor,
-    Package,
-    Vendor as Model,
+    Loader\Package,
+    Package as PackageModel,
+    Vendor as VendorModel,
 };
 use function Innmind\HttpTransport\bootstrap as http;
 use Innmind\Immutable\SetInterface;
@@ -17,19 +18,22 @@ class DependentsTest extends TestCase
 {
     public function testInvokation()
     {
+        $http = http()['default']();
+
         $load = new Dependents(
             new Vendor(
-                http()['default']()
+                $http,
+                new Package($http)
             )
         );
 
         $packages = $load(
-            Package\Name::of('innmind/immutable'),
-            new Model\Name('innmind')
+            PackageModel\Name::of('innmind/immutable'),
+            new VendorModel\Name('innmind')
         );
 
         $this->assertInstanceOf(SetInterface::class, $packages);
-        $this->assertSame(Package::class, (string) $packages->type());
+        $this->assertSame(PackageModel::class, (string) $packages->type());
         $this->assertCount(53, $packages);
     }
 }
