@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types = 1);
+
+$paths = [
+    __DIR__.'/vendor/autoload.php',
+    __DIR__ . '/../../vendor/autoload.php',
+];
+
+foreach ($paths as $file) {
+    if (file_exists($file)) {
+        require $file;
+        break;
+    }
+}
+
+use function Innmind\DependencyGraph\bootstrap;
+use Innmind\CLI\{
+    Main,
+    Environment,
+};
+use Innmind\OperatingSystem\OperatingSystem;
+
+new class extends Main {
+    protected function main(Environment $env, OperatingSystem $os): void
+    {
+        $run = bootstrap(
+            $os->filesystem(),
+            $os->control()->processes(),
+            $os->remote()->http()
+        );
+        $run($env);
+    }
+};
+
