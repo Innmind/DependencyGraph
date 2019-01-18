@@ -52,7 +52,7 @@ final class DependsOn implements Command
         );
         $fileName = (string) Str::of((string) $package)
             ->replace('/', '_')
-            ->append('.svg');
+            ->append('_dependents.svg');
 
         $this
             ->processes

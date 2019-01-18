@@ -91,7 +91,7 @@ USAGE;
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
-                return (string) $command === "dot '-Tsvg' '-o' 'innmind_immutable.svg'" &&
+                return (string) $command === "dot '-Tsvg' '-o' 'innmind_immutable_dependents.svg'" &&
                     $command->workingDirectory() === __DIR__.'/../../fixtures' &&
                     (string) $command->input() !== '';
             }));
