@@ -30,6 +30,8 @@ This will call `packagist.org` to retrieve the last published version of the giv
 
 This will look for all packages inside the vendors `vendor1` and `vendorX` that depend (directly or indirectly) on `{vendor}/{package}` and will generate a file named `{vendor}_{package}_dependents.svg`.
 
+**Note**: every package node and vendor cluster contains a link to their dedicated packagist page.
+
 ## Examples
 
 `dependency-graph from-lock` of this repository ![](dependencies.svg)
