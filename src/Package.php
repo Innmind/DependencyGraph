@@ -93,24 +93,4 @@ final class Package
 
         return $self;
     }
-
-    /**
-     * Remove all the relations not from the given set of vendors
-     */
-    public function keepVendors(Vendor\Name ...$vendors): self
-    {
-        $vendors = Set::of(Vendor\Name::class, ...$vendors);
-
-        $self = clone $this;
-        $self->relations = $this->relations->filter(static function(Relation $relation) use ($vendors): bool {
-            return $vendors->reduce(
-                false,
-                static function(bool $inSet, Vendor\Name $vendor) use ($relation): bool {
-                    return $inSet || $relation->name()->vendor()->equals($vendor);
-                }
-            );
-        });
-
-        return $self;
-    }
 }

@@ -73,39 +73,6 @@ final class Vendor implements \Iterator
         );
     }
 
-    /**
-     * @return SetInterface<Package>
-     */
-    public function dependingOn(Package\Name $name): SetInterface
-    {
-        return $this->packages->filter(static function(Package $package) use ($name): bool {
-            return $package->dependsOn($name);
-        });
-    }
-
-    /**
-     * @return SetInterface<Vendor\Name>
-     */
-    public function reliedVendors(): SetInterface
-    {
-        $names = $this->packages->reduce(
-            Map::of('string', Vendor\Name::class),
-            static function(MapInterface $names, Package $package): MapInterface {
-                return $package->relations()->reduce(
-                    $names,
-                    static function(MapInterface $names, Relation $relation): MapInterface {
-                        return $names->put(
-                            (string) $relation->name()->vendor(),
-                            $relation->name()->vendor()
-                        );
-                    }
-                );
-            }
-        );
-
-        return Set::of(Vendor\Name::class, ...$names->values());
-    }
-
     public function current()
     {
         return $this->packages->current();
