@@ -14,6 +14,7 @@ function bootstrap(
     Transport $http
 ): Commands {
     $render = new Render;
+    $package = new Loader\Package($http);
 
     return new Commands(
         new Command\FromLock(
@@ -25,9 +26,14 @@ function bootstrap(
             new Loader\Dependents(
                 new Loader\Vendor(
                     $http,
-                    new Loader\Package($http)
+                    $package
                 )
             ),
+            $render,
+            $processes
+        ),
+        new Command\Of(
+            new Loader\Dependencies($package),
             $render,
             $processes
         )
