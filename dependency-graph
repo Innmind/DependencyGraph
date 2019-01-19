@@ -4,7 +4,7 @@ declare(strict_types = 1);
 
 $paths = [
     __DIR__.'/vendor/autoload.php',
-    __DIR__ . '/../../vendor/autoload.php',
+    __DIR__ . '/../../../vendor/autoload.php',
 ];
 
 foreach ($paths as $file) {
