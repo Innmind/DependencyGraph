@@ -49,7 +49,6 @@ final class Package
         return new Model(
             Model\Name::of($content['name']),
             $url,
-            Url::fromString($content['repository']),
             ...$relations
         );
     }

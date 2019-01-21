@@ -62,7 +62,6 @@ final class ComposerLock
             $packages = $packages->add(new Package(
                 Name::of($package['name']),
                 Url::fromString('https://packagist.org/packages/'.$package['name']),
-                Url::fromString($package['source']['url']),
                 ...$relations
             ));
         }
