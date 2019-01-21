@@ -20,13 +20,11 @@ class PackageTest extends TestCase
         $package = new Package(
             $name = new Name(new Vendor\Name('foo'), 'bar'),
             $packagist = $this->createMock(UrlInterface::class),
-            $repository = $this->createMock(UrlInterface::class),
             $relation = new Relation(new Name(new Vendor\Name('bar'), 'baz'))
         );
 
         $this->assertSame($name, $package->name());
         $this->assertSame($packagist, $package->packagist());
-        $this->assertSame($repository, $package->repository());
         $this->assertInstanceOf(SetInterface::class, $package->relations());
         $this->assertSame(Relation::class, (string) $package->relations()->type());
         $this->assertSame([$relation], $package->relations()->toPrimitive());
@@ -36,7 +34,6 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
-            $this->createMock(UrlInterface::class),
             $this->createMock(UrlInterface::class),
             new Relation(Name::of('bar/baz'))
         );
@@ -49,7 +46,6 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
-            $this->createMock(UrlInterface::class),
             $this->createMock(UrlInterface::class),
             $bar = new Relation(Name::of('bar/baz')),
             new Relation(Name::of('baz/foo')),
@@ -69,7 +65,6 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
-            $this->createMock(UrlInterface::class),
             $this->createMock(UrlInterface::class),
             $bar = new Relation(Name::of('bar/baz')),
             new Relation(Name::of('baz/foo')),

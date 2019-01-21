@@ -22,14 +22,12 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/root'),
                 $this->createMock(UrlInterface::class),
-                $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('rand/om')
                 )
             ),
             new Package(
                 Name::of('vendor/libA'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('vendor/root')
@@ -41,7 +39,6 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/libB'),
                 $this->createMock(UrlInterface::class),
-                $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('vendor/root')
                 ),
@@ -51,7 +48,6 @@ class GraphTest extends TestCase
             ),
             new Package(
                 Name::of('watev/foo'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('vendor/libA')
@@ -65,7 +61,6 @@ class GraphTest extends TestCase
             ),
             new Package(
                 Name::of('vendor/libC'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
         );

@@ -18,18 +18,15 @@ final class Package
 {
     private $name;
     private $packagist;
-    private $repository;
     private $relations;
 
     public function __construct(
         Name $name,
         UrlInterface $packagist,
-        UrlInterface $repository,
         Relation ...$relations
     ) {
         $this->name = $name;
         $this->packagist = $packagist;
-        $this->repository = $repository;
         $this->relations = Set::of(Relation::class, ...$relations);
     }
 
@@ -41,11 +38,6 @@ final class Package
     public function packagist(): UrlInterface
     {
         return $this->packagist;
-    }
-
-    public function repository(): UrlInterface
-    {
-        return $this->repository;
     }
 
     /**

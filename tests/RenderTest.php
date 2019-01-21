@@ -13,6 +13,7 @@ use Innmind\OperatingSystem\Filesystem\Generic;
 use Innmind\Url\{
     UrlInterface,
     Path,
+    Scheme,
 };
 use Innmind\Stream\Readable;
 use PHPUnit\Framework\TestCase;
@@ -119,7 +120,7 @@ DOT;
         $render = new Render(new class implements Locate {
             public function __invoke(Package $package): UrlInterface
             {
-                return $package->repository();
+                return $package->packagist()->withScheme(new Scheme('foo'));
             }
         });
         $packages = (new ComposerLock(new Generic))(new Path(__DIR__.'/../fixtures'));
@@ -190,25 +191,25 @@ digraph packages {
     league__uri_schemes -> league__uri_interfaces [color="#8cd717"];
     league__uri_schemes -> league__uri_parser [color="#8cd717"];
     league__uri_schemes -> psr__http_message [color="#8cd717"];
-    innmind__filesystem [shape="ellipse", width="0.75", height="0.5", color="#a45b8d", URL="https://github.com/Innmind/Filesystem.git"];
-    innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://github.com/Innmind/Immutable.git"];
-    innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="https://github.com/Innmind/Stream.git"];
-    symfony__filesystem [shape="ellipse", width="0.75", height="0.5", color="#1a4d29", URL="https://github.com/symfony/filesystem.git"];
-    symfony__finder [shape="ellipse", width="0.75", height="0.5", color="#952a8a", URL="https://github.com/symfony/finder.git"];
-    innmind__json [shape="ellipse", width="0.75", height="0.5", color="#cb2336", URL="https://github.com/Innmind/Json.git"];
-    innmind__operating_system [shape="ellipse", width="0.75", height="0.5", color="#bb6188", URL="https://github.com/Innmind/OperatingSystem.git"];
-    innmind__time_continuum [shape="ellipse", width="0.75", height="0.5", color="#dfbeb0", URL="https://github.com/Innmind/TimeContinuum.git"];
-    innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="https://github.com/Innmind/Url.git"];
-    league__uri [shape="ellipse", width="0.75", height="0.5", color="#ef36b1", URL="https://github.com/thephpleague/uri.git"];
-    league__uri_components [shape="ellipse", width="0.75", height="0.5", color="#de64b9", URL="https://github.com/thephpleague/uri-components.git"];
-    league__uri_hostname_parser [shape="ellipse", width="0.75", height="0.5", color="#13807b", URL="https://github.com/thephpleague/uri-hostname-parser.git"];
-    league__uri_interfaces [shape="ellipse", width="0.75", height="0.5", color="#22ca7d", URL="https://github.com/thephpleague/uri-interfaces.git"];
-    league__uri_manipulations [shape="ellipse", width="0.75", height="0.5", color="#a0cfe9", URL="https://github.com/thephpleague/uri-manipulations.git"];
-    league__uri_parser [shape="ellipse", width="0.75", height="0.5", color="#bcf2f6", URL="https://github.com/thephpleague/uri-parser.git"];
-    league__uri_schemes [shape="ellipse", width="0.75", height="0.5", color="#8cd717", URL="https://github.com/thephpleague/uri-schemes.git"];
-    psr__http_message [shape="ellipse", width="0.75", height="0.5", color="#8da3f1", URL="https://github.com/php-fig/http-message.git"];
-    psr__simple_cache [shape="ellipse", width="0.75", height="0.5", color="#01186e", URL="https://github.com/php-fig/simple-cache.git"];
-    symfony__polyfill_ctype [shape="ellipse", width="0.75", height="0.5", color="#96e3a7", URL="https://github.com/symfony/polyfill-ctype.git"];
+    innmind__filesystem [shape="ellipse", width="0.75", height="0.5", color="#a45b8d", URL="foo://packagist.org/packages/innmind/filesystem"];
+    innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="foo://packagist.org/packages/innmind/immutable"];
+    innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="foo://packagist.org/packages/innmind/stream"];
+    symfony__filesystem [shape="ellipse", width="0.75", height="0.5", color="#1a4d29", URL="foo://packagist.org/packages/symfony/filesystem"];
+    symfony__finder [shape="ellipse", width="0.75", height="0.5", color="#952a8a", URL="foo://packagist.org/packages/symfony/finder"];
+    innmind__json [shape="ellipse", width="0.75", height="0.5", color="#cb2336", URL="foo://packagist.org/packages/innmind/json"];
+    innmind__operating_system [shape="ellipse", width="0.75", height="0.5", color="#bb6188", URL="foo://packagist.org/packages/innmind/operating-system"];
+    innmind__time_continuum [shape="ellipse", width="0.75", height="0.5", color="#dfbeb0", URL="foo://packagist.org/packages/innmind/time-continuum"];
+    innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="foo://packagist.org/packages/innmind/url"];
+    league__uri [shape="ellipse", width="0.75", height="0.5", color="#ef36b1", URL="foo://packagist.org/packages/league/uri"];
+    league__uri_components [shape="ellipse", width="0.75", height="0.5", color="#de64b9", URL="foo://packagist.org/packages/league/uri-components"];
+    league__uri_hostname_parser [shape="ellipse", width="0.75", height="0.5", color="#13807b", URL="foo://packagist.org/packages/league/uri-hostname-parser"];
+    league__uri_interfaces [shape="ellipse", width="0.75", height="0.5", color="#22ca7d", URL="foo://packagist.org/packages/league/uri-interfaces"];
+    league__uri_manipulations [shape="ellipse", width="0.75", height="0.5", color="#a0cfe9", URL="foo://packagist.org/packages/league/uri-manipulations"];
+    league__uri_parser [shape="ellipse", width="0.75", height="0.5", color="#bcf2f6", URL="foo://packagist.org/packages/league/uri-parser"];
+    league__uri_schemes [shape="ellipse", width="0.75", height="0.5", color="#8cd717", URL="foo://packagist.org/packages/league/uri-schemes"];
+    psr__http_message [shape="ellipse", width="0.75", height="0.5", color="#8da3f1", URL="foo://packagist.org/packages/psr/http-message"];
+    psr__simple_cache [shape="ellipse", width="0.75", height="0.5", color="#01186e", URL="foo://packagist.org/packages/psr/simple-cache"];
+    symfony__polyfill_ctype [shape="ellipse", width="0.75", height="0.5", color="#96e3a7", URL="foo://packagist.org/packages/symfony/polyfill-ctype"];
 }
 DOT;
         $this->assertSame($expected, (string) $stream);

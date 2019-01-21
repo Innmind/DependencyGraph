@@ -21,12 +21,10 @@ class VendorTest extends TestCase
         $vendor = new Vendor(
             $bar = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             $baz = new Package(
                 new Name(new Vendor\Name('foo'), 'baz'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
         );
@@ -46,12 +44,10 @@ class VendorTest extends TestCase
         new Vendor(
             new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
         );
@@ -62,12 +58,10 @@ class VendorTest extends TestCase
         $vendors = Vendor::group(
             $foo = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             $bar = new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             )
         );
@@ -85,12 +79,10 @@ class VendorTest extends TestCase
         $vendor = new Vendor(
             new Package(
                 Name::of('foo/bar'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class)
             ),
             new Package(
                 Name::of('foo/baz'),
-                $this->createMock(UrlInterface::class),
                 $this->createMock(UrlInterface::class),
                 new Relation(Name::of('bar/baz'))
             )
