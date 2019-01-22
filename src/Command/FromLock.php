@@ -44,7 +44,7 @@ final class FromLock implements Command
             return;
         }
 
-        $this
+        $process = $this
             ->processes
             ->execute(
                 Executable::foreground('dot')
@@ -56,6 +56,11 @@ final class FromLock implements Command
                     )
             )
             ->wait();
+
+        if (!$process->exitCode()->isSuccessful()) {
+            $env->exit(1);
+            $env->error()->write(Str::of((string) $process->output()));
+        }
     }
 
     public function __toString(): string

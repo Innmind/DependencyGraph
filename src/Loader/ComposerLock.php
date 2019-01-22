@@ -66,12 +66,26 @@ final class ComposerLock
             ));
         }
 
-        return $packages;
+        return $this->removeVirtualRelations($packages);
     }
 
     private function accepted(string $name): bool
     {
         // do not accept extensions and php versions in the dependency graph
         return Str::of($name)->matches('~.+\/.+~');
+    }
+
+    private function removeVirtualRelations(SetInterface $packages): SetInterface
+    {
+        $installed = $packages->reduce(
+            Set::of(Name::class),
+            static function(SetInterface $installed, Package $package): SetInterface {
+                return $installed->add($package->name());
+            }
+        );
+
+        return $packages->map(static function(Package $package) use ($installed): Package {
+            return $package->keep(...$installed);
+        });
     }
 }

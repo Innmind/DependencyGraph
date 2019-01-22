@@ -40,7 +40,7 @@ final class Of implements Command
             ->replace('/', '_')
             ->append('_dependencies.svg');
 
-        $this
+        $process = $this
             ->processes
             ->execute(
                 Executable::foreground('dot')
@@ -52,6 +52,11 @@ final class Of implements Command
                     )
             )
             ->wait();
+
+        if (!$process->exitCode()->isSuccessful()) {
+            $env->exit(1);
+            $env->error()->write(Str::of((string) $process->output()));
+        }
     }
 
     public function __toString(): string
