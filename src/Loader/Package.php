@@ -37,7 +37,7 @@ final class Package
     public function __invoke(Model\Name $name): Model
     {
         $request = new Request(
-            $url = Url::fromString("https://packagist.org/packages/$name.json"),
+            Url::fromString("https://packagist.org/packages/$name.json"),
             Method::get(),
             new ProtocolVersion(2, 0)
         );
@@ -48,7 +48,7 @@ final class Package
 
         return new Model(
             Model\Name::of($content['name']),
-            $url,
+            Url::fromString("https://packagist.org/packages/$name"),
             ...$relations
         );
     }
