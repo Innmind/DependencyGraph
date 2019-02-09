@@ -20,6 +20,10 @@ class PackageTest extends TestCase
 
         $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('innmind/url', (string) $package->name());
+        $this->assertSame(
+            'https://packagist.org/packages/innmind/url',
+            (string) $package->packagist())
+        ;
         $this->assertCount(2, $package->relations());
     }
 }
