@@ -39,3 +39,5 @@ This will look for all packages inside the vendors `vendor1` and `vendorX` that 
 `dependency-graph of innmind/cli` ![](innmind_cli_dependencies.svg)
 
 `dependency-graph depends-on innmind/cli innmind baptouuuu` ![](innmind_cli_dependents.svg)
+
+`dependency-graph vendor innmind` ![](innmind.svg)

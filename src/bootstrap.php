@@ -15,6 +15,7 @@ function bootstrap(
 ): Commands {
     $render = new Render;
     $package = new Loader\Package($http);
+    $vendor = new Loader\Vendor($http, $package);
 
     return new Commands(
         new Command\FromLock(
@@ -23,17 +24,17 @@ function bootstrap(
             $processes
         ),
         new Command\DependsOn(
-            new Loader\Dependents(
-                new Loader\Vendor(
-                    $http,
-                    $package
-                )
-            ),
+            new Loader\Dependents($vendor),
             $render,
             $processes
         ),
         new Command\Of(
             new Loader\Dependencies($package),
+            $render,
+            $processes
+        ),
+        new Command\Vendor(
+            new Loader\VendorDependencies($vendor, $package),
             $render,
             $processes
         )
