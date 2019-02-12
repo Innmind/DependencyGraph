@@ -25,7 +25,7 @@ class DependenciesTest extends TestCase
 
         $this->assertInstanceOf(SetInterface::class, $packages);
         $this->assertSame(PackageModel::class, (string) $packages->type());
-        $this->assertCount(17, $packages);
+        $this->assertCount(20, $packages);
         $expected = <<<DOT
 digraph packages {
     rankdir="LR";
@@ -37,8 +37,11 @@ digraph packages {
     innmind__immutable [label="immutable"];
     innmind__time_continuum [label="time-continuum"];
     innmind__url [label="url"];
-    innmind__operating_system [label="operating-system"];
     innmind__time_warp [label="time-warp"];
+    innmind__operating_system [label="operating-system"];
+    innmind__stack_trace [label="stack-trace"];
+    innmind__graphviz [label="graphviz"];
+    innmind__colour [label="colour"];
     }
     subgraph cluster_league {
         label="league"
@@ -61,14 +64,18 @@ digraph packages {
     innmind__cli -> innmind__stream [color="#87dfa2"];
     innmind__cli -> innmind__immutable [color="#87dfa2"];
     innmind__cli -> innmind__url [color="#87dfa2"];
-    innmind__cli -> innmind__operating_system [color="#87dfa2"];
     innmind__cli -> innmind__time_warp [color="#87dfa2"];
+    innmind__cli -> innmind__operating_system [color="#87dfa2"];
+    innmind__cli -> innmind__stack_trace [color="#87dfa2"];
     innmind__stream -> innmind__immutable [color="#5eb3ec"];
     innmind__stream -> innmind__time_continuum [color="#5eb3ec"];
     innmind__url -> innmind__immutable [color="#085cd3"];
     innmind__url -> league__uri [color="#085cd3"];
-    innmind__operating_system -> innmind__time_continuum [color="#bb6188"];
     innmind__time_warp -> innmind__time_continuum [color="#e567f2"];
+    innmind__operating_system -> innmind__time_continuum [color="#bb6188"];
+    innmind__stack_trace -> innmind__immutable [color="#d73f0b"];
+    innmind__stack_trace -> innmind__url [color="#d73f0b"];
+    innmind__stack_trace -> innmind__graphviz [color="#d73f0b"];
     league__uri -> league__uri_interfaces [color="#ef36b1"];
     league__uri -> psr__http_message [color="#ef36b1"];
     league__uri -> league__uri_components [color="#ef36b1"];
@@ -85,12 +92,18 @@ digraph packages {
     league__uri_manipulations -> league__uri_interfaces [color="#a0cfe9"];
     league__uri_schemes -> psr__http_message [color="#8cd717"];
     league__uri_schemes -> league__uri_parser [color="#8cd717"];
+    innmind__graphviz -> innmind__immutable [color="#39df6f"];
+    innmind__graphviz -> innmind__url [color="#39df6f"];
+    innmind__graphviz -> innmind__colour [color="#39df6f"];
+    innmind__graphviz -> innmind__stream [color="#39df6f"];
+    innmind__colour -> innmind__immutable [color="#356a4c"];
     innmind__cli [shape="ellipse", width="0.75", height="0.5", color="#87dfa2", URL="https://packagist.org/packages/innmind/cli"];
     innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="https://packagist.org/packages/innmind/stream"];
     innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://packagist.org/packages/innmind/immutable"];
     innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="https://packagist.org/packages/innmind/url"];
-    innmind__operating_system [shape="ellipse", width="0.75", height="0.5", color="#bb6188", URL="https://packagist.org/packages/innmind/operating-system"];
     innmind__time_warp [shape="ellipse", width="0.75", height="0.5", color="#e567f2", URL="https://packagist.org/packages/innmind/time-warp"];
+    innmind__operating_system [shape="ellipse", width="0.75", height="0.5", color="#bb6188", URL="https://packagist.org/packages/innmind/operating-system"];
+    innmind__stack_trace [shape="ellipse", width="0.75", height="0.5", color="#d73f0b", URL="https://packagist.org/packages/innmind/stack-trace"];
     innmind__time_continuum [shape="ellipse", width="0.75", height="0.5", color="#dfbeb0", URL="https://packagist.org/packages/innmind/time-continuum"];
     league__uri [shape="ellipse", width="0.75", height="0.5", color="#ef36b1", URL="https://packagist.org/packages/league/uri"];
     league__uri_interfaces [shape="ellipse", width="0.75", height="0.5", color="#22ca7d", URL="https://packagist.org/packages/league/uri-interfaces"];
@@ -102,6 +115,8 @@ digraph packages {
     league__uri_schemes [shape="ellipse", width="0.75", height="0.5", color="#8cd717", URL="https://packagist.org/packages/league/uri-schemes"];
     league__uri_query_parser [shape="ellipse", width="0.75", height="0.5", color="#1e8c91", URL="https://packagist.org/packages/league/uri-query-parser"];
     psr__simple_cache [shape="ellipse", width="0.75", height="0.5", color="#01186e", URL="https://packagist.org/packages/psr/simple-cache"];
+    innmind__graphviz [shape="ellipse", width="0.75", height="0.5", color="#39df6f", URL="https://packagist.org/packages/innmind/graphviz"];
+    innmind__colour [shape="ellipse", width="0.75", height="0.5", color="#356a4c", URL="https://packagist.org/packages/innmind/colour"];
 }
 DOT;
 
