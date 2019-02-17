@@ -186,6 +186,9 @@ USAGE;
             ->expects($this->once())
             ->method('write')
             ->with(Str::of('foo'));
+        $env
+            ->expects($this->never())
+            ->method('output');
 
         $this->assertNull($command(
             $env,
