@@ -44,12 +44,14 @@ final class FromLock implements Command
             return;
         }
 
+        $fileName = Str::of('dependencies.svg');
+
         $process = $this
             ->processes
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', 'dependencies.svg')
+                    ->withShortOption('o', (string) $fileName)
                     ->withWorkingDirectory((string) $env->workingDirectory())
                     ->withInput(
                         ($this->render)(...$packages)
@@ -60,7 +62,11 @@ final class FromLock implements Command
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
             $env->error()->write(Str::of((string) $process->output()));
+
+            return;
         }
+
+        $env->output()->write($fileName);
     }
 
     public function __toString(): string

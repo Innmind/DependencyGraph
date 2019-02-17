@@ -36,13 +36,14 @@ final class Vendor implements Command
     public function __invoke(Environment $env, Arguments $arguments, Options $options): void
     {
         $packages = ($this->load)($vendor = new Name($arguments->get('vendor')));
+        $fileName = Str::of("$vendor.svg");
 
         $process = $this
             ->processes
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', "$vendor.svg")
+                    ->withShortOption('o', (string) $fileName)
                     ->withWorkingDirectory((string) $env->workingDirectory())
                     ->withInput(
                         ($this->render)(...$packages)
@@ -53,7 +54,11 @@ final class Vendor implements Command
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
             $env->error()->write(Str::of((string) $process->output()));
+
+            return;
         }
+
+        $env->output()->write($fileName);
     }
 
     public function __toString(): string

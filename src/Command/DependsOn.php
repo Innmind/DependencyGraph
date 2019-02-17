@@ -50,7 +50,7 @@ final class DependsOn implements Command
                 }
             )
         );
-        $fileName = (string) Str::of((string) $package)
+        $fileName = Str::of((string) $package)
             ->replace('/', '_')
             ->append('_dependents.svg');
 
@@ -59,7 +59,7 @@ final class DependsOn implements Command
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', $fileName)
+                    ->withShortOption('o', (string) $fileName)
                     ->withWorkingDirectory((string) $env->workingDirectory())
                     ->withInput(
                         ($this->render)(...$packages)
@@ -70,7 +70,11 @@ final class DependsOn implements Command
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
             $env->error()->write(Str::of((string) $process->output()));
+
+            return;
         }
+
+        $env->output()->write($fileName);
     }
 
     public function __toString(): string

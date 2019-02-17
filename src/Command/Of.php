@@ -36,7 +36,7 @@ final class Of implements Command
     public function __invoke(Environment $env, Arguments $arguments, Options $options): void
     {
         $packages = ($this->load)(Name::of($arguments->get('package')));
-        $fileName = (string) Str::of($arguments->get('package'))
+        $fileName = Str::of($arguments->get('package'))
             ->replace('/', '_')
             ->append('_dependencies.svg');
 
@@ -45,7 +45,7 @@ final class Of implements Command
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', $fileName)
+                    ->withShortOption('o', (string) $fileName)
                     ->withWorkingDirectory((string) $env->workingDirectory())
                     ->withInput(
                         ($this->render)(...$packages)
@@ -56,7 +56,11 @@ final class Of implements Command
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
             $env->error()->write(Str::of((string) $process->output()));
+
+            return;
         }
+
+        $env->output()->write($fileName);
     }
 
     public function __toString(): string
