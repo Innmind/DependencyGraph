@@ -85,13 +85,14 @@ final class Package
     {
         $relations = [];
 
-        foreach ($version['require'] ?? [] as $relation => $_) {
+        foreach ($version['require'] ?? [] as $relation => $constraint) {
             if (!Str::of($relation)->matches('~.+/.+~')) {
                 continue;
             }
 
             $relations[] = new Model\Relation(
-                Model\Name::of($relation)
+                Model\Name::of($relation),
+                new Model\Constraint($constraint)
             );
         }
 

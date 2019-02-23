@@ -8,6 +8,7 @@ use Innmind\DependencyGraph\{
     Package\Name,
     Package\Version,
     Package\Relation,
+    Package\Constraint,
 };
 use Innmind\Url\{
     PathInterface,
@@ -52,12 +53,15 @@ final class ComposerLock
 
             $relations = [];
 
-            foreach ($package['require'] ?? [] as $require => $_) {
+            foreach ($package['require'] ?? [] as $require => $constraint) {
                 if (!$this->accepted($require)) {
                     continue;
                 }
 
-                $relations[] = new Relation(Name::of($require));
+                $relations[] = new Relation(
+                    Name::of($require),
+                    new Constraint($constraint)
+                );
             }
 
             $packages = $packages->add(new Package(

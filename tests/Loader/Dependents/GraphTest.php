@@ -9,6 +9,7 @@ use Innmind\DependencyGraph\{
     Package\Name,
     Package\Version,
     Package\Relation,
+    Package\Constraint,
     Render,
 };
 use Innmind\Url\UrlInterface;
@@ -25,7 +26,8 @@ class GraphTest extends TestCase
                 new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
-                    Name::of('rand/om')
+                    Name::of('rand/om'),
+                    new Constraint('~1.0')
                 )
             ),
             new Package(
@@ -33,10 +35,12 @@ class GraphTest extends TestCase
                 new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
-                    Name::of('vendor/root')
+                    Name::of('vendor/root'),
+                    new Constraint('~1.0')
                 ),
                 new Relation(
-                    Name::of('watev/lib')
+                    Name::of('watev/lib'),
+                    new Constraint('~1.0')
                 )
             ),
             new Package(
@@ -44,10 +48,12 @@ class GraphTest extends TestCase
                 new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
-                    Name::of('vendor/root')
+                    Name::of('vendor/root'),
+                    new Constraint('~1.0')
                 ),
                 new Relation(
-                    Name::of('watev/other')
+                    Name::of('watev/other'),
+                    new Constraint('~1.0')
                 )
             ),
             new Package(
@@ -55,13 +61,16 @@ class GraphTest extends TestCase
                 new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
-                    Name::of('vendor/libA')
+                    Name::of('vendor/libA'),
+                    new Constraint('~1.0')
                 ),
                 new Relation(
-                    Name::of('vendor/libB')
+                    Name::of('vendor/libB'),
+                    new Constraint('~1.0')
                 ),
                 new Relation(
-                    Name::of('vendor/libC')
+                    Name::of('vendor/libC'),
+                    new Constraint('~1.0')
                 )
             ),
             new Package(

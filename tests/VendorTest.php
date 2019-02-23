@@ -9,6 +9,7 @@ use Innmind\DependencyGraph\{
     Package\Relation,
     Package\Name,
     Package\Version,
+    Package\Constraint,
     Exception\LogicException,
 };
 use Innmind\Url\UrlInterface;
@@ -93,7 +94,7 @@ class VendorTest extends TestCase
                 Name::of('foo/baz'),
                 new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
-                new Relation(Name::of('bar/baz'))
+                new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
             )
         );
 
