@@ -27,4 +27,13 @@ class PackageTest extends TestCase
         ;
         $this->assertCount(2, $package->relations());
     }
+
+    public function testMostRecentVersionIsLoaded()
+    {
+        $load = new Package(http()['default']());
+
+        $package = $load(Model\Name::of('guzzlehttp/guzzle'));
+
+        $this->assertSame('6.3.3', (string) $package->version());
+    }
 }

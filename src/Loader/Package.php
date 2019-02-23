@@ -21,7 +21,10 @@ use Innmind\Immutable\{
     Map,
     Str,
 };
-use Composer\Semver\VersionParser;
+use Composer\Semver\{
+    VersionParser,
+    Semver,
+};
 
 final class Package
 {
@@ -75,7 +78,9 @@ final class Package
             throw new NoPublishedVersion;
         }
 
-        return $published->current();
+        $versions = Semver::rsort($published->keys()->toPrimitive());
+
+        return $published->get($versions[0]);
     }
 
     /**

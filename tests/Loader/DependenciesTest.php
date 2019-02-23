@@ -80,14 +80,14 @@ digraph packages {
     subgraph cluster_guzzlehttp {
         label="guzzlehttp"
         URL="https://packagist.org/packages/guzzlehttp/"
-    guzzlehttp__guzzle [label="guzzle@5.3.3"];
-    guzzlehttp__ringphp [label="ringphp@1.1.1"];
-    guzzlehttp__streams [label="streams@3.0.0"];
+    guzzlehttp__guzzle [label="guzzle@6.3.3"];
+    guzzlehttp__psr7 [label="psr7@1.5.2"];
+    guzzlehttp__promises [label="promises@v1.3.1"];
     }
-    subgraph cluster_react {
-        label="react"
-        URL="https://packagist.org/packages/react/"
-    react__promise [label="promise@v2.7.1"];
+    subgraph cluster_ralouphie {
+        label="ralouphie"
+        URL="https://packagist.org/packages/ralouphie/"
+    ralouphie__getallheaders [label="getallheaders@3.0.2"];
     }
     subgraph cluster_ramsey {
         label="ramsey"
@@ -97,7 +97,7 @@ digraph packages {
     subgraph cluster_paragonie {
         label="paragonie"
         URL="https://packagist.org/packages/paragonie/"
-    paragonie__random_compat [label="random_compat@v2.0.18"];
+    paragonie__random_compat [label="random_compat@v9.99.99"];
     }
     innmind__cli -> innmind__stream [color="#87dfa2", label="^1.3"];
     innmind__cli -> innmind__immutable [color="#87dfa2", label="^2.7"];
@@ -166,12 +166,12 @@ digraph packages {
     innmind__http -> innmind__filesystem [color="#324178", label="~3.0"];
     innmind__http -> innmind__time_continuum [color="#324178", label="^1.0"];
     innmind__http -> innmind__stream [color="#324178", label="^1.3"];
-    guzzlehttp__guzzle -> guzzlehttp__ringphp [color="#e5a30c", label="^1.1"];
-    guzzlehttp__guzzle -> react__promise [color="#e5a30c", label="^2.2"];
+    guzzlehttp__guzzle -> guzzlehttp__psr7 [color="#e5a30c", label="^1.4"];
+    guzzlehttp__guzzle -> guzzlehttp__promises [color="#e5a30c", label="^1.0"];
     ramsey__uuid -> paragonie__random_compat [color="#44619b", label="^1.0|^2.0|9.99.99"];
     ramsey__uuid -> symfony__polyfill_ctype [color="#44619b", label="^1.8"];
-    guzzlehttp__ringphp -> guzzlehttp__streams [color="#73c32a", label="~3.0"];
-    guzzlehttp__ringphp -> react__promise [color="#73c32a", label="~2.0"];
+    guzzlehttp__psr7 -> psr__http_message [color="#adcacd", label="~1.0"];
+    guzzlehttp__psr7 -> ralouphie__getallheaders [color="#adcacd", label="^2.0.5"];
     innmind__graphviz -> innmind__immutable [color="#39df6f", label="^2.6"];
     innmind__graphviz -> innmind__url [color="#39df6f", label="^2.0"];
     innmind__graphviz -> innmind__colour [color="#39df6f", label="^2.0"];
@@ -208,12 +208,12 @@ digraph packages {
     innmind__event_bus [shape="ellipse", width="0.75", height="0.5", color="#2d0232", URL="https://packagist.org/packages/innmind/event-bus#3.0.0"];
     innmind__ip [shape="ellipse", width="0.75", height="0.5", color="#fc3785", URL="https://packagist.org/packages/innmind/ip#1.0.0"];
     innmind__http [shape="ellipse", width="0.75", height="0.5", color="#324178", URL="https://packagist.org/packages/innmind/http#3.9.0"];
-    guzzlehttp__guzzle [shape="ellipse", width="0.75", height="0.5", color="#e5a30c", URL="https://packagist.org/packages/guzzlehttp/guzzle#5.3.3"];
+    guzzlehttp__guzzle [shape="ellipse", width="0.75", height="0.5", color="#e5a30c", URL="https://packagist.org/packages/guzzlehttp/guzzle#6.3.3"];
     ramsey__uuid [shape="ellipse", width="0.75", height="0.5", color="#44619b", URL="https://packagist.org/packages/ramsey/uuid#3.8.0"];
-    guzzlehttp__ringphp [shape="ellipse", width="0.75", height="0.5", color="#73c32a", URL="https://packagist.org/packages/guzzlehttp/ringphp#1.1.1"];
-    react__promise [shape="ellipse", width="0.75", height="0.5", color="#a06550", URL="https://packagist.org/packages/react/promise#v2.7.1"];
-    guzzlehttp__streams [shape="ellipse", width="0.75", height="0.5", color="#f880a8", URL="https://packagist.org/packages/guzzlehttp/streams#3.0.0"];
-    paragonie__random_compat [shape="ellipse", width="0.75", height="0.5", color="#ea17ff", URL="https://packagist.org/packages/paragonie/random_compat#v2.0.18"];
+    guzzlehttp__psr7 [shape="ellipse", width="0.75", height="0.5", color="#adcacd", URL="https://packagist.org/packages/guzzlehttp/psr7#1.5.2"];
+    guzzlehttp__promises [shape="ellipse", width="0.75", height="0.5", color="#e89948", URL="https://packagist.org/packages/guzzlehttp/promises#v1.3.1"];
+    ralouphie__getallheaders [shape="ellipse", width="0.75", height="0.5", color="#373d23", URL="https://packagist.org/packages/ralouphie/getallheaders#3.0.2"];
+    paragonie__random_compat [shape="ellipse", width="0.75", height="0.5", color="#ea17ff", URL="https://packagist.org/packages/paragonie/random_compat#v9.99.99"];
     innmind__graphviz [shape="ellipse", width="0.75", height="0.5", color="#39df6f", URL="https://packagist.org/packages/innmind/graphviz#1.2.2"];
     innmind__colour [shape="ellipse", width="0.75", height="0.5", color="#356a4c", URL="https://packagist.org/packages/innmind/colour#2.1.0"];
 }
