@@ -30,7 +30,6 @@ class RenderTest extends TestCase
         $this->assertInstanceOf(Readable::class, $stream);
         $expected = <<<DOT
 digraph packages {
-    rankdir="LR";
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"
@@ -130,7 +129,6 @@ DOT;
         $this->assertInstanceOf(Readable::class, $stream);
         $expected = <<<DOT
 digraph packages {
-    rankdir="LR";
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"

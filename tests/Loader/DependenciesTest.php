@@ -28,7 +28,6 @@ class DependenciesTest extends TestCase
         $this->assertCount(39, $packages);
         $expected = <<<DOT
 digraph packages {
-    rankdir="LR";
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"

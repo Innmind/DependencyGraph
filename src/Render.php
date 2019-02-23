@@ -40,7 +40,7 @@ final class Render
 
     public function __invoke(Package ...$packages): Readable
     {
-        $graph = Graph\Graph::directed('packages', Rankdir::leftToRight());
+        $graph = Graph\Graph::directed('packages');
 
         // create the dependencies between the packages
         $nodes = PackageNode::graph($this->locate, ...$packages);

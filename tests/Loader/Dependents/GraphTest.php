@@ -86,7 +86,6 @@ class GraphTest extends TestCase
 
         $expected = <<<DOT
 digraph packages {
-    rankdir="LR";
     subgraph cluster_vendor {
         label="vendor"
         URL="https://packagist.org/packages/vendor/"
