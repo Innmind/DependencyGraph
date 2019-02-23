@@ -7,6 +7,7 @@ use Innmind\DependencyGraph\{
     Loader\Dependents\Graph,
     Package,
     Package\Name,
+    Package\Version,
     Package\Relation,
     Render,
 };
@@ -21,6 +22,7 @@ class GraphTest extends TestCase
         $packages = Graph::of(
             new Package(
                 Name::of('vendor/root'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('rand/om')
@@ -28,6 +30,7 @@ class GraphTest extends TestCase
             ),
             new Package(
                 Name::of('vendor/libA'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('vendor/root')
@@ -38,6 +41,7 @@ class GraphTest extends TestCase
             ),
             new Package(
                 Name::of('vendor/libB'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('vendor/root')
@@ -48,6 +52,7 @@ class GraphTest extends TestCase
             ),
             new Package(
                 Name::of('watev/foo'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(
                     Name::of('vendor/libA')
@@ -61,6 +66,7 @@ class GraphTest extends TestCase
             ),
             new Package(
                 Name::of('vendor/libC'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             )
         );

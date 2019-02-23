@@ -44,19 +44,18 @@ final class Package
         $response = ($this->fulfill)($request);
         $content = Json::decode((string) $response->body())['package'];
 
-        $relations = $this->loadRelations($content['versions']);
+        $version = $this->mostRecentVersion($content['versions']);
+        $relations = $this->loadRelations($version);
 
         return new Model(
             Model\Name::of($content['name']),
+            new Model\Version($version['version']),
             Url::fromString("https://packagist.org/packages/$name"),
             ...$relations
         );
     }
 
-    /**
-     * @return SetInterface<Model\Relation>
-     */
-    private function loadRelations(array $versions): SetInterface
+    private function mostRecentVersion(array $versions): array
     {
         $published = Map::of(
             'string',
@@ -75,7 +74,14 @@ final class Package
             throw new NoPublishedVersion;
         }
 
-        $version = $published->current();
+        return $published->current();
+    }
+
+    /**
+     * @return SetInterface<Model\Relation>
+     */
+    private function loadRelations(array $version): SetInterface
+    {
         $relations = [];
 
         foreach ($version['require'] ?? [] as $relation => $_) {

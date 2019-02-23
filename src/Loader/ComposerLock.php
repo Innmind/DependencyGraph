@@ -6,6 +6,7 @@ namespace Innmind\DependencyGraph\Loader;
 use Innmind\DependencyGraph\{
     Package,
     Package\Name,
+    Package\Version,
     Package\Relation,
 };
 use Innmind\Url\{
@@ -61,6 +62,7 @@ final class ComposerLock
 
             $packages = $packages->add(new Package(
                 Name::of($package['name']),
+                new Version($package['version']),
                 Url::fromString('https://packagist.org/packages/'.$package['name']),
                 ...$relations
             ));

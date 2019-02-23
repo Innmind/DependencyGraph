@@ -8,6 +8,7 @@ use Innmind\DependencyGraph\{
     Package,
     Package\Relation,
     Package\Name,
+    Package\Version,
     Exception\LogicException,
 };
 use Innmind\Url\UrlInterface;
@@ -21,10 +22,12 @@ class VendorTest extends TestCase
         $vendor = new Vendor(
             $bar = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             ),
             $baz = new Package(
                 new Name(new Vendor\Name('foo'), 'baz'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             )
         );
@@ -44,10 +47,12 @@ class VendorTest extends TestCase
         new Vendor(
             new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             ),
             new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             )
         );
@@ -58,10 +63,12 @@ class VendorTest extends TestCase
         $vendors = Vendor::group(
             $foo = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             ),
             $bar = new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             )
         );
@@ -79,10 +86,12 @@ class VendorTest extends TestCase
         $vendor = new Vendor(
             new Package(
                 Name::of('foo/bar'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class)
             ),
             new Package(
                 Name::of('foo/baz'),
+                new Version('1.0.0'),
                 $this->createMock(UrlInterface::class),
                 new Relation(Name::of('bar/baz'))
             )
