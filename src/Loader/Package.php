@@ -21,6 +21,7 @@ use Innmind\Immutable\{
     Map,
     Str,
 };
+use Composer\Semver\VersionParser;
 
 final class Package
 {
@@ -64,7 +65,7 @@ final class Package
             \array_values($versions)
         )
             ->filter(static function(string $version): bool {
-                return Str::of($version)->take(4) !== 'dev-';
+                return VersionParser::parseStability($version) === 'stable';
             })
             ->filter(static function(string $_, array $version): bool {
                 return !($version['abandoned'] ?? false);
