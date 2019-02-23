@@ -81,14 +81,14 @@ digraph packages {
     subgraph cluster_vendor {
         label="vendor"
         URL="https://packagist.org/packages/vendor/"
-    vendor__root [label="root"];
-    vendor__libA [label="libA"];
-    vendor__libB [label="libB"];
+    vendor__root [label="root@1.0.0"];
+    vendor__libA [label="libA@1.0.0"];
+    vendor__libB [label="libB@1.0.0"];
     }
     subgraph cluster_watev {
         label="watev"
         URL="https://packagist.org/packages/watev/"
-    watev__foo [label="foo"];
+    watev__foo [label="foo@1.0.0"];
     }
     vendor__libA -> vendor__root [color="#c34ca0"];
     watev__foo -> vendor__libA [color="#416be8"];

@@ -34,37 +34,37 @@ digraph packages {
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"
-    innmind__filesystem [label="filesystem"];
-    innmind__immutable [label="immutable"];
-    innmind__json [label="json"];
-    innmind__operating_system [label="operating-system"];
-    innmind__stream [label="stream"];
-    innmind__time_continuum [label="time-continuum"];
-    innmind__url [label="url"];
+    innmind__filesystem [label="filesystem@3.3.0"];
+    innmind__immutable [label="immutable@2.13.0"];
+    innmind__json [label="json@1.1.0"];
+    innmind__operating_system [label="operating-system@1.3.0"];
+    innmind__stream [label="stream@1.4.0"];
+    innmind__time_continuum [label="time-continuum@1.3.0"];
+    innmind__url [label="url@2.0.3"];
     }
     subgraph cluster_league {
         label="league"
         URL="https://packagist.org/packages/league/"
-    league__uri [label="uri"];
-    league__uri_components [label="uri-components"];
-    league__uri_hostname_parser [label="uri-hostname-parser"];
-    league__uri_interfaces [label="uri-interfaces"];
-    league__uri_manipulations [label="uri-manipulations"];
-    league__uri_parser [label="uri-parser"];
-    league__uri_schemes [label="uri-schemes"];
+    league__uri [label="uri@5.3.0"];
+    league__uri_components [label="uri-components@1.8.2"];
+    league__uri_hostname_parser [label="uri-hostname-parser@1.1.1"];
+    league__uri_interfaces [label="uri-interfaces@1.1.1"];
+    league__uri_manipulations [label="uri-manipulations@1.5.0"];
+    league__uri_parser [label="uri-parser@1.4.1"];
+    league__uri_schemes [label="uri-schemes@1.2.1"];
     }
     subgraph cluster_psr {
         label="psr"
         URL="https://packagist.org/packages/psr/"
-    psr__http_message [label="http-message"];
-    psr__simple_cache [label="simple-cache"];
+    psr__http_message [label="http-message@1.0.1"];
+    psr__simple_cache [label="simple-cache@1.0.1"];
     }
     subgraph cluster_symfony {
         label="symfony"
         URL="https://packagist.org/packages/symfony/"
-    symfony__filesystem [label="filesystem"];
-    symfony__finder [label="finder"];
-    symfony__polyfill_ctype [label="polyfill-ctype"];
+    symfony__filesystem [label="filesystem@v4.2.2"];
+    symfony__finder [label="finder@v4.2.2"];
+    symfony__polyfill_ctype [label="polyfill-ctype@v1.10.0"];
     }
     innmind__filesystem -> innmind__immutable [color="#a45b8d"];
     innmind__filesystem -> innmind__stream [color="#a45b8d"];
@@ -134,37 +134,37 @@ digraph packages {
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"
-    innmind__filesystem [label="filesystem"];
-    innmind__immutable [label="immutable"];
-    innmind__json [label="json"];
-    innmind__operating_system [label="operating-system"];
-    innmind__stream [label="stream"];
-    innmind__time_continuum [label="time-continuum"];
-    innmind__url [label="url"];
+    innmind__filesystem [label="filesystem@3.3.0"];
+    innmind__immutable [label="immutable@2.13.0"];
+    innmind__json [label="json@1.1.0"];
+    innmind__operating_system [label="operating-system@1.3.0"];
+    innmind__stream [label="stream@1.4.0"];
+    innmind__time_continuum [label="time-continuum@1.3.0"];
+    innmind__url [label="url@2.0.3"];
     }
     subgraph cluster_league {
         label="league"
         URL="https://packagist.org/packages/league/"
-    league__uri [label="uri"];
-    league__uri_components [label="uri-components"];
-    league__uri_hostname_parser [label="uri-hostname-parser"];
-    league__uri_interfaces [label="uri-interfaces"];
-    league__uri_manipulations [label="uri-manipulations"];
-    league__uri_parser [label="uri-parser"];
-    league__uri_schemes [label="uri-schemes"];
+    league__uri [label="uri@5.3.0"];
+    league__uri_components [label="uri-components@1.8.2"];
+    league__uri_hostname_parser [label="uri-hostname-parser@1.1.1"];
+    league__uri_interfaces [label="uri-interfaces@1.1.1"];
+    league__uri_manipulations [label="uri-manipulations@1.5.0"];
+    league__uri_parser [label="uri-parser@1.4.1"];
+    league__uri_schemes [label="uri-schemes@1.2.1"];
     }
     subgraph cluster_psr {
         label="psr"
         URL="https://packagist.org/packages/psr/"
-    psr__http_message [label="http-message"];
-    psr__simple_cache [label="simple-cache"];
+    psr__http_message [label="http-message@1.0.1"];
+    psr__simple_cache [label="simple-cache@1.0.1"];
     }
     subgraph cluster_symfony {
         label="symfony"
         URL="https://packagist.org/packages/symfony/"
-    symfony__filesystem [label="filesystem"];
-    symfony__finder [label="finder"];
-    symfony__polyfill_ctype [label="polyfill-ctype"];
+    symfony__filesystem [label="filesystem@v4.2.2"];
+    symfony__finder [label="finder@v4.2.2"];
+    symfony__polyfill_ctype [label="polyfill-ctype@v1.10.0"];
     }
     innmind__filesystem -> innmind__immutable [color="#a45b8d"];
     innmind__filesystem -> innmind__stream [color="#a45b8d"];

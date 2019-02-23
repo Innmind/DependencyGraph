@@ -30,7 +30,7 @@ final class Cluster
             function(Graph $cluster, Package $package): Graph {
                 return $cluster->add(
                     PackageNode::of($package->name())
-                        ->displayAs($package->name()->package())
+                        ->displayAs("{$package->name()->package()}@{$package->version()}")
                 );
             }
         );

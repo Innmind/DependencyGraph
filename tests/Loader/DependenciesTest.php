@@ -32,69 +32,69 @@ digraph packages {
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"
-    innmind__cli [label="cli"];
-    innmind__stream [label="stream"];
-    innmind__immutable [label="immutable"];
-    innmind__time_continuum [label="time-continuum"];
-    innmind__url [label="url"];
-    innmind__time_warp [label="time-warp"];
-    innmind__operating_system [label="operating-system"];
-    innmind__server_status [label="server-status"];
-    innmind__server_control [label="server-control"];
-    innmind__filesystem [label="filesystem"];
-    innmind__socket [label="socket"];
-    innmind__ip [label="ip"];
-    innmind__event_bus [label="event-bus"];
-    innmind__http_transport [label="http-transport"];
-    innmind__http [label="http"];
-    innmind__stack_trace [label="stack-trace"];
-    innmind__graphviz [label="graphviz"];
-    innmind__colour [label="colour"];
+    innmind__cli [label="cli@dev-master"];
+    innmind__stream [label="stream@dev-master"];
+    innmind__immutable [label="immutable@dev-master"];
+    innmind__time_continuum [label="time-continuum@dev-master"];
+    innmind__url [label="url@dev-master"];
+    innmind__time_warp [label="time-warp@dev-master"];
+    innmind__operating_system [label="operating-system@dev-master"];
+    innmind__server_status [label="server-status@dev-master"];
+    innmind__server_control [label="server-control@dev-master"];
+    innmind__filesystem [label="filesystem@dev-master"];
+    innmind__socket [label="socket@dev-master"];
+    innmind__ip [label="ip@dev-master"];
+    innmind__event_bus [label="event-bus@dev-master"];
+    innmind__http_transport [label="http-transport@dev-master"];
+    innmind__http [label="http@dev-master"];
+    innmind__stack_trace [label="stack-trace@dev-master"];
+    innmind__graphviz [label="graphviz@dev-master"];
+    innmind__colour [label="colour@dev-master"];
     }
     subgraph cluster_league {
         label="league"
         URL="https://packagist.org/packages/league/"
-    league__uri [label="uri"];
-    league__uri_interfaces [label="uri-interfaces"];
-    league__uri_components [label="uri-components"];
-    league__uri_query_parser [label="uri-query-parser"];
-    league__uri_hostname_parser [label="uri-hostname-parser"];
-    league__uri_manipulations [label="uri-manipulations"];
-    league__uri_parser [label="uri-parser"];
-    league__uri_schemes [label="uri-schemes"];
+    league__uri [label="uri@dev-master"];
+    league__uri_interfaces [label="uri-interfaces@dev-master"];
+    league__uri_components [label="uri-components@dev-master"];
+    league__uri_query_parser [label="uri-query-parser@dev-master"];
+    league__uri_hostname_parser [label="uri-hostname-parser@dev-master"];
+    league__uri_manipulations [label="uri-manipulations@dev-master"];
+    league__uri_parser [label="uri-parser@dev-develop"];
+    league__uri_schemes [label="uri-schemes@dev-develop"];
     }
     subgraph cluster_psr {
         label="psr"
         URL="https://packagist.org/packages/psr/"
-    psr__http_message [label="http-message"];
-    psr__simple_cache [label="simple-cache"];
-    psr__log [label="log"];
+    psr__http_message [label="http-message@dev-master"];
+    psr__simple_cache [label="simple-cache@dev-master"];
+    psr__log [label="log@dev-master"];
     }
     subgraph cluster_symfony {
         label="symfony"
         URL="https://packagist.org/packages/symfony/"
-    symfony__process [label="process"];
-    symfony__filesystem [label="filesystem"];
-    symfony__polyfill_ctype [label="polyfill-ctype"];
-    symfony__finder [label="finder"];
-    symfony__dotenv [label="dotenv"];
+    symfony__process [label="process@dev-master"];
+    symfony__filesystem [label="filesystem@dev-master"];
+    symfony__polyfill_ctype [label="polyfill-ctype@dev-master"];
+    symfony__finder [label="finder@3.4.x-dev"];
+    symfony__dotenv [label="dotenv@dev-master"];
     }
     subgraph cluster_guzzlehttp {
         label="guzzlehttp"
         URL="https://packagist.org/packages/guzzlehttp/"
-    guzzlehttp__guzzle [label="guzzle"];
-    guzzlehttp__promises [label="promises"];
-    guzzlehttp__psr7 [label="psr7"];
+    guzzlehttp__guzzle [label="guzzle@dev-master"];
+    guzzlehttp__promises [label="promises@dev-master"];
+    guzzlehttp__psr7 [label="psr7@dev-master"];
     }
     subgraph cluster_ralouphie {
         label="ralouphie"
         URL="https://packagist.org/packages/ralouphie/"
-    ralouphie__getallheaders [label="getallheaders"];
+    ralouphie__getallheaders [label="getallheaders@dev-master"];
     }
     subgraph cluster_ramsey {
         label="ramsey"
         URL="https://packagist.org/packages/ramsey/"
-    ramsey__uuid [label="uuid"];
+    ramsey__uuid [label="uuid@dev-master"];
     }
     innmind__cli -> innmind__stream [color="#87dfa2"];
     innmind__cli -> innmind__immutable [color="#87dfa2"];
