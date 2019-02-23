@@ -59,16 +59,17 @@ final class PackageNode
 
         return $package->relations()->reduce(
             $node,
-            function(Node $node, Relation $relation) use ($nodes, $colour): Node {
-                $relation = self::of($relation->name());
+            function(Node $package, Relation $relation) use ($nodes, $colour): Node {
+                $node = self::of($relation->name());
 
                 // if the package has already been transformed into a node, then
                 // reuse its instance so the attributes are not lost
-                $node
-                    ->linkedTo($nodes[(string) $relation->name()] ?? $relation)
-                    ->useColor($colour);
+                $package
+                    ->linkedTo($nodes[(string) $node->name()] ?? $node)
+                    ->useColor($colour)
+                    ->displayAs((string) $relation->constraint());
 
-                return $node;
+                return $package;
             }
         );
     }
