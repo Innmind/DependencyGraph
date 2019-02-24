@@ -16,7 +16,10 @@ use Innmind\Graphviz\{
     Node,
     Layout\Dot,
 };
-use Innmind\Url\UrlInterface;
+use Innmind\Url\{
+    UrlInterface,
+    Fragment,
+};
 use Innmind\Stream\Readable;
 
 final class Render
@@ -28,14 +31,16 @@ final class Render
         $this->locate = $locate ?? new class implements Locate {
             public function __invoke(Package $package): UrlInterface
             {
-                return $package->packagist();
+                return $package->packagist()->withFragment(new Fragment(
+                    (string) $package->version()
+                ));
             }
         };
     }
 
     public function __invoke(Package ...$packages): Readable
     {
-        $graph = Graph\Graph::directed('packages', Rankdir::leftToRight());
+        $graph = Graph\Graph::directed('packages');
 
         // create the dependencies between the packages
         $nodes = PackageNode::graph($this->locate, ...$packages);

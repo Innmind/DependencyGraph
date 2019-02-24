@@ -6,7 +6,9 @@ namespace Tests\Innmind\DependencyGraph;
 use Innmind\DependencyGraph\{
     Package,
     Package\Name,
+    Package\Version,
     Package\Relation,
+    Package\Constraint,
     Vendor,
 };
 use Innmind\Url\UrlInterface;
@@ -19,11 +21,16 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             $name = new Name(new Vendor\Name('foo'), 'bar'),
+            $version = new Version('1.0.0'),
             $packagist = $this->createMock(UrlInterface::class),
-            $relation = new Relation(new Name(new Vendor\Name('bar'), 'baz'))
+            $relation = new Relation(
+                new Name(new Vendor\Name('bar'), 'baz'),
+                new Constraint('~1.0')
+            )
         );
 
         $this->assertSame($name, $package->name());
+        $this->assertSame($version, $package->version());
         $this->assertSame($packagist, $package->packagist());
         $this->assertInstanceOf(SetInterface::class, $package->relations());
         $this->assertSame(Relation::class, (string) $package->relations()->type());
@@ -34,8 +41,9 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
+            new Version('1.0.0'),
             $this->createMock(UrlInterface::class),
-            new Relation(Name::of('bar/baz'))
+            new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
         );
 
         $this->assertTrue($package->dependsOn(Name::of('bar/baz')));
@@ -46,10 +54,11 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
+            new Version('1.0.0'),
             $this->createMock(UrlInterface::class),
-            $bar = new Relation(Name::of('bar/baz')),
-            new Relation(Name::of('baz/foo')),
-            $foo = new Relation(Name::of('foo/bar'))
+            $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+            new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
+            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0'))
         );
 
         $package2 = $package->keep(Name::of('foo/bar'), Name::of('bar/baz'));
@@ -65,10 +74,11 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
+            new Version('1.0.0'),
             $this->createMock(UrlInterface::class),
-            $bar = new Relation(Name::of('bar/baz')),
-            new Relation(Name::of('baz/foo')),
-            $foo = new Relation(Name::of('foo/bar'))
+            $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+            new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
+            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0'))
         );
 
         $package2 = $package->removeRelations();

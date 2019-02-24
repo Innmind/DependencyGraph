@@ -5,6 +5,7 @@ namespace Innmind\DependencyGraph;
 
 use Innmind\DependencyGraph\{
     Package\Name,
+    Package\Version,
     Package\Relation,
     Vendor,
 };
@@ -17,15 +18,18 @@ use Innmind\Immutable\{
 final class Package
 {
     private $name;
+    private $version;
     private $packagist;
     private $relations;
 
     public function __construct(
         Name $name,
+        Version $version,
         UrlInterface $packagist,
         Relation ...$relations
     ) {
         $this->name = $name;
+        $this->version = $version;
         $this->packagist = $packagist;
         $this->relations = Set::of(Relation::class, ...$relations);
     }
@@ -33,6 +37,11 @@ final class Package
     public function name(): Name
     {
         return $this->name;
+    }
+
+    public function version(): Version
+    {
+        return $this->version;
     }
 
     public function packagist(): UrlInterface

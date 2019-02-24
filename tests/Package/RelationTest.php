@@ -5,6 +5,7 @@ namespace Tests\Innmind\DependencyGraph\Package;
 
 use Innmind\DependencyGraph\{
     Package\Relation,
+    Package\Constraint,
     Package\Name,
     Vendor,
 };
@@ -15,9 +16,11 @@ class RelationTest extends TestCase
     public function testInterface()
     {
         $relation = new Relation(
-            $name = new Name(new Vendor\Name('foo'), 'bar')
+            $name = new Name(new Vendor\Name('foo'), 'bar'),
+            $constraint = new Constraint('~1.0')
         );
 
         $this->assertSame($name, $relation->name());
+        $this->assertSame($constraint, $relation->constraint());
     }
 }

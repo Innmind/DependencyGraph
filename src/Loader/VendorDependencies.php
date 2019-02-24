@@ -7,6 +7,7 @@ use Innmind\DependencyGraph\{
     Package as PackageModel,
     Package\Relation,
     Vendor as VendorModel,
+    Exception\NoPublishedVersion,
 };
 use Innmind\Immutable\{
     SetInterface,
@@ -49,8 +50,21 @@ final class VendorDependencies
                 return $this->load($package, $packages);
             }
         );
+        $names = $packages->keys()->reduce(
+            Set::of(PackageModel\Name::class),
+            static function(SetInterface $names, string $name): SetInterface {
+                return $names->add(PackageModel\Name::of($name));
+            }
+        );
 
-        return Set::of(PackageModel::class, ...$packages->values());
+        return Set::of(
+            PackageModel::class,
+            ...$packages
+                ->values()
+                ->map(static function(PackageModel $package) use ($names): PackageModel {
+                    return $package->keep(...$names); // remove relations with no stable releases
+                })
+        );
     }
 
     private function load(PackageModel $package, MapInterface $packages): MapInterface
@@ -62,7 +76,11 @@ final class VendorDependencies
                     return $packages;
                 }
 
-                $relation = ($this->loadPackage)($relation->name());
+                try {
+                    $relation = ($this->loadPackage)($relation->name());
+                } catch (NoPublishedVersion $e) {
+                    return $packages;
+                }
 
                 return $this->load(
                     $relation,

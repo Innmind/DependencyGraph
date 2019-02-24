@@ -21,6 +21,10 @@ use Innmind\Immutable\{
     Map,
     Str,
 };
+use Composer\Semver\{
+    VersionParser,
+    Semver,
+};
 
 final class Package
 {
@@ -44,19 +48,18 @@ final class Package
         $response = ($this->fulfill)($request);
         $content = Json::decode((string) $response->body())['package'];
 
-        $relations = $this->loadRelations($content['versions']);
+        $version = $this->mostRecentVersion($content['versions']);
+        $relations = $this->loadRelations($version);
 
         return new Model(
             Model\Name::of($content['name']),
+            new Model\Version($version['version']),
             Url::fromString("https://packagist.org/packages/$name"),
             ...$relations
         );
     }
 
-    /**
-     * @return SetInterface<Model\Relation>
-     */
-    private function loadRelations(array $versions): SetInterface
+    private function mostRecentVersion(array $versions): array
     {
         $published = Map::of(
             'string',
@@ -65,7 +68,7 @@ final class Package
             \array_values($versions)
         )
             ->filter(static function(string $version): bool {
-                return Str::of($version)->take(4) !== 'dev-';
+                return VersionParser::parseStability($version) === 'stable';
             })
             ->filter(static function(string $_, array $version): bool {
                 return !($version['abandoned'] ?? false);
@@ -75,16 +78,26 @@ final class Package
             throw new NoPublishedVersion;
         }
 
-        $version = $published->current();
+        $versions = Semver::rsort($published->keys()->toPrimitive());
+
+        return $published->get($versions[0]);
+    }
+
+    /**
+     * @return SetInterface<Model\Relation>
+     */
+    private function loadRelations(array $version): SetInterface
+    {
         $relations = [];
 
-        foreach ($version['require'] ?? [] as $relation => $_) {
+        foreach ($version['require'] ?? [] as $relation => $constraint) {
             if (!Str::of($relation)->matches('~.+/.+~')) {
                 continue;
             }
 
             $relations[] = new Model\Relation(
-                Model\Name::of($relation)
+                Model\Name::of($relation),
+                new Model\Constraint($constraint)
             );
         }
 

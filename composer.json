@@ -24,7 +24,8 @@
         "innmind/graphviz": "^1.2",
         "innmind/cli": "^1.5",
         "innmind/server-control": "^2.7",
-        "innmind/http-transport": "^4.0"
+        "innmind/http-transport": "^4.0",
+        "composer/semver": "^1.4"
     },
     "autoload": {
         "psr-4": {
@@ -38,7 +39,8 @@
         }
     },
     "require-dev": {
-        "phpunit/phpunit": "~7.0"
+        "phpunit/phpunit": "~7.0",
+        "giorgiosironi/eris": "^0.11.0"
     },
     "bin": ["dependency-graph"]
 }
