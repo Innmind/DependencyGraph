@@ -171,7 +171,7 @@ digraph packages {
     ramsey__uuid -> paragonie__random_compat [color="#44619b", label="^1.0|^2.0|9.99.99"];
     ramsey__uuid -> symfony__polyfill_ctype [color="#44619b", label="^1.8"];
     guzzlehttp__psr7 -> psr__http_message [color="#adcacd", label="~1.0"];
-    guzzlehttp__psr7 -> ralouphie__getallheaders [color="#adcacd", label="^2.0.5"];
+    guzzlehttp__psr7 -> ralouphie__getallheaders [color="#ff0000", label="^2.0.5", style="bold"];
     innmind__graphviz -> innmind__immutable [color="#39df6f", label="^2.6"];
     innmind__graphviz -> innmind__url [color="#39df6f", label="^2.0"];
     innmind__graphviz -> innmind__colour [color="#39df6f", label="^2.0"];

@@ -29,10 +29,19 @@ final class PackageNode
      */
     public static function graph(Locate $locate, Package ...$packages): SetInterface
     {
-        $nodes = Set::of(Package::class, ...$packages)->reduce(
+        $packages = Set::of(Package::class, ...$packages)->reduce(
+            Map::of('string', Package::class),
+            static function(MapInterface $packages, Package $package): MapInterface {
+                return $packages->put(
+                    (string) $package->name(),
+                    $package
+                );
+            }
+        );
+        $nodes = $packages->values()->reduce(
             Map::of('string', Node::class),
-            static function(MapInterface $nodes, Package $package) use ($locate): MapInterface {
-                $node = PackageNode::node($package, $nodes, $locate);
+            static function(MapInterface $nodes, Package $package) use ($locate, $packages): MapInterface {
+                $node = PackageNode::node($package, $nodes, $locate, $packages);
 
                 return $nodes->put((string) $node->name(), $node);
             }
@@ -50,8 +59,12 @@ final class PackageNode
         return Node\Node::named($name);
     }
 
-    private static function node(Package $package, MapInterface $nodes, Locate $locate): Node
-    {
+    private static function node(
+        Package $package,
+        MapInterface $nodes,
+        Locate $locate,
+        MapInterface $packages
+    ): Node {
         $colour = self::colorize($package->name());
         $node = self::of($package->name())
             ->target($locate($package))
@@ -59,15 +72,20 @@ final class PackageNode
 
         return $package->relations()->reduce(
             $node,
-            function(Node $package, Relation $relation) use ($nodes, $colour): Node {
+            function(Node $package, Relation $relation) use ($nodes, $colour, $packages): Node {
                 $node = self::of($relation->name());
 
                 // if the package has already been transformed into a node, then
                 // reuse its instance so the attributes are not lost
-                $package
+                $edge = $package
                     ->linkedTo($nodes[(string) $node->name()] ?? $node)
                     ->useColor($colour)
                     ->displayAs((string) $relation->constraint());
+                $version = $packages->get((string) $relation->name())->version();
+
+                if (!$relation->constraint()->satisfiedBy($version)) {
+                    $edge->bold()->useColor(RGBA::fromString('FF0000'));
+                }
 
                 return $package;
             }
