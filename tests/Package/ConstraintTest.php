@@ -5,6 +5,7 @@ namespace Tests\Innmind\DependencyGraph\Package;
 
 use Innmind\DependencyGraph\{
     Package\Constraint,
+    Package\Version,
     Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;
@@ -34,5 +35,15 @@ class ConstraintTest extends TestCase
         $this->expectException(DomainException::class);
 
         new Constraint('');
+    }
+
+    public function testSatisfiedBy()
+    {
+        $constraint = new Constraint('>1.0 <2.1');
+
+        $this->assertTrue($constraint->satisfiedBy(new Version('1.1')));
+        $this->assertTrue($constraint->satisfiedBy(new Version('2.0')));
+        $this->assertFalse($constraint->satisfiedBy(new Version('2.1')));
+        $this->assertFalse($constraint->satisfiedBy(new Version('1.0')));
     }
 }

@@ -5,6 +5,7 @@ namespace Innmind\DependencyGraph\Package;
 
 use Innmind\DependencyGraph\Exception\DomainException;
 use Innmind\Immutable\Str;
+use Composer\Semver\Semver;
 
 final class Constraint
 {
@@ -17,6 +18,11 @@ final class Constraint
         }
 
         $this->value = $value;
+    }
+
+    public function satisfiedBy(Version $version): bool
+    {
+        return Semver::satisfies((string) $version, $this->value);
     }
 
     public function __toString(): string
