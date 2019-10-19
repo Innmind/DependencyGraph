@@ -54,6 +54,7 @@ final class PackageNode
     {
         $name = (string) Str::of((string) $name)
             ->replace('-', '_')
+            ->replace('.', '_')
             ->replace('/', '__');
 
         return Node\Node::named($name);
