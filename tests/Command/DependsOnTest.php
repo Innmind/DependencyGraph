@@ -58,7 +58,7 @@ class DependsOnTest extends TestCase
     public function testUsage()
     {
         $expected = <<<USAGE
-depends-on package vendor ...vendors
+depends-on package vendor ...vendors --direct
 
 Generate a graph of all packages depending on a given package
 
@@ -129,6 +129,59 @@ USAGE;
                     ('vendors', Stream::of('string', 'foo'))
             ),
             new Options
+        ));
+    }
+
+    public function testGenerateOnlyDirectDependents()
+    {
+        $command = new DependsOn(
+            new Dependents(
+                new Vendor(
+                    $this->http,
+                    new Package($this->http)
+                )
+            ),
+            new Render,
+            $processes = $this->createMock(Processes::class)
+        );
+        $processes
+            ->expects($this->once())
+            ->method('execute')
+            ->with($this->callback(static function($command): bool {
+                return (string) $command === "dot '-Tsvg' '-o' 'direct_innmind_immutable_dependents.svg'" &&
+                    $command->workingDirectory() === __DIR__.'/../../fixtures' &&
+                    (string) $command->input() !== '';
+            }))
+            ->willReturn($process = $this->createMock(Process::class));
+        $process
+            ->expects($this->once())
+            ->method('wait')
+            ->will($this->returnSelf());
+        $process
+            ->expects($this->once())
+            ->method('exitCode')
+            ->willReturn(new ExitCode(0));
+        $env = $this->createMock(Environment::class);
+        $env
+            ->expects($this->any())
+            ->method('workingDirectory')
+            ->willReturn(new Path(__DIR__.'/../../fixtures'));
+        $env
+            ->expects($this->never())
+            ->method('exit');
+
+        $this->assertNull($command(
+            $env,
+            new Arguments(
+                Map::of('string', 'mixed')
+                    ('package', 'innmind/immutable')
+                    ('vendor', 'innmind')
+                    ('vendors', Stream::of('string', 'foo'))
+            ),
+            new Options(
+                Map::of('string', 'mixed')
+                    ('direct', true)
+            )
         ));
     }
 

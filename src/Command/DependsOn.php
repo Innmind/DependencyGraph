@@ -50,9 +50,21 @@ final class DependsOn implements Command
                 }
             )
         );
+
         $fileName = Str::of((string) $package)
             ->replace('/', '_')
             ->append('_dependents.svg');
+
+        if ($options->contains('direct')) {
+            $packages = $packages
+                ->filter(function(Package $dependents) use ($package): bool {
+                    return $dependents->dependsOn($package) || $dependents->name()->equals($package);
+                })
+                ->map(function(Package $dependents) use ($package): Package {
+                    return $dependents->keep($package);
+                });
+            $fileName = $fileName->prepend('direct_');
+        }
 
         $process = $this
             ->processes
@@ -80,7 +92,7 @@ final class DependsOn implements Command
     public function __toString(): string
     {
         return <<<USAGE
-depends-on package vendor ...vendors
+depends-on package vendor ...vendors --direct
 
 Generate a graph of all packages depending on a given package
 
