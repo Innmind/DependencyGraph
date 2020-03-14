@@ -22,10 +22,10 @@ final class Constraint
 
     public function satisfiedBy(Version $version): bool
     {
-        return Semver::satisfies((string) $version, $this->value);
+        return Semver::satisfies($version->toString(), $this->value);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value;
     }

@@ -26,7 +26,7 @@ class ConstraintTest extends TestCase
                 return $string !== '';
             })
             ->then(function(string $string): void {
-                $this->assertSame($string, (string) new Constraint($string));
+                $this->assertSame($string, (new Constraint($string))->toString());
             });
     }
 

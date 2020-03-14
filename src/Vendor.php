@@ -24,7 +24,7 @@ final class Vendor implements \Iterator
     {
         $this->name = $first->name()->vendor();
         $packages = Set::of(Package::class, $first, ...$others);
-        $this->packagist = Url::of("https://packagist.org/packages/{$this->name}/");
+        $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
         $packages->foreach(function(Package $package): void {
             if (!$package->name()->vendor()->equals($this->name)) {
@@ -42,7 +42,7 @@ final class Vendor implements \Iterator
     {
         return Set::of(Package::class, ...$packages)
             ->groupBy(static function(Package $package): string {
-                return (string) $package->name()->vendor();
+                return $package->name()->vendor()->toString();
             })
             ->values()
             ->reduce(

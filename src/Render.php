@@ -32,7 +32,7 @@ final class Render
             public function __invoke(Package $package): Url
             {
                 return $package->packagist()->withFragment(Fragment::of(
-                    (string) $package->version()
+                    $package->version()->toString(),
                 ));
             }
         };

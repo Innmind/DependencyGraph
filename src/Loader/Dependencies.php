@@ -34,14 +34,14 @@ final class Dependencies
 
     private function load(Model\Name $name, Map $packages): Map
     {
-        if ($packages->contains((string) $name)) {
+        if ($packages->contains($name->toString())) {
             return $packages;
         }
 
         $package = ($this->load)($name);
 
         return $package->relations()->reduce(
-            $packages->put((string) $name, $package),
+            $packages->put($name->toString(), $package),
             function(Map $packages, Model\Relation $relation): Map {
                 return $this->load($relation->name(), $packages);
             }

@@ -48,13 +48,13 @@ final class Dependents
                 Map::of('string', Package::class),
                 static function(Map $packages, Package $package): Map {
                     return $packages->put(
-                        (string) $package->name(),
+                        $package->name()->toString(),
                         $package
                     );
                 }
             );
 
-        $name = (string) $name;
+        $name = $name->toString();
 
         if (!$packages->contains($name)) {
             return Set::of(Package::class);

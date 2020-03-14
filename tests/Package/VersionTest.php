@@ -25,7 +25,7 @@ class VersionTest extends TestCase
                 return $string !== '';
             })
             ->then(function(string $string): void {
-                $this->assertSame($string, (string) new Version($string));
+                $this->assertSame($string, (new Version($string))->toString());
             });
     }
 

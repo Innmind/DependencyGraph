@@ -17,9 +17,9 @@ class NameTest extends TestCase
         $name = new Name(new Vendor\Name('vendor'), 'package');
 
         $this->assertInstanceOf(Vendor\Name::class, $name->vendor());
-        $this->assertSame('vendor', (string) $name->vendor());
+        $this->assertSame('vendor', $name->vendor()->toString());
         $this->assertSame('package', $name->package());
-        $this->assertSame('vendor/package', (string) $name);
+        $this->assertSame('vendor/package', $name->toString());
     }
 
     public function testOf()
@@ -27,7 +27,7 @@ class NameTest extends TestCase
         $name = Name::of('vendor/package');
 
         $this->assertInstanceOf(Name::class, $name);
-        $this->assertSame('vendor/package', (string) $name);
+        $this->assertSame('vendor/package', $name->toString());
     }
 
     public function testEquals()

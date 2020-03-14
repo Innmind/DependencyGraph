@@ -31,7 +31,7 @@ final class Vendor
 
     public function __invoke(VendorModel\Name $name): VendorModel
     {
-        $url = "https://packagist.org/search.json?q=$name/";
+        $url = "https://packagist.org/search.json?q={$name->toString()}/";
         $results = [];
 
         do {
@@ -49,7 +49,7 @@ final class Vendor
         $packages = [];
 
         foreach ($results as $result) {
-            if (!Str::of($result['name'])->matches("~^$name/~")) {
+            if (!Str::of($result['name'])->matches("~^{$name->toString()}/~")) {
                 continue;
             }
 

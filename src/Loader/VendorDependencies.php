@@ -38,7 +38,7 @@ final class VendorDependencies
             Map::of('string', PackageModel::class),
             static function(Map $packages, PackageModel $package): Map {
                 return $packages->put(
-                    (string) $package->name(),
+                    $package->name()->toString(),
                     $package
                 );
             }
@@ -71,7 +71,7 @@ final class VendorDependencies
         return $package->relations()->reduce(
             $packages,
             function(Map $packages, Relation $relation): Map {
-                if ($packages->contains((string) $relation->name())) {
+                if ($packages->contains($relation->name()->toString())) {
                     return $packages;
                 }
 
@@ -84,7 +84,7 @@ final class VendorDependencies
                 return $this->load(
                     $relation,
                     $packages->put(
-                        (string) $relation->name(),
+                        $relation->name()->toString(),
                         $relation
                     )
                 );

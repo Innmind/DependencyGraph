@@ -35,7 +35,7 @@ class VendorTest extends TestCase
         );
 
         $this->assertInstanceOf(Vendor\Name::class, $vendor->name());
-        $this->assertSame('foo', (string) $vendor->name());
+        $this->assertSame('foo', $vendor->name()->toString());
         $this->assertInstanceOf(Url::class, $vendor->packagist());
         $this->assertSame('https://packagist.org/packages/foo/', $vendor->packagist()->toString());
         $this->assertInstanceOf(\Iterator::class, $vendor);

@@ -32,7 +32,7 @@ final class PackageNode
             Map::of('string', Package::class),
             static function(Map $packages, Package $package): Map {
                 return $packages->put(
-                    (string) $package->name(),
+                    $package->name()->toString(),
                     $package
                 );
             }
@@ -51,7 +51,7 @@ final class PackageNode
 
     public static function of(Name $name): Node\Node
     {
-        $name = Str::of((string) $name)
+        $name = Str::of($name->toString())
             ->replace('-', '_')
             ->replace('.', '_')
             ->replace('/', '__')
@@ -83,8 +83,8 @@ final class PackageNode
                         $nodes->get($node->name()->toString()) : $node,
                 );
                 $edge->useColor($colour);
-                $edge->displayAs((string) $relation->constraint());
-                $version = $packages->get((string) $relation->name())->version();
+                $edge->displayAs($relation->constraint()->toString());
+                $version = $packages->get($relation->name()->toString())->version();
 
                 if (!$relation->constraint()->satisfiedBy($version)) {
                     $edge->bold();
@@ -98,7 +98,7 @@ final class PackageNode
 
     private static function colorize(Name $name): RGBA
     {
-        $hash = Str::of(\md5((string) $name));
+        $hash = Str::of(\md5($name->toString()));
         $red = $hash->substring(0, 2)->toString();
         $green = $hash->substring(2, 2)->toString();
         $blue = $hash->substring(4, 2)->toString();

@@ -21,7 +21,7 @@ final class Cluster
 
     public static function of(Vendor $vendor): Graph
     {
-        $name = (string) $vendor->name();
+        $name = $vendor->name()->toString();
         $cluster = Graph\Graph::directed(Str::of($name)->replace('-', '_')->toString());
         $cluster->displayAs($name);
         $cluster->target($vendor->packagist());
@@ -29,7 +29,7 @@ final class Cluster
         Set::of(Package::class, ...$vendor)->foreach(
             static function(Package $package) use ($cluster): void {
                 $node = PackageNode::of($package->name());
-                $node->displayAs("{$package->name()->package()}@{$package->version()}");
+                $node->displayAs("{$package->name()->package()}@{$package->version()->toString()}");
 
                 $cluster->add($node);
             },

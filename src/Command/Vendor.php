@@ -37,7 +37,7 @@ final class Vendor implements Command
     public function __invoke(Environment $env, Arguments $arguments, Options $options): void
     {
         $packages = ($this->load)($vendor = new Name($arguments->get('vendor')));
-        $fileName = Str::of("$vendor.svg");
+        $fileName = Str::of("{$vendor->toString()}.svg");
 
         $process = $this
             ->processes
