@@ -43,7 +43,7 @@ final class Package
         $request = new Request(
             Url::of("https://packagist.org/packages/{$name->toString()}.json"),
             Method::get(),
-            new ProtocolVersion(2, 0)
+            new ProtocolVersion(2, 0),
         );
         $response = ($this->fulfill)($request);
         /** @var array{package: array{name: string, versions: array<string, array{version: string, abandoned?: bool, require?: array<string, string>}>}} */
@@ -57,7 +57,7 @@ final class Package
             Model\Name::of($content['name']),
             new Model\Version($version['version']),
             Url::of("https://packagist.org/packages/{$name->toString()}"),
-            ...unwrap($relations)
+            ...unwrap($relations),
         );
     }
 
@@ -83,7 +83,7 @@ final class Package
                 return !($version['abandoned'] ?? false);
             });
 
-        if ($published->size() === 0) {
+        if ($published->empty()) {
             throw new NoPublishedVersion;
         }
 
@@ -109,7 +109,7 @@ final class Package
 
             $relations[] = new Model\Relation(
                 Model\Name::of($relation),
-                new Model\Constraint($constraint)
+                new Model\Constraint($constraint),
             );
         }
 

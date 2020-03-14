@@ -29,20 +29,15 @@ final class Graph
      */
     public static function of(Package $root, Package ...$dependents): Set
     {
-        $root = new self($root);
-        $dependents = Set::of(Package::class, ...$dependents)->reduce(
-            Set::of(self::class),
-            static function(Set $dependents, Package $package): Set {
-                return $dependents->add(
-                    new self($package)
-                );
-            }
+        $root = new self($root->removeRelations());
+        $dependents = Set::of(Package::class, ...$dependents)->mapTo(
+            self::class,
+            static fn(Package $package): self => new self($package),
         );
-        $root->package = $root->package->removeRelations();
         self::bind($root, $dependents);
-        $dependents->foreach(static function(self $dependent) use ($dependents): void {
-            self::bind($dependent, $dependents);
-        });
+        $dependents->foreach(
+            static fn(self $dependent) => self::bind($dependent, $dependents),
+        );
         $root->keepPaths($root->package->name());
 
         return $root->collectPackages();
@@ -62,8 +57,8 @@ final class Graph
 
     private function add(self $parent): void
     {
-        $this->parents = $this->parents->add($parent);
-        $parent->children = $parent->children->add($this);
+        $this->parents = ($this->parents)($parent);
+        $parent->children = ($parent->children)($this);
     }
 
     private function keepPaths(Name $root): void
@@ -89,11 +84,9 @@ final class Graph
             ->filter(static function(self $child) use ($root): bool {
                 return $child->dependsOn($root);
             })
-            ->reduce(
-                Set::of(Name::class),
-                static function(Set $children, self $child): Set {
-                    return $children->add($child->package->name());
-                }
+            ->mapTo(
+                Name::class,
+                static fn(self $child): Name => $child->package->name(),
             );
         $this->package = $this->package->keep($root, ...unwrap($children));
     }
@@ -106,9 +99,7 @@ final class Graph
 
         return $this->children->reduce(
             false,
-            static function(bool $dependsOn, self $child) use ($root): bool {
-                return $dependsOn || $child->dependsOn($root);
-            }
+            static fn(bool $dependsOn, self $child): bool => $dependsOn || $child->dependsOn($root),
         );
     }
 
@@ -120,9 +111,9 @@ final class Graph
         /** @var Set<Package> */
         return $this->parents->reduce(
             Set::of(Package::class, $this->package),
-            static function(Set $packages, self $parent): Set {
-                return $packages->merge($parent->collectPackages());
-            }
+            static fn(Set $packages, self $parent): Set => $packages->merge(
+                $parent->collectPackages()
+            ),
         );
     }
 }

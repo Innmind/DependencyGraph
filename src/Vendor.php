@@ -46,11 +46,11 @@ final class Vendor
                 return $package->name()->vendor()->toString();
             })
             ->values()
-            ->reduce(
-                Set::of(self::class),
-                static function(Set $vendors, Set $packages): Set {
-                    return $vendors->add(new Vendor(...unwrap($packages)));
-                }
+            ->toSetOf(
+                self::class,
+                static fn(Set $packages): \Generator => yield new Vendor(
+                    ...unwrap($packages),
+                ),
             );
     }
 
@@ -70,7 +70,7 @@ final class Vendor
             false,
             static function(bool $dependsOn, Package $package) use ($name): bool {
                 return $dependsOn || $package->dependsOn($name);
-            }
+            },
         );
     }
 

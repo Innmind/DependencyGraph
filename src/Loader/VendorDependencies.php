@@ -35,14 +35,12 @@ final class VendorDependencies
     {
         $vendor = ($this->loadVendor)($name);
         /** @var Map<string, PackageModel> */
-        $packages = $vendor->packages()->reduce(
-            Map::of('string', PackageModel::class),
-            static function(Map $packages, PackageModel $package): Map {
-                return $packages->put(
-                    $package->name()->toString(),
-                    $package
-                );
-            }
+        $packages = $vendor->packages()->toMapOf(
+            'string',
+            PackageModel::class,
+            static function(PackageModel $package): \Generator {
+                yield $package->name()->toString() => $package;
+            },
         );
         $packages = $packages->reduce(
             $packages,
@@ -50,20 +48,20 @@ final class VendorDependencies
                 return $this->load($package, $packages);
             }
         );
-        $names = $packages->keys()->reduce(
-            Set::of(PackageModel\Name::class),
-            static function(Set $names, string $name): Set {
-                return $names->add(PackageModel\Name::of($name));
-            }
+        $names = $packages->keys()->mapTo(
+            PackageModel\Name::class,
+            static fn(string $name): PackageModel\Name => PackageModel\Name::of($name),
         );
+
+        $dependencies = $packages
+            ->values()
+            ->map(static function(PackageModel $package) use ($names): PackageModel {
+                return $package->keep(...unwrap($names)); // remove relations with no stable releases
+            });
 
         return Set::of(
             PackageModel::class,
-            ...unwrap($packages
-                ->values()
-                ->map(static function(PackageModel $package) use ($names): PackageModel {
-                    return $package->keep(...unwrap($names)); // remove relations with no stable releases
-                }))
+            ...unwrap($dependencies),
         );
     }
 
@@ -84,12 +82,12 @@ final class VendorDependencies
 
                 return $this->load(
                     $relation,
-                    $packages->put(
+                    ($packages)(
                         $relation->name()->toString(),
-                        $relation
-                    )
+                        $relation,
+                    ),
                 );
-            }
+            },
         );
     }
 }

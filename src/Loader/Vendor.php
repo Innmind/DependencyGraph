@@ -38,7 +38,7 @@ final class Vendor
             $request = new Request(
                 Url::of($url),
                 Method::get(),
-                new ProtocolVersion(2, 0)
+                new ProtocolVersion(2, 0),
             );
             $response = ($this->fulfill)($request);
             /** @var array{results: list<array{name: string, description: string, url: string, repository: string, virtual?: bool}>, total: int, next?: string} */

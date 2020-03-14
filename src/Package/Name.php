@@ -31,7 +31,7 @@ final class Name
 
         return new self(
             new Vendor\Name($vendor->toString()),
-            $package->toString()
+            $package->toString(),
         );
     }
 

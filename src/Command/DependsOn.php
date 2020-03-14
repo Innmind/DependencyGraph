@@ -43,12 +43,10 @@ final class DependsOn implements Command
         $packages = ($this->load)(
             $package = Package\Name::of($arguments->get('package')),
             new Vendor\Name($arguments->get('vendor')),
-            ...unwrap($arguments->pack()->reduce(
-                Set::of(Vendor\Name::class),
-                static function(Set $vendors, string $vendor): Set {
-                    return $vendors->add(new Vendor\Name($vendor));
-                }
-            ))
+            ...unwrap($arguments->pack()->mapTo(
+                Vendor\Name::class,
+                static fn(string $vendor): Vendor\Name => new Vendor\Name($vendor),
+            )),
         );
 
         $fileName = Str::of($package->toString())
@@ -74,8 +72,8 @@ final class DependsOn implements Command
                     ->withShortOption('o', $fileName->toString())
                     ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...unwrap($packages))
-                    )
+                        ($this->render)(...unwrap($packages)),
+                    ),
             );
         $process->wait();
 

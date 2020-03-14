@@ -29,14 +29,12 @@ final class PackageNode
     public static function graph(Locate $locate, Package ...$packages): Set
     {
         /** @var Map<string, Package> */
-        $packages = Set::of(Package::class, ...$packages)->reduce(
-            Map::of('string', Package::class),
-            static function(Map $packages, Package $package): Map {
-                return $packages->put(
-                    $package->name()->toString(),
-                    $package
-                );
-            }
+        $packages = Set::of(Package::class, ...$packages)->toMapOf(
+            'string',
+            Package::class,
+            static function(Package $package): \Generator {
+                yield $package->name()->toString() => $package;
+            },
         );
         /** @var Map<string, Node> */
         $nodes = $packages->values()->reduce(
@@ -44,9 +42,9 @@ final class PackageNode
             static function(Map $nodes, Package $package) use ($locate, $packages): Map {
                 /** @var Map<string, Node> $nodes */
 
-                $node = PackageNode::node($package, $nodes, $locate, $packages);
+                $node = self::node($package, $nodes, $locate, $packages);
 
-                return $nodes->put($node->name()->toString(), $node);
+                return ($nodes)($node->name()->toString(), $node);
             }
         );
 

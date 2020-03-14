@@ -22,7 +22,9 @@ final class Cluster
     public static function of(Vendor $vendor): Graph
     {
         $name = $vendor->name()->toString();
-        $cluster = Graph\Graph::directed(Str::of($name)->replace('-', '_')->toString());
+        $cluster = Graph\Graph::directed(
+            Str::of($name)->replace('-', '_')->toString()
+        );
         $cluster->displayAs($name);
         $cluster->target($vendor->packagist());
 

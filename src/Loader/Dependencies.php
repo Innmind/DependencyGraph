@@ -42,10 +42,10 @@ final class Dependencies
         $package = ($this->load)($name);
 
         return $package->relations()->reduce(
-            $packages->put($name->toString(), $package),
+            ($packages)($name->toString(), $package),
             function(Map $packages, Model\Relation $relation): Map {
                 return $this->load($relation->name(), $packages);
-            }
+            },
         );
     }
 }

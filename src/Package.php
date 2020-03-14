@@ -62,7 +62,7 @@ final class Package
             false,
             static function(bool $dependsOn, Relation $relation) use ($name): bool {
                 return $dependsOn || $relation->name()->equals($name);
-            }
+            },
         );
     }
 
@@ -79,7 +79,7 @@ final class Package
                 false,
                 static function(bool $inSet, Name $package) use ($relation): bool {
                     return $inSet || $relation->name()->equals($package);
-                }
+                },
             );
         });
 

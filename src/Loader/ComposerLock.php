@@ -69,15 +69,15 @@ final class ComposerLock
 
                 $relations[] = new Relation(
                     Name::of($require),
-                    new Constraint($constraint)
+                    new Constraint($constraint),
                 );
             }
 
-            $packages = $packages->add(new Package(
+            $packages = ($packages)(new Package(
                 Name::of($package['name']),
                 new Version($package['version']),
                 Url::of('https://packagist.org/packages/'.$package['name']),
-                ...$relations
+                ...$relations,
             ));
         }
 
@@ -97,15 +97,15 @@ final class ComposerLock
      */
     private function removeVirtualRelations(Set $packages): Set
     {
-        $installed = $packages->reduce(
-            Set::of(Name::class),
-            static function(Set $installed, Package $package): Set {
-                return $installed->add($package->name());
-            }
+        $installed = $packages->mapTo(
+            Name::class,
+            static fn(Package $package): Name => $package->name(),
         );
 
-        return $packages->map(static function(Package $package) use ($installed): Package {
-            return $package->keep(...unwrap($installed));
-        });
+        return $packages->map(
+            static fn(Package $package): Package => $package->keep(
+                ...unwrap($installed)
+            ),
+        );
     }
 }

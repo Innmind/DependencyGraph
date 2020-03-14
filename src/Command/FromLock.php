@@ -55,8 +55,8 @@ final class FromLock implements Command
                     ->withShortOption('o', $fileName->toString())
                     ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...unwrap($packages))
-                    )
+                        ($this->render)(...unwrap($packages)),
+                    ),
             );
         $process->wait();
 

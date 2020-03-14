@@ -46,7 +46,7 @@ final class Dependents
                     /** @var Set<Package> $packages */
 
                     return $packages->merge($vendor->packages());
-                }
+                },
             );
         /** @var Map<string, Package> */
         $packages = $packages
@@ -55,11 +55,11 @@ final class Dependents
                 static function(Map $packages, Package $package): Map {
                     /** @var Map<string, Package> $packages */
 
-                    return $packages->put(
+                    return ($packages)(
                         $package->name()->toString(),
-                        $package
+                        $package,
                     );
-                }
+                },
             );
 
         $name = $name->toString();
@@ -70,9 +70,7 @@ final class Dependents
 
         return Graph::of(
             $packages->get($name),
-            ...unwrap($packages
-                ->remove($name)
-                ->values())
+            ...unwrap($packages->remove($name)->values()),
         );
     }
 }
