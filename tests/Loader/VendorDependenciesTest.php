@@ -29,6 +29,6 @@ class VendorDependenciesTest extends TestCase
 
         $this->assertInstanceOf(SetInterface::class, $vendor);
         $this->assertSame(Model::class, (string) $vendor->type());
-        $this->assertCount(144, $vendor);
+        $this->assertCount(143, $vendor);
     }
 }
