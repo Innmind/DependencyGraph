@@ -36,7 +36,7 @@ final class Package
     }
 
     /**
-     * @throws NoPublishedVersion;
+     * @throws NoPublishedVersion
      */
     public function __invoke(Model\Name $name): Model
     {
@@ -46,7 +46,9 @@ final class Package
             new ProtocolVersion(2, 0)
         );
         $response = ($this->fulfill)($request);
-        $content = Json::decode($response->body()->toString())['package'];
+        /** @var array{package: array{name: string, versions: array<string, array{version: string, abandoned?: bool, require?: array<string, string>}>}} */
+        $body = Json::decode($response->body()->toString());
+        $content = $body['package'];
 
         $version = $this->mostRecentVersion($content['versions']);
         $relations = $this->loadRelations($version);
@@ -59,8 +61,14 @@ final class Package
         );
     }
 
+    /**
+     * @param array<string, array{version: string, abandoned?: bool, require?: array<string, string>}> $versions
+     *
+     * @return array{version: string, abandoned?: bool,require?: array<string, string>}
+     */
     private function mostRecentVersion(array $versions): array
     {
+        /** @var Map<string, array{version: string, abandoned?: bool, require?: array<string, string>}> */
         $published = Map::of('string', 'array');
 
         foreach ($versions as $key => $value) {
@@ -79,12 +87,15 @@ final class Package
             throw new NoPublishedVersion;
         }
 
+        /** @var list<string> */
         $versions = Semver::rsort(unwrap($published->keys()));
 
         return $published->get($versions[0]);
     }
 
     /**
+     * @param array{version: string, abandoned?: bool, require?: array<string, string>} $version
+     *
      * @return Set<Model\Relation>
      */
     private function loadRelations(array $version): Set

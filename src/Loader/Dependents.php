@@ -31,22 +31,30 @@ final class Dependents
         Model\Name $required,
         Model\Name ...$vendors
     ): Set {
-        $packages = Set::of(Model\Name::class, $required, ...$vendors)
-            ->reduce(
-                Set::of(Model::class),
-                function(Set $vendors, Model\Name $vendor): Set {
-                    return $vendors->add(($this->load)($vendor));
-                }
+        /** @var Set<Model\Name> */
+        $vendors = Set::of(Model\Name::class, $required, ...$vendors);
+
+        /** @var Set<Package> */
+        $packages = $vendors
+            ->mapTo(
+                Model::class,
+                fn(Model\Name $vendor): Model => ($this->load)($vendor),
             )
             ->reduce(
                 Set::of(Package::class),
                 static function(Set $packages, Model $vendor): Set {
+                    /** @var Set<Package> $packages */
+
                     return $packages->merge($vendor->packages());
                 }
-            )
+            );
+        /** @var Map<string, Package> */
+        $packages = $packages
             ->reduce(
                 Map::of('string', Package::class),
                 static function(Map $packages, Package $package): Map {
+                    /** @var Map<string, Package> $packages */
+
                     return $packages->put(
                         $package->name()->toString(),
                         $package

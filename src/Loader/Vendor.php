@@ -41,10 +41,11 @@ final class Vendor
                 new ProtocolVersion(2, 0)
             );
             $response = ($this->fulfill)($request);
+            /** @var array{results: list<array{name: string, description: string, url: string, repository: string, virtual?: bool}>, total: int, next?: string} */
             $content = Json::decode($response->body()->toString());
             $results = \array_merge($results, $content['results']);
             $url = $content['next'] ?? null;
-        } while (isset($content['next']));
+        } while (!\is_null($url));
 
         $packages = [];
 

@@ -28,6 +28,7 @@ final class PackageNode
      */
     public static function graph(Locate $locate, Package ...$packages): Set
     {
+        /** @var Map<string, Package> */
         $packages = Set::of(Package::class, ...$packages)->reduce(
             Map::of('string', Package::class),
             static function(Map $packages, Package $package): Map {
@@ -37,16 +38,20 @@ final class PackageNode
                 );
             }
         );
+        /** @var Map<string, Node> */
         $nodes = $packages->values()->reduce(
             Map::of('string', Node::class),
             static function(Map $nodes, Package $package) use ($locate, $packages): Map {
+                /** @var Map<string, Node> $nodes */
+
                 $node = PackageNode::node($package, $nodes, $locate, $packages);
 
                 return $nodes->put($node->name()->toString(), $node);
             }
         );
 
-        return Set::of(Node::class, ...unwrap($nodes->values()));
+        /** @var Set<Node> */
+        return $nodes->values()->toSetOf(Node::class);
     }
 
     public static function of(Name $name): Node\Node
@@ -60,6 +65,10 @@ final class PackageNode
         return Node\Node::named($name);
     }
 
+    /**
+     * @param Map<string, Node> $nodes
+     * @param Map<string, Package> $packages
+     */
     private static function node(
         Package $package,
         Map $nodes,

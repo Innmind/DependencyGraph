@@ -37,7 +37,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "~8.0",
-        "giorgiosironi/eris": "^0.11.0"
+        "giorgiosironi/eris": "^0.11.0",
+        "vimeo/psalm": "^3.9"
     },
     "bin": ["dependency-graph"]
 }

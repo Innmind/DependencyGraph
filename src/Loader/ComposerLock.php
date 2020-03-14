@@ -39,12 +39,20 @@ final class ComposerLock
     {
         $folder = $this->filesystem->mount($path);
         $composer = $folder->get(new FileName('composer.lock'));
+        /** @var array{packages: list<array{name: string, version: string, require?: array<string, string>}>} */
+        $lock = Json::decode($composer->content()->toString());
 
-        return $this->denormalize(Json::decode($composer->content()->toString()));
+        return $this->denormalize($lock);
     }
 
+    /**
+     * @param array{packages: list<array{name: string, version: string, require?: array<string, string>}>} $composer
+     *
+     * @return Set<Package>
+     */
     private function denormalize(array $composer): Set
     {
+        /** @var Set<Package> */
         $packages = Set::of(Package::class);
 
         foreach ($composer['packages'] as $package) {
@@ -82,6 +90,11 @@ final class ComposerLock
         return Str::of($name)->matches('~.+\/.+~');
     }
 
+    /**
+     * @param Set<Package> $packages
+     *
+     * @return Set<Package>
+     */
     private function removeVirtualRelations(Set $packages): Set
     {
         $installed = $packages->reduce(

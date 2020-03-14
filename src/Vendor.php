@@ -17,12 +17,14 @@ use function Innmind\Immutable\unwrap;
 final class Vendor
 {
     private Vendor\Name $name;
+    /** @var Set<Package> */
     private Set $packages;
     private Url $packagist;
 
     public function __construct(Package $first, Package ...$others)
     {
         $this->name = $first->name()->vendor();
+        /** @var Set<Package> */
         $this->packages = Set::of(Package::class, $first, ...$others);
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
@@ -38,6 +40,7 @@ final class Vendor
      */
     public static function group(Package ...$packages): Set
     {
+        /** @var Set<self> */
         return Set::of(Package::class, ...$packages)
             ->groupBy(static function(Package $package): string {
                 return $package->name()->vendor()->toString();

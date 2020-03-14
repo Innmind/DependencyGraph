@@ -17,6 +17,7 @@ final class Package
     private Name $name;
     private Version $version;
     private Url $packagist;
+    /** @var Set<Relation> */
     private Set $relations;
 
     public function __construct(
@@ -28,6 +29,7 @@ final class Package
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
+        /** @var Set<Relation> */
         $this->relations = Set::of(Relation::class, ...$relations);
     }
 

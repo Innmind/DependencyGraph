@@ -112,8 +112,12 @@ final class Graph
         );
     }
 
+    /**
+     * @return Set<Package>
+     */
     private function collectPackages(): Set
     {
+        /** @var Set<Package> */
         return $this->parents->reduce(
             Set::of(Package::class, $this->package),
             static function(Set $packages, self $parent): Set {

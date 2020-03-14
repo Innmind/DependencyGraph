@@ -29,7 +29,8 @@ final class Dependencies
     {
         $packages = $this->load($name, Map::of('string', Model::class));
 
-        return Set::of(Model::class, ...unwrap($packages->values()));
+        /** @var Set<Model> */
+        return $packages->values()->toSetOf(Model::class);
     }
 
     private function load(Model\Name $name, Map $packages): Map
