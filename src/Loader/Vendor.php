@@ -11,8 +11,8 @@ use Innmind\DependencyGraph\{
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Message\Request\Request,
-    Message\Method\Method,
-    ProtocolVersion\ProtocolVersion,
+    Message\Method,
+    ProtocolVersion,
 };
 use Innmind\Url\Url;
 use Innmind\Json\Json;
@@ -36,12 +36,12 @@ final class Vendor
 
         do {
             $request = new Request(
-                Url::fromString($url),
+                Url::of($url),
                 Method::get(),
                 new ProtocolVersion(2, 0)
             );
             $response = ($this->fulfill)($request);
-            $content = Json::decode((string) $response->body());
+            $content = Json::decode($response->body()->toString());
             $results = \array_merge($results, $content['results']);
             $url = $content['next'] ?? null;
         } while (isset($content['next']));

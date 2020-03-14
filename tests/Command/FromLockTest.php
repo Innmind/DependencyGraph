@@ -21,6 +21,8 @@ use Innmind\Server\Control\Server\{
     Process\ExitCode,
     Process\Output,
 };
+use Innmind\TimeWarp\Halt;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Url\Path;
 use Innmind\Stream\Writable;
 use Innmind\Immutable\Str;
@@ -28,12 +30,23 @@ use PHPUnit\Framework\TestCase;
 
 class FromLockTest extends TestCase
 {
+    private Generic $filesystem;
+
+    public function setUp(): void
+    {
+        $this->filesystem = new Generic(
+            $this->createMock(Processes::class),
+            $this->createMock(Halt::class),
+            $this->createMock(Clock::class),
+        );
+    }
+
     public function testInterface()
     {
         $this->assertInstanceOf(
             Command::class,
             new FromLock(
-                new ComposerLock(new Generic),
+                new ComposerLock($this->filesystem),
                 new Render,
                 $this->createMock(Processes::class)
             )
@@ -52,18 +65,18 @@ USAGE;
 
         $this->assertSame(
             $expected,
-            (string) new FromLock(
-                new ComposerLock(new Generic),
+            (new FromLock(
+                new ComposerLock($this->filesystem),
                 new Render,
                 $this->createMock(Processes::class)
-            )
+            ))->toString(),
         );
     }
 
     public function testExitWhenFileNotFound()
     {
         $command = new FromLock(
-            new ComposerLock(new Generic),
+            new ComposerLock($this->filesystem),
             new Render,
             $processes = $this->createMock(Processes::class)
         );
@@ -74,7 +87,7 @@ USAGE;
         $env
             ->expects($this->once())
             ->method('workingDirectory')
-            ->willReturn(new Path(__DIR__));
+            ->willReturn(Path::of(__DIR__.'/'));
         $env
             ->expects($this->once())
             ->method('exit')
@@ -90,7 +103,7 @@ USAGE;
     public function testInvokation()
     {
         $command = new FromLock(
-            new ComposerLock(new Generic),
+            new ComposerLock($this->filesystem),
             new Render,
             $processes = $this->createMock(Processes::class)
         );
@@ -98,15 +111,14 @@ USAGE;
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
-                return (string) $command === "dot '-Tsvg' '-o' 'dependencies.svg'" &&
-                    $command->workingDirectory() === __DIR__.'/../../fixtures' &&
-                    (string) $command->input() !== '';
+                return $command->toString() === "dot '-Tsvg' '-o' 'dependencies.svg'" &&
+                    $command->workingDirectory()->toString() === __DIR__.'/../../fixtures/' &&
+                    $command->input()->toString() !== '';
             }))
             ->willReturn($process = $this->createMock(Process::class));
         $process
             ->expects($this->once())
-            ->method('wait')
-            ->will($this->returnSelf());
+            ->method('wait');
         $process
             ->expects($this->once())
             ->method('exitCode')
@@ -115,7 +127,7 @@ USAGE;
         $env
             ->expects($this->any())
             ->method('workingDirectory')
-            ->willReturn(new Path(__DIR__.'/../../fixtures'));
+            ->willReturn(Path::of(__DIR__.'/../../fixtures/'));
         $env
             ->expects($this->never())
             ->method('exit');
@@ -130,7 +142,7 @@ USAGE;
     public function testExitWithProcessOutputWhenItFails()
     {
         $command = new FromLock(
-            new ComposerLock(new Generic),
+            new ComposerLock($this->filesystem),
             new Render,
             $processes = $this->createMock(Processes::class)
         );
@@ -138,15 +150,14 @@ USAGE;
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
-                return (string) $command === "dot '-Tsvg' '-o' 'dependencies.svg'" &&
-                    $command->workingDirectory() === __DIR__.'/../../fixtures' &&
-                    (string) $command->input() !== '';
+                return $command->toString() === "dot '-Tsvg' '-o' 'dependencies.svg'" &&
+                    $command->workingDirectory()->toString() === __DIR__.'/../../fixtures/' &&
+                    $command->input()->toString() !== '';
             }))
             ->willReturn($process = $this->createMock(Process::class));
         $process
             ->expects($this->once())
-            ->method('wait')
-            ->will($this->returnSelf());
+            ->method('wait');
         $process
             ->expects($this->once())
             ->method('exitCode')
@@ -157,13 +168,13 @@ USAGE;
             ->willReturn($output = $this->createMock(Output::class));
         $output
             ->expects($this->once())
-            ->method('__toString')
+            ->method('toString')
             ->willReturn('foo');
         $env = $this->createMock(Environment::class);
         $env
             ->expects($this->any())
             ->method('workingDirectory')
-            ->willReturn(new Path(__DIR__.'/../../fixtures'));
+            ->willReturn(Path::of(__DIR__.'/../../fixtures/'));
         $env
             ->expects($this->once())
             ->method('exit')

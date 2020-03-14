@@ -10,7 +10,8 @@ use Innmind\DependencyGraph\{
     Render,
 };
 use function Innmind\HttpTransport\bootstrap as http;
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class DependenciesTest extends TestCase
@@ -23,7 +24,7 @@ class DependenciesTest extends TestCase
 
         $packages = $load(PackageModel\Name::of('innmind/cli'));
 
-        $this->assertInstanceOf(SetInterface::class, $packages);
+        $this->assertInstanceOf(Set::class, $packages);
         $this->assertSame(PackageModel::class, (string) $packages->type());
         $this->assertCount(36, $packages);
         $expected = <<<DOT
@@ -212,6 +213,6 @@ digraph packages {
 }
 DOT;
 
-        $this->assertSame($expected, (string) (new Render)(...$packages));
+        $this->assertSame($expected, (new Render)(...unwrap($packages))->toString());
     }
 }

@@ -9,11 +9,10 @@ use Innmind\DependencyGraph\{
     Vendor as Model,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 
 final class Dependents
 {
@@ -25,29 +24,29 @@ final class Dependents
     }
 
     /**
-     * @return SetInterface<Package>
+     * @return Set<Package>
      */
     public function __invoke(
         Package\Name $name,
         Model\Name $required,
         Model\Name ...$vendors
-    ): SetInterface {
+    ): Set {
         $packages = Set::of(Model\Name::class, $required, ...$vendors)
             ->reduce(
                 Set::of(Model::class),
-                function(SetInterface $vendors, Model\Name $vendor): SetInterface {
+                function(Set $vendors, Model\Name $vendor): Set {
                     return $vendors->add(($this->load)($vendor));
                 }
             )
             ->reduce(
                 Set::of(Package::class),
-                static function(SetInterface $packages, Model $vendor): SetInterface {
+                static function(Set $packages, Model $vendor): Set {
                     return $packages->merge(Set::of(Package::class, ...$vendor));
                 }
             )
             ->reduce(
                 Map::of('string', Package::class),
-                static function(MapInterface $packages, Package $package): MapInterface {
+                static function(Map $packages, Package $package): Map {
                     return $packages->put(
                         (string) $package->name(),
                         $package
@@ -63,9 +62,9 @@ final class Dependents
 
         return Graph::of(
             $packages->get($name),
-            ...$packages
+            ...unwrap($packages
                 ->remove($name)
-                ->values()
+                ->values())
         );
     }
 }

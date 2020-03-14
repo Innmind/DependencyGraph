@@ -19,6 +19,7 @@ use Innmind\Server\Control\Server\{
 };
 use Innmind\Filesystem\Exception\FileNotFound;
 use Innmind\Immutable\Str;
+use function Innmind\Immutable\unwrap;
 
 final class FromLock implements Command
 {
@@ -51,17 +52,17 @@ final class FromLock implements Command
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', (string) $fileName)
-                    ->withWorkingDirectory((string) $env->workingDirectory())
+                    ->withShortOption('o', $fileName->toString())
+                    ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...$packages)
+                        ($this->render)(...unwrap($packages))
                     )
-            )
-            ->wait();
+            );
+        $process->wait();
 
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
-            $env->error()->write(Str::of((string) $process->output()));
+            $env->error()->write(Str::of($process->output()->toString()));
 
             return;
         }
@@ -69,7 +70,7 @@ final class FromLock implements Command
         $env->output()->write($fileName);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return <<<USAGE
 from-lock

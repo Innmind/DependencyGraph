@@ -8,11 +8,10 @@ use Innmind\DependencyGraph\{
     Package as Model,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 
 final class Dependencies
 {
@@ -24,16 +23,16 @@ final class Dependencies
     }
 
     /**
-     * @return SetInterface<Model>
+     * @return Set<Model>
      */
-    public function __invoke(Model\Name $name): SetInterface
+    public function __invoke(Model\Name $name): Set
     {
         $packages = $this->load($name, Map::of('string', Model::class));
 
-        return Set::of(Model::class, ...$packages->values());
+        return Set::of(Model::class, ...unwrap($packages->values()));
     }
 
-    private function load(Model\Name $name, MapInterface $packages): MapInterface
+    private function load(Model\Name $name, Map $packages): Map
     {
         if ($packages->contains((string) $name)) {
             return $packages;
@@ -43,7 +42,7 @@ final class Dependencies
 
         return $package->relations()->reduce(
             $packages->put((string) $name, $package),
-            function(MapInterface $packages, Model\Relation $relation): MapInterface {
+            function(Map $packages, Model\Relation $relation): Map {
                 return $this->load($relation->name(), $packages);
             }
         );

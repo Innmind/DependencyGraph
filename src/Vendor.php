@@ -7,38 +7,38 @@ use Innmind\DependencyGraph\{
     Package\Relation,
     Exception\LogicException,
 };
-use Innmind\Url\{
-    UrlInterface,
-    Url,
-};
+use Innmind\Url\Url;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 
 final class Vendor implements \Iterator
 {
     private Vendor\Name $name;
-    private Set $packages;
+    private array $packages;
     private Url $packagist;
 
     public function __construct(Package $first, Package ...$others)
     {
         $this->name = $first->name()->vendor();
-        $this->packages = Set::of(Package::class, $first, ...$others)->foreach(function(Package $package): void {
+        $packages = Set::of(Package::class, $first, ...$others);
+        $this->packagist = Url::of("https://packagist.org/packages/{$this->name}/");
+
+        $packages->foreach(function(Package $package): void {
             if (!$package->name()->vendor()->equals($this->name)) {
                 throw new LogicException;
             }
         });
-        $this->packagist = Url::fromString("https://packagist.org/packages/{$this->name}/");
+
+        $this->packages = unwrap($packages);
     }
 
     /**
-     * @return SetInterface<self>
+     * @return Set<self>
      */
-    public static function group(Package ...$packages): SetInterface
+    public static function group(Package ...$packages): Set
     {
         return Set::of(Package::class, ...$packages)
             ->groupBy(static function(Package $package): string {
@@ -47,8 +47,8 @@ final class Vendor implements \Iterator
             ->values()
             ->reduce(
                 Set::of(self::class),
-                static function(SetInterface $vendors, SetInterface $packages): SetInterface {
-                    return $vendors->add(new Vendor(...$packages));
+                static function(Set $vendors, Set $packages): Set {
+                    return $vendors->add(new Vendor(...unwrap($packages)));
                 }
             );
     }
@@ -58,14 +58,14 @@ final class Vendor implements \Iterator
         return $this->name;
     }
 
-    public function packagist(): UrlInterface
+    public function packagist(): Url
     {
         return $this->packagist;
     }
 
     public function dependsOn(Package\Name $name): bool
     {
-        return $this->packages->reduce(
+        return Set::of(Package::class, ...$this->packages)->reduce(
             false,
             static function(bool $dependsOn, Package $package) use ($name): bool {
                 return $dependsOn || $package->dependsOn($name);
@@ -73,28 +73,28 @@ final class Vendor implements \Iterator
         );
     }
 
-    public function current()
+    public function current(): Package
     {
-        return $this->packages->current();
+        return \current($this->packages);
     }
 
-    public function key()
+    public function key(): int
     {
-        return $this->packages->key();
+        return \key($this->packages);
     }
 
-    public function next()
+    public function next(): void
     {
-        return $this->packages->next();
+        \next($this->packages);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
-        return $this->packages->rewind();
+        \reset($this->packages);
     }
 
-    public function valid()
+    public function valid(): bool
     {
-        return $this->packages->valid();
+        return \current($this->packages) instanceof Package;
     }
 }

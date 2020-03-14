@@ -64,13 +64,13 @@ USAGE;
 
         $this->assertSame(
             $expected,
-            (string) new Of(
+            (new Of(
                 new Dependencies(
                     new Package($this->http)
                 ),
                 new Render,
                 $this->createMock(Processes::class)
-            )
+            ))->toString(),
         );
     }
 
@@ -87,15 +87,14 @@ USAGE;
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
-                return (string) $command === "dot '-Tsvg' '-o' 'innmind_cli_dependencies.svg'" &&
-                    $command->workingDirectory() === __DIR__.'/../../fixtures' &&
-                    (string) $command->input() !== '';
+                return $command->toString() === "dot '-Tsvg' '-o' 'innmind_cli_dependencies.svg'" &&
+                    $command->workingDirectory()->toString() === __DIR__.'/../../fixtures' &&
+                    $command->input()->toString() !== '';
             }))
             ->willReturn($process = $this->createMock(Process::class));
         $process
             ->expects($this->once())
-            ->method('wait')
-            ->will($this->returnSelf());
+            ->method('wait');
         $process
             ->expects($this->once())
             ->method('exitCode')
@@ -104,7 +103,7 @@ USAGE;
         $env
             ->expects($this->any())
             ->method('workingDirectory')
-            ->willReturn(new Path(__DIR__.'/../../fixtures'));
+            ->willReturn(Path::of(__DIR__.'/../../fixtures'));
         $env
             ->expects($this->never())
             ->method('exit');
@@ -112,7 +111,7 @@ USAGE;
         $this->assertNull($command(
             $env,
             new Arguments(
-                Map::of('string', 'mixed')
+                Map::of('string', 'string')
                     ('package', 'innmind/cli')
             ),
             new Options
@@ -132,15 +131,14 @@ USAGE;
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
-                return (string) $command === "dot '-Tsvg' '-o' 'innmind_cli_dependencies.svg'" &&
-                    $command->workingDirectory() === __DIR__.'/../../fixtures' &&
-                    (string) $command->input() !== '';
+                return $command->toString() === "dot '-Tsvg' '-o' 'innmind_cli_dependencies.svg'" &&
+                    $command->workingDirectory()->toString() === __DIR__.'/../../fixtures' &&
+                    $command->input()->toString() !== '';
             }))
             ->willReturn($process = $this->createMock(Process::class));
         $process
             ->expects($this->once())
-            ->method('wait')
-            ->will($this->returnSelf());
+            ->method('wait');
         $process
             ->expects($this->once())
             ->method('exitCode')
@@ -151,13 +149,13 @@ USAGE;
             ->willReturn($output = $this->createMock(Output::class));
         $output
             ->expects($this->once())
-            ->method('__toString')
+            ->method('toString')
             ->willReturn('foo');
         $env = $this->createMock(Environment::class);
         $env
             ->expects($this->any())
             ->method('workingDirectory')
-            ->willReturn(new Path(__DIR__.'/../../fixtures'));
+            ->willReturn(Path::of(__DIR__.'/../../fixtures'));
         $env
             ->expects($this->once())
             ->method('exit')
@@ -177,7 +175,7 @@ USAGE;
         $this->assertNull($command(
             $env,
             new Arguments(
-                Map::of('string', 'mixed')
+                Map::of('string', 'string')
                     ('package', 'innmind/cli')
             ),
             new Options

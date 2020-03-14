@@ -23,8 +23,8 @@ class PackageTest extends TestCase
         $this->assertSame('3.3.0', (string) $package->version());
         $this->assertSame(
             'https://packagist.org/packages/innmind/url',
-            (string) $package->packagist())
-        ;
+            $package->packagist()->toString(),
+        );
         $this->assertCount(2, $package->relations());
     }
 

@@ -9,23 +9,20 @@ use Innmind\DependencyGraph\{
     Package\Relation,
     Vendor,
 };
-use Innmind\Url\UrlInterface;
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Url\Url;
+use Innmind\Immutable\Set;
 
 final class Package
 {
     private Name $name;
     private Version $version;
-    private UrlInterface $packagist;
+    private Url $packagist;
     private Set $relations;
 
     public function __construct(
         Name $name,
         Version $version,
-        UrlInterface $packagist,
+        Url $packagist,
         Relation ...$relations
     ) {
         $this->name = $name;
@@ -44,15 +41,15 @@ final class Package
         return $this->version;
     }
 
-    public function packagist(): UrlInterface
+    public function packagist(): Url
     {
         return $this->packagist;
     }
 
     /**
-     * @return SetInterface<Relation>
+     * @return Set<Relation>
      */
-    public function relations(): SetInterface
+    public function relations(): Set
     {
         return $this->relations;
     }

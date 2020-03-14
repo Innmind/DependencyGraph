@@ -7,10 +7,8 @@ use Innmind\DependencyGraph\{
     Package,
     Package\Name,
 };
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 
 final class Graph
 {
@@ -27,14 +25,14 @@ final class Graph
     }
 
     /**
-     * @return SetInterface<Package>
+     * @return Set<Package>
      */
-    public static function of(Package $root, Package ...$dependents): SetInterface
+    public static function of(Package $root, Package ...$dependents): Set
     {
         $root = new self($root);
         $dependents = Set::of(Package::class, ...$dependents)->reduce(
             Set::of(self::class),
-            static function(SetInterface $dependents, Package $package): SetInterface {
+            static function(Set $dependents, Package $package): Set {
                 return $dependents->add(
                     new self($package)
                 );
@@ -53,7 +51,7 @@ final class Graph
     /**
      * Create biderectionnal relations between dependents and dependencies
      */
-    private static function bind(self $node, SetInterface $dependents): void
+    private static function bind(self $node, Set $dependents): void
     {
         $dependents->foreach(static function(self $dependent) use ($node): void {
             if ($dependent->package->dependsOn($node->package->name())) {
@@ -76,14 +74,12 @@ final class Graph
 
         $this->cleaned = true;
 
-        $this
-            ->parents
-            ->foreach(static function(self $parent) use ($root): void {
-                $parent->keepRelationsToChildren($root);
-            })
-            ->foreach(static function(self $parent) use ($root): void {
-                $parent->keepPaths($root);
-            });
+        $this->parents->foreach(static function(self $parent) use ($root): void {
+            $parent->keepRelationsToChildren($root);
+        });
+        $this->parents->foreach(static function(self $parent) use ($root): void {
+            $parent->keepPaths($root);
+        });
     }
 
     private function keepRelationsToChildren(Name $root): void
@@ -95,11 +91,11 @@ final class Graph
             })
             ->reduce(
                 Set::of(Name::class),
-                static function(SetInterface $children, self $child): SetInterface {
+                static function(Set $children, self $child): Set {
                     return $children->add($child->package->name());
                 }
             );
-        $this->package = $this->package->keep($root, ...$children);
+        $this->package = $this->package->keep($root, ...unwrap($children));
     }
 
     private function dependsOn(Name $root): bool
@@ -116,11 +112,11 @@ final class Graph
         );
     }
 
-    private function collectPackages(): SetInterface
+    private function collectPackages(): Set
     {
         return $this->parents->reduce(
             Set::of(Package::class, $this->package),
-            static function(SetInterface $packages, self $parent): SetInterface {
+            static function(Set $packages, self $parent): Set {
                 return $packages->merge($parent->collectPackages());
             }
         );

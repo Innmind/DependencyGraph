@@ -11,16 +11,17 @@ use Innmind\DependencyGraph\{
     Package\Constraint,
 };
 use Innmind\Url\{
-    PathInterface,
+    Path,
     Url,
 };
 use Innmind\Json\Json;
 use Innmind\OperatingSystem\Filesystem;
+use Innmind\Filesystem\Name as FileName;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class ComposerLock
 {
@@ -32,17 +33,17 @@ final class ComposerLock
     }
 
     /**
-     * @return SetInterface<Package>
+     * @return Set<Package>
      */
-    public function __invoke(PathInterface $path): SetInterface
+    public function __invoke(Path $path): Set
     {
         $folder = $this->filesystem->mount($path);
-        $composer = $folder->get('composer.lock');
+        $composer = $folder->get(new FileName('composer.lock'));
 
-        return $this->denormalize(Json::decode((string) $composer->content()));
+        return $this->denormalize(Json::decode($composer->content()->toString()));
     }
 
-    private function denormalize(array $composer): SetInterface
+    private function denormalize(array $composer): Set
     {
         $packages = Set::of(Package::class);
 
@@ -67,7 +68,7 @@ final class ComposerLock
             $packages = $packages->add(new Package(
                 Name::of($package['name']),
                 new Version($package['version']),
-                Url::fromString('https://packagist.org/packages/'.$package['name']),
+                Url::of('https://packagist.org/packages/'.$package['name']),
                 ...$relations
             ));
         }
@@ -81,17 +82,17 @@ final class ComposerLock
         return Str::of($name)->matches('~.+\/.+~');
     }
 
-    private function removeVirtualRelations(SetInterface $packages): SetInterface
+    private function removeVirtualRelations(Set $packages): Set
     {
         $installed = $packages->reduce(
             Set::of(Name::class),
-            static function(SetInterface $installed, Package $package): SetInterface {
+            static function(Set $installed, Package $package): Set {
                 return $installed->add($package->name());
             }
         );
 
         return $packages->map(static function(Package $package) use ($installed): Package {
-            return $package->keep(...$installed);
+            return $package->keep(...unwrap($installed));
         });
     }
 }

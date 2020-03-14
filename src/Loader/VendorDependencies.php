@@ -10,11 +10,10 @@ use Innmind\DependencyGraph\{
     Exception\NoPublishedVersion,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 
 final class VendorDependencies
 {
@@ -30,14 +29,14 @@ final class VendorDependencies
     }
 
     /**
-     * @return SetInterface<PackageModel>
+     * @return Set<PackageModel>
      */
-    public function __invoke(VendorModel\Name $name): SetInterface
+    public function __invoke(VendorModel\Name $name): Set
     {
         $vendor = ($this->loadVendor)($name);
         $packages = Set::of(PackageModel::class, ...$vendor)->reduce(
             Map::of('string', PackageModel::class),
-            static function(MapInterface $packages, PackageModel $package): MapInterface {
+            static function(Map $packages, PackageModel $package): Map {
                 return $packages->put(
                     (string) $package->name(),
                     $package
@@ -46,32 +45,32 @@ final class VendorDependencies
         );
         $packages = $packages->reduce(
             $packages,
-            function(MapInterface $packages, string $name, PackageModel $package): MapInterface {
+            function(Map $packages, string $name, PackageModel $package): Map {
                 return $this->load($package, $packages);
             }
         );
         $names = $packages->keys()->reduce(
             Set::of(PackageModel\Name::class),
-            static function(SetInterface $names, string $name): SetInterface {
+            static function(Set $names, string $name): Set {
                 return $names->add(PackageModel\Name::of($name));
             }
         );
 
         return Set::of(
             PackageModel::class,
-            ...$packages
+            ...unwrap($packages
                 ->values()
                 ->map(static function(PackageModel $package) use ($names): PackageModel {
-                    return $package->keep(...$names); // remove relations with no stable releases
-                })
+                    return $package->keep(...unwrap($names)); // remove relations with no stable releases
+                }))
         );
     }
 
-    private function load(PackageModel $package, MapInterface $packages): MapInterface
+    private function load(PackageModel $package, Map $packages): Map
     {
         return $package->relations()->reduce(
             $packages,
-            function(MapInterface $packages, Relation $relation): MapInterface {
+            function(Map $packages, Relation $relation): Map {
                 if ($packages->contains((string) $relation->name())) {
                     return $packages;
                 }

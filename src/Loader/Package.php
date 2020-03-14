@@ -10,17 +10,17 @@ use Innmind\DependencyGraph\{
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Message\Request\Request,
-    Message\Method\Method,
-    ProtocolVersion\ProtocolVersion,
+    Message\Method,
+    ProtocolVersion,
 };
 use Innmind\Url\Url;
 use Innmind\Json\Json;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Map,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 use Composer\Semver\{
     VersionParser,
     Semver,
@@ -41,12 +41,12 @@ final class Package
     public function __invoke(Model\Name $name): Model
     {
         $request = new Request(
-            Url::fromString("https://packagist.org/packages/$name.json"),
+            Url::of("https://packagist.org/packages/$name.json"),
             Method::get(),
             new ProtocolVersion(2, 0)
         );
         $response = ($this->fulfill)($request);
-        $content = Json::decode((string) $response->body())['package'];
+        $content = Json::decode($response->body()->toString())['package'];
 
         $version = $this->mostRecentVersion($content['versions']);
         $relations = $this->loadRelations($version);
@@ -54,19 +54,20 @@ final class Package
         return new Model(
             Model\Name::of($content['name']),
             new Model\Version($version['version']),
-            Url::fromString("https://packagist.org/packages/$name"),
-            ...$relations
+            Url::of("https://packagist.org/packages/$name"),
+            ...unwrap($relations)
         );
     }
 
     private function mostRecentVersion(array $versions): array
     {
-        $published = Map::of(
-            'string',
-            'array',
-            \array_keys($versions),
-            \array_values($versions)
-        )
+        $published = Map::of('string', 'array');
+
+        foreach ($versions as $key => $value) {
+            $published = ($published)($key, $value);
+        }
+
+        $published = $published
             ->filter(static function(string $version): bool {
                 return VersionParser::parseStability($version) === 'stable';
             })
@@ -78,15 +79,15 @@ final class Package
             throw new NoPublishedVersion;
         }
 
-        $versions = Semver::rsort($published->keys()->toPrimitive());
+        $versions = Semver::rsort(unwrap($published->keys()));
 
         return $published->get($versions[0]);
     }
 
     /**
-     * @return SetInterface<Model\Relation>
+     * @return Set<Model\Relation>
      */
-    private function loadRelations(array $version): SetInterface
+    private function loadRelations(array $version): Set
     {
         $relations = [];
 

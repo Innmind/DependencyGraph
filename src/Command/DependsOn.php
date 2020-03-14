@@ -20,10 +20,10 @@ use Innmind\Server\Control\Server\{
     Command as Executable,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class DependsOn implements Command
 {
@@ -43,12 +43,12 @@ final class DependsOn implements Command
         $packages = ($this->load)(
             $package = Package\Name::of($arguments->get('package')),
             new Vendor\Name($arguments->get('vendor')),
-            ...$arguments->get('vendors')->reduce(
+            ...unwrap($arguments->pack()->reduce(
                 Set::of(Vendor\Name::class),
-                static function(SetInterface $vendors, string $vendor): SetInterface {
+                static function(Set $vendors, string $vendor): Set {
                     return $vendors->add(new Vendor\Name($vendor));
                 }
-            )
+            ))
         );
 
         $fileName = Str::of((string) $package)
@@ -71,17 +71,17 @@ final class DependsOn implements Command
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', (string) $fileName)
-                    ->withWorkingDirectory((string) $env->workingDirectory())
+                    ->withShortOption('o', $fileName->toString())
+                    ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...$packages)
+                        ($this->render)(...unwrap($packages))
                     )
-            )
-            ->wait();
+            );
+        $process->wait();
 
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
-            $env->error()->write(Str::of((string) $process->output()));
+            $env->error()->write(Str::of($process->output()->toString()));
 
             return;
         }
@@ -89,7 +89,7 @@ final class DependsOn implements Command
         $env->output()->write($fileName);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return <<<USAGE
 depends-on package vendor ...vendors --direct

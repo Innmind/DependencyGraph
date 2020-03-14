@@ -9,19 +9,27 @@ use Innmind\DependencyGraph\{
     Render,
 };
 use Innmind\OperatingSystem\Filesystem\Generic;
+use Innmind\Server\Control\Server\Processes;
+use Innmind\TimeWarp\Halt;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Url\Path;
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class ComposerLockTest extends TestCase
 {
     public function testInterface()
     {
-        $load = new ComposerLock(new Generic);
+        $load = new ComposerLock(new Generic(
+            $this->createMock(Processes::class),
+            $this->createMock(Halt::class),
+            $this->createMock(Clock::class),
+        ));
 
-        $packages = $load(new Path(__DIR__.'/../../fixtures'));
+        $packages = $load(Path::of(__DIR__.'/../../fixtures/'));
 
-        $this->assertInstanceOf(SetInterface::class, $packages);
+        $this->assertInstanceOf(Set::class, $packages);
         $this->assertSame(Package::class, (string) $packages->type());
         $this->assertCount(19, $packages);
         $expected = <<<DOT
@@ -108,6 +116,6 @@ digraph packages {
 }
 DOT;
 
-        $this->assertSame($expected, (string) (new Render)(...$packages));
+        $this->assertSame($expected, (new Render)(...unwrap($packages))->toString());
     }
 }

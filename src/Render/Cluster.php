@@ -22,17 +22,19 @@ final class Cluster
     public static function of(Vendor $vendor): Graph
     {
         $name = (string) $vendor->name();
+        $cluster = Graph\Graph::directed(Str::of($name)->replace('-', '_')->toString());
+        $cluster->displayAs($name);
+        $cluster->target($vendor->packagist());
 
-        return Set::of(Package::class, ...$vendor)->reduce(
-            Graph\Graph::directed((string) Str::of($name)->replace('-', '_'))
-                ->displayAs($name)
-                ->target($vendor->packagist()),
-            function(Graph $cluster, Package $package): Graph {
-                return $cluster->add(
-                    PackageNode::of($package->name())
-                        ->displayAs("{$package->name()->package()}@{$package->version()}")
-                );
-            }
+        Set::of(Package::class, ...$vendor)->foreach(
+            static function(Package $package) use ($cluster): void {
+                $node = PackageNode::of($package->name());
+                $node->displayAs("{$package->name()->package()}@{$package->version()}");
+
+                $cluster->add($node);
+            },
         );
+
+        return $cluster;
     }
 }
