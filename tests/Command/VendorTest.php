@@ -36,7 +36,7 @@ class VendorTest extends TestCase
 {
     private $loader;
 
-    public function setUp()
+    public function setUp(): void
     {
         $http = http()['default']();
         $this->loader = new VendorDependencies(

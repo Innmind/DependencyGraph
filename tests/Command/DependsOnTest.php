@@ -36,7 +36,7 @@ class DependsOnTest extends TestCase
 {
     private $http;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->http = http()['default']();
     }
