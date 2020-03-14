@@ -19,12 +19,13 @@ use Innmind\Server\Control\Server\{
     Command as Executable,
 };
 use Innmind\Immutable\Str;
+use function Innmind\Immutable\unwrap;
 
 final class Vendor implements Command
 {
-    private $load;
-    private $render;
-    private $processes;
+    private VendorDependencies $load;
+    private Render $render;
+    private Processes $processes;
 
     public function __construct(VendorDependencies $load, Render $render, Processes $processes)
     {
@@ -36,24 +37,24 @@ final class Vendor implements Command
     public function __invoke(Environment $env, Arguments $arguments, Options $options): void
     {
         $packages = ($this->load)($vendor = new Name($arguments->get('vendor')));
-        $fileName = Str::of("$vendor.svg");
+        $fileName = Str::of("{$vendor->toString()}.svg");
 
         $process = $this
             ->processes
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', (string) $fileName)
-                    ->withWorkingDirectory((string) $env->workingDirectory())
+                    ->withShortOption('o', $fileName->toString())
+                    ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...$packages)
-                    )
-            )
-            ->wait();
+                        ($this->render)(...unwrap($packages)),
+                    ),
+            );
+        $process->wait();
 
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
-            $env->error()->write(Str::of((string) $process->output()));
+            $env->error()->write(Str::of($process->output()->toString()));
 
             return;
         }
@@ -61,7 +62,7 @@ final class Vendor implements Command
         $env->output()->write($fileName);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return <<<USAGE
 vendor vendor

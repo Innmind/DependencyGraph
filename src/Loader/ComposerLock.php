@@ -11,20 +11,21 @@ use Innmind\DependencyGraph\{
     Package\Constraint,
 };
 use Innmind\Url\{
-    PathInterface,
+    Path,
     Url,
 };
 use Innmind\Json\Json;
 use Innmind\OperatingSystem\Filesystem;
+use Innmind\Filesystem\Name as FileName;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class ComposerLock
 {
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(Filesystem $filesystem)
     {
@@ -32,18 +33,26 @@ final class ComposerLock
     }
 
     /**
-     * @return SetInterface<Package>
+     * @return Set<Package>
      */
-    public function __invoke(PathInterface $path): SetInterface
+    public function __invoke(Path $path): Set
     {
         $folder = $this->filesystem->mount($path);
-        $composer = $folder->get('composer.lock');
+        $composer = $folder->get(new FileName('composer.lock'));
+        /** @var array{packages: list<array{name: string, version: string, require?: array<string, string>}>} */
+        $lock = Json::decode($composer->content()->toString());
 
-        return $this->denormalize(Json::decode((string) $composer->content()));
+        return $this->denormalize($lock);
     }
 
-    private function denormalize(array $composer): SetInterface
+    /**
+     * @param array{packages: list<array{name: string, version: string, require?: array<string, string>}>} $composer
+     *
+     * @return Set<Package>
+     */
+    private function denormalize(array $composer): Set
     {
+        /** @var Set<Package> */
         $packages = Set::of(Package::class);
 
         foreach ($composer['packages'] as $package) {
@@ -60,15 +69,15 @@ final class ComposerLock
 
                 $relations[] = new Relation(
                     Name::of($require),
-                    new Constraint($constraint)
+                    new Constraint($constraint),
                 );
             }
 
-            $packages = $packages->add(new Package(
+            $packages = ($packages)(new Package(
                 Name::of($package['name']),
                 new Version($package['version']),
-                Url::fromString('https://packagist.org/packages/'.$package['name']),
-                ...$relations
+                Url::of('https://packagist.org/packages/'.$package['name']),
+                ...$relations,
             ));
         }
 
@@ -81,17 +90,22 @@ final class ComposerLock
         return Str::of($name)->matches('~.+\/.+~');
     }
 
-    private function removeVirtualRelations(SetInterface $packages): SetInterface
+    /**
+     * @param Set<Package> $packages
+     *
+     * @return Set<Package>
+     */
+    private function removeVirtualRelations(Set $packages): Set
     {
-        $installed = $packages->reduce(
-            Set::of(Name::class),
-            static function(SetInterface $installed, Package $package): SetInterface {
-                return $installed->add($package->name());
-            }
+        $installed = $packages->mapTo(
+            Name::class,
+            static fn(Package $package): Name => $package->name(),
         );
 
-        return $packages->map(static function(Package $package) use ($installed): Package {
-            return $package->keep(...$installed);
-        });
+        return $packages->map(
+            static fn(Package $package): Package => $package->keep(
+                ...unwrap($installed)
+            ),
+        );
     }
 }

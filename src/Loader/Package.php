@@ -10,17 +10,17 @@ use Innmind\DependencyGraph\{
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Message\Request\Request,
-    Message\Method\Method,
-    ProtocolVersion\ProtocolVersion,
+    Message\Method,
+    ProtocolVersion,
 };
 use Innmind\Url\Url;
 use Innmind\Json\Json;
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Map,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 use Composer\Semver\{
     VersionParser,
     Semver,
@@ -28,7 +28,7 @@ use Composer\Semver\{
 
 final class Package
 {
-    private $fulfill;
+    private Transport $fulfill;
 
     public function __construct(Transport $fulfill)
     {
@@ -36,17 +36,19 @@ final class Package
     }
 
     /**
-     * @throws NoPublishedVersion;
+     * @throws NoPublishedVersion
      */
     public function __invoke(Model\Name $name): Model
     {
         $request = new Request(
-            Url::fromString("https://packagist.org/packages/$name.json"),
+            Url::of("https://packagist.org/packages/{$name->toString()}.json"),
             Method::get(),
-            new ProtocolVersion(2, 0)
+            new ProtocolVersion(2, 0),
         );
         $response = ($this->fulfill)($request);
-        $content = Json::decode((string) $response->body())['package'];
+        /** @var array{package: array{name: string, versions: array<string, array{version: string, abandoned?: bool, require?: array<string, string>}>}} */
+        $body = Json::decode($response->body()->toString());
+        $content = $body['package'];
 
         $version = $this->mostRecentVersion($content['versions']);
         $relations = $this->loadRelations($version);
@@ -54,19 +56,26 @@ final class Package
         return new Model(
             Model\Name::of($content['name']),
             new Model\Version($version['version']),
-            Url::fromString("https://packagist.org/packages/$name"),
-            ...$relations
+            Url::of("https://packagist.org/packages/{$name->toString()}"),
+            ...unwrap($relations),
         );
     }
 
+    /**
+     * @param array<string, array{version: string, abandoned?: bool, require?: array<string, string>}> $versions
+     *
+     * @return array{version: string, abandoned?: bool,require?: array<string, string>}
+     */
     private function mostRecentVersion(array $versions): array
     {
-        $published = Map::of(
-            'string',
-            'array',
-            \array_keys($versions),
-            \array_values($versions)
-        )
+        /** @var Map<string, array{version: string, abandoned?: bool, require?: array<string, string>}> */
+        $published = Map::of('string', 'array');
+
+        foreach ($versions as $key => $value) {
+            $published = ($published)($key, $value);
+        }
+
+        $published = $published
             ->filter(static function(string $version): bool {
                 return VersionParser::parseStability($version) === 'stable';
             })
@@ -74,19 +83,22 @@ final class Package
                 return !($version['abandoned'] ?? false);
             });
 
-        if ($published->size() === 0) {
+        if ($published->empty()) {
             throw new NoPublishedVersion;
         }
 
-        $versions = Semver::rsort($published->keys()->toPrimitive());
+        /** @var list<string> */
+        $versions = Semver::rsort(unwrap($published->keys()));
 
         return $published->get($versions[0]);
     }
 
     /**
-     * @return SetInterface<Model\Relation>
+     * @param array{version: string, abandoned?: bool, require?: array<string, string>} $version
+     *
+     * @return Set<Model\Relation>
      */
-    private function loadRelations(array $version): SetInterface
+    private function loadRelations(array $version): Set
     {
         $relations = [];
 
@@ -97,7 +109,7 @@ final class Package
 
             $relations[] = new Model\Relation(
                 Model\Name::of($relation),
-                new Model\Constraint($constraint)
+                new Model\Constraint($constraint),
             );
         }
 

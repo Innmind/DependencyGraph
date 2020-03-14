@@ -10,22 +10,37 @@ use Innmind\DependencyGraph\{
     Package,
 };
 use Innmind\OperatingSystem\Filesystem\Generic;
+use Innmind\Server\Control\Server\Processes;
+use Innmind\TimeWarp\Halt;
+use Innmind\TimeContinuum\Clock;
 use Innmind\Url\{
-    UrlInterface,
+    Url,
     Path,
     Scheme,
 };
+use function Innmind\Immutable\unwrap;
 use Innmind\Stream\Readable;
 use PHPUnit\Framework\TestCase;
 
 class RenderTest extends TestCase
 {
+    private Generic $filesystem;
+
+    public function setUp(): void
+    {
+        $this->filesystem = new Generic(
+            $this->createMock(Processes::class),
+            $this->createMock(Halt::class),
+            $this->createMock(Clock::class),
+        );
+    }
+
     public function testInvokation()
     {
         $render = new Render;
-        $packages = (new ComposerLock(new Generic))(new Path(__DIR__.'/../fixtures'));
+        $packages = (new ComposerLock($this->filesystem))(Path::of(__DIR__.'/../fixtures/'));
 
-        $stream = $render(...$packages);
+        $stream = $render(...unwrap($packages));
 
         $this->assertInstanceOf(Readable::class, $stream);
         $expected = <<<DOT
@@ -111,20 +126,20 @@ digraph packages {
     symfony__polyfill_ctype [shape="ellipse", width="0.75", height="0.5", color="#96e3a7", URL="https://packagist.org/packages/symfony/polyfill-ctype#v1.10.0"];
 }
 DOT;
-        $this->assertSame($expected, (string) $stream);
+        $this->assertSame($expected, $stream->toString());
     }
 
     public function testLocateToRepository()
     {
         $render = new Render(new class implements Locate {
-            public function __invoke(Package $package): UrlInterface
+            public function __invoke(Package $package): Url
             {
-                return $package->packagist()->withScheme(new Scheme('foo'));
+                return $package->packagist()->withScheme(Scheme::of('foo'));
             }
         });
-        $packages = (new ComposerLock(new Generic))(new Path(__DIR__.'/../fixtures'));
+        $packages = (new ComposerLock($this->filesystem))(Path::of(__DIR__.'/../fixtures/'));
 
-        $stream = $render(...$packages);
+        $stream = $render(...unwrap($packages));
 
         $this->assertInstanceOf(Readable::class, $stream);
         $expected = <<<DOT
@@ -210,6 +225,6 @@ digraph packages {
     symfony__polyfill_ctype [shape="ellipse", width="0.75", height="0.5", color="#96e3a7", URL="foo://packagist.org/packages/symfony/polyfill-ctype"];
 }
 DOT;
-        $this->assertSame($expected, (string) $stream);
+        $this->assertSame($expected, $stream->toString());
     }
 }

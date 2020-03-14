@@ -11,8 +11,8 @@ use Innmind\DependencyGraph\{
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Message\Request\Request,
-    Message\Method\Method,
-    ProtocolVersion\ProtocolVersion,
+    Message\Method,
+    ProtocolVersion,
 };
 use Innmind\Url\Url;
 use Innmind\Json\Json;
@@ -20,8 +20,8 @@ use Innmind\Immutable\Str;
 
 final class Vendor
 {
-    private $fulfill;
-    private $load;
+    private Transport $fulfill;
+    private Package $load;
 
     public function __construct(Transport $fulfill, Package $load)
     {
@@ -31,25 +31,26 @@ final class Vendor
 
     public function __invoke(VendorModel\Name $name): VendorModel
     {
-        $url = "https://packagist.org/search.json?q=$name/";
+        $url = "https://packagist.org/search.json?q={$name->toString()}/";
         $results = [];
 
         do {
             $request = new Request(
-                Url::fromString($url),
+                Url::of($url),
                 Method::get(),
-                new ProtocolVersion(2, 0)
+                new ProtocolVersion(2, 0),
             );
             $response = ($this->fulfill)($request);
-            $content = Json::decode((string) $response->body());
+            /** @var array{results: list<array{name: string, description: string, url: string, repository: string, virtual?: bool}>, total: int, next?: string} */
+            $content = Json::decode($response->body()->toString());
             $results = \array_merge($results, $content['results']);
             $url = $content['next'] ?? null;
-        } while (isset($content['next']));
+        } while (!\is_null($url));
 
         $packages = [];
 
         foreach ($results as $result) {
-            if (!Str::of($result['name'])->matches("~^$name/~")) {
+            if (!Str::of($result['name'])->matches("~^{$name->toString()}/~")) {
                 continue;
             }
 

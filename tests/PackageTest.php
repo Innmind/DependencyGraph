@@ -11,8 +11,9 @@ use Innmind\DependencyGraph\{
     Package\Constraint,
     Vendor,
 };
-use Innmind\Url\UrlInterface;
-use Innmind\Immutable\SetInterface;
+use Innmind\Url\Url;
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class PackageTest extends TestCase
@@ -22,7 +23,7 @@ class PackageTest extends TestCase
         $package = new Package(
             $name = new Name(new Vendor\Name('foo'), 'bar'),
             $version = new Version('1.0.0'),
-            $packagist = $this->createMock(UrlInterface::class),
+            $packagist = Url::of('http://example.com'),
             $relation = new Relation(
                 new Name(new Vendor\Name('bar'), 'baz'),
                 new Constraint('~1.0')
@@ -32,9 +33,9 @@ class PackageTest extends TestCase
         $this->assertSame($name, $package->name());
         $this->assertSame($version, $package->version());
         $this->assertSame($packagist, $package->packagist());
-        $this->assertInstanceOf(SetInterface::class, $package->relations());
+        $this->assertInstanceOf(Set::class, $package->relations());
         $this->assertSame(Relation::class, (string) $package->relations()->type());
-        $this->assertSame([$relation], $package->relations()->toPrimitive());
+        $this->assertSame([$relation], unwrap($package->relations()));
     }
 
     public function testDependsOn()
@@ -42,7 +43,7 @@ class PackageTest extends TestCase
         $package = new Package(
             Name::of('foo/bar'),
             new Version('1.0.0'),
-            $this->createMock(UrlInterface::class),
+            Url::of('http://example.com'),
             new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
         );
 
@@ -55,7 +56,7 @@ class PackageTest extends TestCase
         $package = new Package(
             Name::of('foo/bar'),
             new Version('1.0.0'),
-            $this->createMock(UrlInterface::class),
+            Url::of('http://example.com'),
             $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
             new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
             $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0'))
@@ -67,7 +68,7 @@ class PackageTest extends TestCase
         $this->assertNotSame($package, $package2);
         $this->assertCount(3, $package->relations());
         $this->assertCount(2, $package2->relations());
-        $this->assertSame([$bar, $foo], $package2->relations()->toPrimitive());
+        $this->assertSame([$bar, $foo], unwrap($package2->relations()));
     }
 
     public function testRemoveRelations()
@@ -75,7 +76,7 @@ class PackageTest extends TestCase
         $package = new Package(
             Name::of('foo/bar'),
             new Version('1.0.0'),
-            $this->createMock(UrlInterface::class),
+            Url::of('http://example.com'),
             $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
             new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
             $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0'))

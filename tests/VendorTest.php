@@ -12,8 +12,9 @@ use Innmind\DependencyGraph\{
     Package\Constraint,
     Exception\LogicException,
 };
-use Innmind\Url\UrlInterface;
-use Innmind\Immutable\SetInterface;
+use Innmind\Url\Url;
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
@@ -24,21 +25,20 @@ class VendorTest extends TestCase
             $bar = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             ),
             $baz = new Package(
                 new Name(new Vendor\Name('foo'), 'baz'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             )
         );
 
         $this->assertInstanceOf(Vendor\Name::class, $vendor->name());
-        $this->assertSame('foo', (string) $vendor->name());
-        $this->assertInstanceOf(UrlInterface::class, $vendor->packagist());
-        $this->assertSame('https://packagist.org/packages/foo/', (string) $vendor->packagist());
-        $this->assertInstanceOf(\Iterator::class, $vendor);
-        $this->assertSame([$bar, $baz], iterator_to_array($vendor));
+        $this->assertSame('foo', $vendor->name()->toString());
+        $this->assertInstanceOf(Url::class, $vendor->packagist());
+        $this->assertSame('https://packagist.org/packages/foo/', $vendor->packagist()->toString());
+        $this->assertSame([$bar, $baz], unwrap($vendor->packages()));
     }
 
     public function testThrowWhenPackagesDoNotBelongToTheSameVendor()
@@ -49,12 +49,12 @@ class VendorTest extends TestCase
             new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             ),
             new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             )
         );
     }
@@ -65,21 +65,22 @@ class VendorTest extends TestCase
             $foo = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             ),
             $bar = new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             )
         );
 
-        $this->assertInstanceOf(SetInterface::class, $vendors);
+        $this->assertInstanceOf(Set::class, $vendors);
         $this->assertSame(Vendor::class, (string) $vendors->type());
         $this->assertCount(2, $vendors);
-        $this->assertSame([$foo], iterator_to_array($vendors->current()));
-        $vendors->next();
-        $this->assertSame([$bar], iterator_to_array($vendors->current()));
+        $vendors = unwrap($vendors);
+        $this->assertSame([$foo], unwrap(\current($vendors)->packages()));
+        \next($vendors);
+        $this->assertSame([$bar], unwrap(\current($vendors)->packages()));
     }
 
     public function testDependsOn()
@@ -88,12 +89,12 @@ class VendorTest extends TestCase
             new Package(
                 Name::of('foo/bar'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             ),
             new Package(
                 Name::of('foo/baz'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class),
+                Url::of('http://example.com'),
                 new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
             )
         );

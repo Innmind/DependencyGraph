@@ -17,22 +17,22 @@ use Innmind\Graphviz\{
     Layout\Dot,
 };
 use Innmind\Url\{
-    UrlInterface,
+    Url,
     Fragment,
 };
 use Innmind\Stream\Readable;
 
 final class Render
 {
-    private $locate;
+    private Locate $locate;
 
     public function __construct(Locate $locate = null)
     {
         $this->locate = $locate ?? new class implements Locate {
-            public function __invoke(Package $package): UrlInterface
+            public function __invoke(Package $package): Url
             {
-                return $package->packagist()->withFragment(new Fragment(
-                    (string) $package->version()
+                return $package->packagist()->withFragment(Fragment::of(
+                    $package->version()->toString(),
                 ));
             }
         };
@@ -44,21 +44,15 @@ final class Render
 
         // create the dependencies between the packages
         $nodes = PackageNode::graph($this->locate, ...$packages);
-        $graph = $nodes->reduce(
-            $graph,
-            function(Graph $graph, Node $node): Graph {
-                return $graph->add($node);
-            }
+        $nodes->foreach(
+            static fn(Node $node) => $graph->add($node),
         );
 
         // cluster packages by vendor
-        $graph = Vendor::group(...$packages)->reduce(
-            $graph,
-            function(Graph $graph, Vendor $vendor): Graph {
-                return $graph->cluster(
-                    Cluster::of($vendor)
-                );
-            }
+        Vendor::group(...$packages)->foreach(
+            static fn(Vendor $vendor) => $graph->cluster(
+                Cluster::of($vendor),
+            ),
         );
 
         // render

@@ -12,8 +12,9 @@ use Innmind\DependencyGraph\{
     Package\Constraint,
     Render,
 };
-use Innmind\Url\UrlInterface;
-use Innmind\Immutable\SetInterface;
+use Innmind\Url\Url;
+use Innmind\Immutable\Set;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class GraphTest extends TestCase
@@ -24,7 +25,7 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/root'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class),
+                Url::of('http://example.com'),
                 new Relation(
                     Name::of('rand/om'),
                     new Constraint('~1.0')
@@ -33,7 +34,7 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/libA'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class),
+                Url::of('http://example.com'),
                 new Relation(
                     Name::of('vendor/root'),
                     new Constraint('~1.0')
@@ -46,7 +47,7 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/libB'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class),
+                Url::of('http://example.com'),
                 new Relation(
                     Name::of('vendor/root'),
                     new Constraint('~1.0')
@@ -59,7 +60,7 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('watev/foo'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class),
+                Url::of('http://example.com'),
                 new Relation(
                     Name::of('vendor/libA'),
                     new Constraint('~1.0')
@@ -76,11 +77,11 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/libC'),
                 new Version('1.0.0'),
-                $this->createMock(UrlInterface::class)
+                Url::of('http://example.com')
             )
         );
 
-        $this->assertInstanceOf(SetInterface::class, $packages);
+        $this->assertInstanceOf(Set::class, $packages);
         $this->assertSame(Package::class, (string) $packages->type());
         $this->assertCount(4, $packages);
 
@@ -102,13 +103,13 @@ digraph packages {
     watev__foo -> vendor__libA [color="#416be8", label="~1.0"];
     watev__foo -> vendor__libB [color="#416be8", label="~1.0"];
     vendor__libB -> vendor__root [color="#f76ead", label="~1.0"];
-    vendor__root [shape="ellipse", width="0.75", height="0.5", color="#39b791", URL=""];
-    vendor__libA [shape="ellipse", width="0.75", height="0.5", color="#c34ca0", URL=""];
-    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL=""];
-    vendor__libB [shape="ellipse", width="0.75", height="0.5", color="#f76ead", URL=""];
+    vendor__root [shape="ellipse", width="0.75", height="0.5", color="#39b791", URL="http://example.com#1.0.0"];
+    vendor__libA [shape="ellipse", width="0.75", height="0.5", color="#c34ca0", URL="http://example.com#1.0.0"];
+    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL="http://example.com#1.0.0"];
+    vendor__libB [shape="ellipse", width="0.75", height="0.5", color="#f76ead", URL="http://example.com#1.0.0"];
 }
 DOT;
 
-        $this->assertSame($expected, (string) (new Render)(...$packages));
+        $this->assertSame($expected, (new Render)(...unwrap($packages))->toString());
     }
 }

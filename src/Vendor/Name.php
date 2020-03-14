@@ -8,7 +8,7 @@ use Innmind\Immutable\Str;
 
 final class Name
 {
-    private $value;
+    private string $value;
 
     public function __construct(string $value)
     {
@@ -21,10 +21,10 @@ final class Name
 
     public function equals(self $self): bool
     {
-        return (string) $this === (string) $self;
+        return $this->toString() === $self->toString();
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->value;
     }

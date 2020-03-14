@@ -20,16 +20,16 @@ use Innmind\Server\Control\Server\{
     Command as Executable,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
     Str,
 };
+use function Innmind\Immutable\unwrap;
 
 final class DependsOn implements Command
 {
-    private $load;
-    private $render;
-    private $processes;
+    private Dependents $load;
+    private Render $render;
+    private Processes $processes;
 
     public function __construct(Dependents $load, Render $render, Processes $processes)
     {
@@ -43,15 +43,13 @@ final class DependsOn implements Command
         $packages = ($this->load)(
             $package = Package\Name::of($arguments->get('package')),
             new Vendor\Name($arguments->get('vendor')),
-            ...$arguments->get('vendors')->reduce(
-                Set::of(Vendor\Name::class),
-                static function(SetInterface $vendors, string $vendor): SetInterface {
-                    return $vendors->add(new Vendor\Name($vendor));
-                }
-            )
+            ...unwrap($arguments->pack()->mapTo(
+                Vendor\Name::class,
+                static fn(string $vendor): Vendor\Name => new Vendor\Name($vendor),
+            )),
         );
 
-        $fileName = Str::of((string) $package)
+        $fileName = Str::of($package->toString())
             ->replace('/', '_')
             ->append('_dependents.svg');
 
@@ -71,17 +69,17 @@ final class DependsOn implements Command
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', (string) $fileName)
-                    ->withWorkingDirectory((string) $env->workingDirectory())
+                    ->withShortOption('o', $fileName->toString())
+                    ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...$packages)
-                    )
-            )
-            ->wait();
+                        ($this->render)(...unwrap($packages)),
+                    ),
+            );
+        $process->wait();
 
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
-            $env->error()->write(Str::of((string) $process->output()));
+            $env->error()->write(Str::of($process->output()->toString()));
 
             return;
         }
@@ -89,7 +87,7 @@ final class DependsOn implements Command
         $env->output()->write($fileName);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return <<<USAGE
 depends-on package vendor ...vendors --direct

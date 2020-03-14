@@ -11,7 +11,7 @@ use Innmind\DependencyGraph\{
     Package as Model,
 };
 use function Innmind\HttpTransport\bootstrap as http;
-use Innmind\Immutable\SetInterface;
+use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
 class VendorDependenciesTest extends TestCase
@@ -27,8 +27,8 @@ class VendorDependenciesTest extends TestCase
 
         $vendor = $load(new Name('innmind'));
 
-        $this->assertInstanceOf(SetInterface::class, $vendor);
+        $this->assertInstanceOf(Set::class, $vendor);
         $this->assertSame(Model::class, (string) $vendor->type());
-        $this->assertCount(102, $vendor);
+        $this->assertCount(143, $vendor);
     }
 }

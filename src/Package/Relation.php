@@ -5,8 +5,8 @@ namespace Innmind\DependencyGraph\Package;
 
 final class Relation
 {
-    private $name;
-    private $constraint;
+    private Name $name;
+    private Constraint $constraint;
 
     public function __construct(Name $name, Constraint $constraint)
     {

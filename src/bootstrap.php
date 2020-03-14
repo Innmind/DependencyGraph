@@ -21,22 +21,22 @@ function bootstrap(
         new Command\FromLock(
             new Loader\ComposerLock($filesystem),
             $render,
-            $processes
+            $processes,
         ),
         new Command\DependsOn(
             new Loader\Dependents($vendor),
             $render,
-            $processes
+            $processes,
         ),
         new Command\Of(
             new Loader\Dependencies($package),
             $render,
-            $processes
+            $processes,
         ),
         new Command\Vendor(
             new Loader\VendorDependencies($vendor, $package),
             $render,
-            $processes
-        )
+            $processes,
+        ),
     );
 }

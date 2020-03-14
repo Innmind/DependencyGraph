@@ -10,16 +10,15 @@ use Innmind\DependencyGraph\{
     Exception\NoPublishedVersion,
 };
 use Innmind\Immutable\{
-    SetInterface,
     Set,
-    MapInterface,
     Map,
 };
+use function Innmind\Immutable\unwrap;
 
 final class VendorDependencies
 {
-    private $loadVendor;
-    private $loadPackage;
+    private Vendor $loadVendor;
+    private Package $loadPackage;
 
     public function __construct(
         Vendor $loadVendor,
@@ -30,49 +29,48 @@ final class VendorDependencies
     }
 
     /**
-     * @return SetInterface<PackageModel>
+     * @return Set<PackageModel>
      */
-    public function __invoke(VendorModel\Name $name): SetInterface
+    public function __invoke(VendorModel\Name $name): Set
     {
         $vendor = ($this->loadVendor)($name);
-        $packages = Set::of(PackageModel::class, ...$vendor)->reduce(
-            Map::of('string', PackageModel::class),
-            static function(MapInterface $packages, PackageModel $package): MapInterface {
-                return $packages->put(
-                    (string) $package->name(),
-                    $package
-                );
-            }
+        /** @var Map<string, PackageModel> */
+        $packages = $vendor->packages()->toMapOf(
+            'string',
+            PackageModel::class,
+            static function(PackageModel $package): \Generator {
+                yield $package->name()->toString() => $package;
+            },
         );
         $packages = $packages->reduce(
             $packages,
-            function(MapInterface $packages, string $name, PackageModel $package): MapInterface {
+            function(Map $packages, string $name, PackageModel $package): Map {
                 return $this->load($package, $packages);
             }
         );
-        $names = $packages->keys()->reduce(
-            Set::of(PackageModel\Name::class),
-            static function(SetInterface $names, string $name): SetInterface {
-                return $names->add(PackageModel\Name::of($name));
-            }
+        $names = $packages->keys()->mapTo(
+            PackageModel\Name::class,
+            static fn(string $name): PackageModel\Name => PackageModel\Name::of($name),
         );
+
+        $dependencies = $packages
+            ->values()
+            ->map(static function(PackageModel $package) use ($names): PackageModel {
+                return $package->keep(...unwrap($names)); // remove relations with no stable releases
+            });
 
         return Set::of(
             PackageModel::class,
-            ...$packages
-                ->values()
-                ->map(static function(PackageModel $package) use ($names): PackageModel {
-                    return $package->keep(...$names); // remove relations with no stable releases
-                })
+            ...unwrap($dependencies),
         );
     }
 
-    private function load(PackageModel $package, MapInterface $packages): MapInterface
+    private function load(PackageModel $package, Map $packages): Map
     {
         return $package->relations()->reduce(
             $packages,
-            function(MapInterface $packages, Relation $relation): MapInterface {
-                if ($packages->contains((string) $relation->name())) {
+            function(Map $packages, Relation $relation): Map {
+                if ($packages->contains($relation->name()->toString())) {
                     return $packages;
                 }
 
@@ -84,12 +82,12 @@ final class VendorDependencies
 
                 return $this->load(
                     $relation,
-                    $packages->put(
-                        (string) $relation->name(),
-                        $relation
-                    )
+                    ($packages)(
+                        $relation->name()->toString(),
+                        $relation,
+                    ),
                 );
-            }
+            },
         );
     }
 }

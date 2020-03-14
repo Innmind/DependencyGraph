@@ -8,7 +8,7 @@ use Innmind\Immutable\Str;
 
 final class Version
 {
-    private $version;
+    private string $version;
 
     public function __construct(string $version)
     {
@@ -19,7 +19,7 @@ final class Version
         $this->version = $version;
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return $this->version;
     }

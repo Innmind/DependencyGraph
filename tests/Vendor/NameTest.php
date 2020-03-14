@@ -15,7 +15,7 @@ class NameTest extends TestCase
     {
         $name = new Name('vendor');
 
-        $this->assertSame('vendor', (string) $name);
+        $this->assertSame('vendor', $name->toString());
     }
 
     public function testEquals()

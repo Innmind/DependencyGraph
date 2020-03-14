@@ -8,11 +8,12 @@ use Innmind\DependencyGraph\{
     Exception\DomainException,
 };
 use Innmind\Immutable\Str;
+use function Innmind\Immutable\unwrap;
 
 final class Name
 {
-    private $vendor;
-    private $package;
+    private Vendor\Name $vendor;
+    private string $package;
 
     public function __construct(Vendor\Name $vendor, string $package)
     {
@@ -26,11 +27,11 @@ final class Name
 
     public static function of(string $name): self
     {
-        [$vendor, $package] = Str::of($name)->split('/');
+        [$vendor, $package] = unwrap(Str::of($name)->split('/'));
 
         return new self(
-            new Vendor\Name((string) $vendor),
-            (string) $package
+            new Vendor\Name($vendor->toString()),
+            $package->toString(),
         );
     }
 
@@ -46,11 +47,11 @@ final class Name
 
     public function equals(self $self): bool
     {
-        return (string) $this === (string) $self;
+        return $this->toString() === $self->toString();
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
-        return $this->vendor.'/'.$this->package;
+        return $this->vendor->toString().'/'.$this->package;
     }
 }

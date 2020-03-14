@@ -19,12 +19,13 @@ use Innmind\Server\Control\Server\{
     Command as Executable,
 };
 use Innmind\Immutable\Str;
+use function Innmind\Immutable\unwrap;
 
 final class Of implements Command
 {
-    private $load;
-    private $render;
-    private $processes;
+    private Dependencies $load;
+    private Render $render;
+    private Processes $processes;
 
     public function __construct(Dependencies $load, Render $render, Processes $processes)
     {
@@ -45,17 +46,17 @@ final class Of implements Command
             ->execute(
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
-                    ->withShortOption('o', (string) $fileName)
-                    ->withWorkingDirectory((string) $env->workingDirectory())
+                    ->withShortOption('o', $fileName->toString())
+                    ->withWorkingDirectory($env->workingDirectory())
                     ->withInput(
-                        ($this->render)(...$packages)
-                    )
-            )
-            ->wait();
+                        ($this->render)(...unwrap($packages)),
+                    ),
+            );
+        $process->wait();
 
         if (!$process->exitCode()->isSuccessful()) {
             $env->exit(1);
-            $env->error()->write(Str::of((string) $process->output()));
+            $env->error()->write(Str::of($process->output()->toString()));
 
             return;
         }
@@ -63,7 +64,7 @@ final class Of implements Command
         $env->output()->write($fileName);
     }
 
-    public function __toString(): string
+    public function toString(): string
     {
         return <<<USAGE
 of package

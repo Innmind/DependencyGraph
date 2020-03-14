@@ -9,28 +9,27 @@ use Innmind\DependencyGraph\{
     Package\Relation,
     Vendor,
 };
-use Innmind\Url\UrlInterface;
-use Innmind\Immutable\{
-    SetInterface,
-    Set,
-};
+use Innmind\Url\Url;
+use Innmind\Immutable\Set;
 
 final class Package
 {
-    private $name;
-    private $version;
-    private $packagist;
-    private $relations;
+    private Name $name;
+    private Version $version;
+    private Url $packagist;
+    /** @var Set<Relation> */
+    private Set $relations;
 
     public function __construct(
         Name $name,
         Version $version,
-        UrlInterface $packagist,
+        Url $packagist,
         Relation ...$relations
     ) {
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
+        /** @var Set<Relation> */
         $this->relations = Set::of(Relation::class, ...$relations);
     }
 
@@ -44,15 +43,15 @@ final class Package
         return $this->version;
     }
 
-    public function packagist(): UrlInterface
+    public function packagist(): Url
     {
         return $this->packagist;
     }
 
     /**
-     * @return SetInterface<Relation>
+     * @return Set<Relation>
      */
-    public function relations(): SetInterface
+    public function relations(): Set
     {
         return $this->relations;
     }
@@ -63,7 +62,7 @@ final class Package
             false,
             static function(bool $dependsOn, Relation $relation) use ($name): bool {
                 return $dependsOn || $relation->name()->equals($name);
-            }
+            },
         );
     }
 
@@ -80,7 +79,7 @@ final class Package
                 false,
                 static function(bool $inSet, Name $package) use ($relation): bool {
                     return $inSet || $relation->name()->equals($package);
-                }
+                },
             );
         });
 
