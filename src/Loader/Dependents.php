@@ -41,7 +41,7 @@ final class Dependents
             ->reduce(
                 Set::of(Package::class),
                 static function(Set $packages, Model $vendor): Set {
-                    return $packages->merge(Set::of(Package::class, ...$vendor));
+                    return $packages->merge($vendor->packages());
                 }
             )
             ->reduce(

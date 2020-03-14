@@ -9,6 +9,7 @@ use Innmind\DependencyGraph\{
     Vendor as Model,
 };
 use function Innmind\HttpTransport\bootstrap as http;
+use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
@@ -22,6 +23,6 @@ class VendorTest extends TestCase
 
         $this->assertInstanceOf(Model::class, $vendor);
         $this->assertSame('innmind', $vendor->name()->toString());
-        $this->assertCount(74, $vendor);
+        $this->assertCount(74, unwrap($vendor->packages()));
     }
 }

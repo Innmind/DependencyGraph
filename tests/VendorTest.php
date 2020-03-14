@@ -38,8 +38,7 @@ class VendorTest extends TestCase
         $this->assertSame('foo', $vendor->name()->toString());
         $this->assertInstanceOf(Url::class, $vendor->packagist());
         $this->assertSame('https://packagist.org/packages/foo/', $vendor->packagist()->toString());
-        $this->assertInstanceOf(\Iterator::class, $vendor);
-        $this->assertSame([$bar, $baz], iterator_to_array($vendor));
+        $this->assertSame([$bar, $baz], unwrap($vendor->packages()));
     }
 
     public function testThrowWhenPackagesDoNotBelongToTheSameVendor()
@@ -79,9 +78,9 @@ class VendorTest extends TestCase
         $this->assertSame(Vendor::class, (string) $vendors->type());
         $this->assertCount(2, $vendors);
         $vendors = unwrap($vendors);
-        $this->assertSame([$foo], iterator_to_array(\current($vendors)));
+        $this->assertSame([$foo], unwrap(\current($vendors)->packages()));
         \next($vendors);
-        $this->assertSame([$bar], iterator_to_array(\current($vendors)));
+        $this->assertSame([$bar], unwrap(\current($vendors)->packages()));
     }
 
     public function testDependsOn()

@@ -34,7 +34,7 @@ final class VendorDependencies
     public function __invoke(VendorModel\Name $name): Set
     {
         $vendor = ($this->loadVendor)($name);
-        $packages = Set::of(PackageModel::class, ...$vendor)->reduce(
+        $packages = $vendor->packages()->reduce(
             Map::of('string', PackageModel::class),
             static function(Map $packages, PackageModel $package): Map {
                 return $packages->put(

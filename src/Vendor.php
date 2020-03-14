@@ -14,25 +14,23 @@ use Innmind\Immutable\{
 };
 use function Innmind\Immutable\unwrap;
 
-final class Vendor implements \Iterator
+final class Vendor
 {
     private Vendor\Name $name;
-    private array $packages;
+    private Set $packages;
     private Url $packagist;
 
     public function __construct(Package $first, Package ...$others)
     {
         $this->name = $first->name()->vendor();
-        $packages = Set::of(Package::class, $first, ...$others);
+        $this->packages = Set::of(Package::class, $first, ...$others);
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
-        $packages->foreach(function(Package $package): void {
+        $this->packages->foreach(function(Package $package): void {
             if (!$package->name()->vendor()->equals($this->name)) {
                 throw new LogicException;
             }
         });
-
-        $this->packages = unwrap($packages);
     }
 
     /**
@@ -65,7 +63,7 @@ final class Vendor implements \Iterator
 
     public function dependsOn(Package\Name $name): bool
     {
-        return Set::of(Package::class, ...$this->packages)->reduce(
+        return $this->packages->reduce(
             false,
             static function(bool $dependsOn, Package $package) use ($name): bool {
                 return $dependsOn || $package->dependsOn($name);
@@ -73,28 +71,11 @@ final class Vendor implements \Iterator
         );
     }
 
-    public function current(): Package
+    /**
+     * @return Set<Package>
+     */
+    public function packages(): Set
     {
-        return \current($this->packages);
-    }
-
-    public function key(): int
-    {
-        return \key($this->packages);
-    }
-
-    public function next(): void
-    {
-        \next($this->packages);
-    }
-
-    public function rewind(): void
-    {
-        \reset($this->packages);
-    }
-
-    public function valid(): bool
-    {
-        return \current($this->packages) instanceof Package;
+        return $this->packages;
     }
 }

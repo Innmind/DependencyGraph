@@ -26,7 +26,7 @@ final class Cluster
         $cluster->displayAs($name);
         $cluster->target($vendor->packagist());
 
-        Set::of(Package::class, ...$vendor)->foreach(
+        $vendor->packages()->foreach(
             static function(Package $package) use ($cluster): void {
                 $node = PackageNode::of($package->name());
                 $node->displayAs("{$package->name()->package()}@{$package->version()->toString()}");
