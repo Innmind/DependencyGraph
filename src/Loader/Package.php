@@ -28,7 +28,7 @@ use Composer\Semver\{
 
 final class Package
 {
-    private $fulfill;
+    private Transport $fulfill;
 
     public function __construct(Transport $fulfill)
     {

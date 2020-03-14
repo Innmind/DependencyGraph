@@ -17,10 +17,10 @@ use Innmind\Immutable\{
 
 final class Package
 {
-    private $name;
-    private $version;
-    private $packagist;
-    private $relations;
+    private Name $name;
+    private Version $version;
+    private UrlInterface $packagist;
+    private Set $relations;
 
     public function __construct(
         Name $name,

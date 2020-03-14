@@ -20,8 +20,8 @@ use Innmind\Immutable\Str;
 
 final class Vendor
 {
-    private $fulfill;
-    private $load;
+    private Transport $fulfill;
+    private Package $load;
 
     public function __construct(Transport $fulfill, Package $load)
     {

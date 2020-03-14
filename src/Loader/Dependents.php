@@ -17,7 +17,7 @@ use Innmind\Immutable\{
 
 final class Dependents
 {
-    private $load;
+    private Vendor $load;
 
     public function __construct(Vendor $load)
     {

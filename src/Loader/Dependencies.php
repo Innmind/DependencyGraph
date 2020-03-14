@@ -16,7 +16,7 @@ use Innmind\Immutable\{
 
 final class Dependencies
 {
-    private $load;
+    private Package $load;
 
     public function __construct(Package $load)
     {

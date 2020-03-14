@@ -20,9 +20,9 @@ use Innmind\Immutable\{
 
 final class Vendor implements \Iterator
 {
-    private $name;
-    private $packages;
-    private $packagist;
+    private Vendor\Name $name;
+    private Set $packages;
+    private Url $packagist;
 
     public function __construct(Package $first, Package ...$others)
     {

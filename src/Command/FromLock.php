@@ -22,9 +22,9 @@ use Innmind\Immutable\Str;
 
 final class FromLock implements Command
 {
-    private $load;
-    private $render;
-    private $processes;
+    private ComposerLock $load;
+    private Render $render;
+    private Processes $processes;
 
     public function __construct(ComposerLock $load, Render $render, Processes $processes)
     {

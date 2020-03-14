@@ -14,10 +14,10 @@ use Innmind\Immutable\{
 
 final class Graph
 {
-    private $package;
-    private $parents;
-    private $children;
-    private $cleaned = false;
+    private Package $package;
+    private Set $parents;
+    private Set $children;
+    private bool $cleaned = false;
 
     private function __construct(Package $package)
     {

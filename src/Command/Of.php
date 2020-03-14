@@ -22,9 +22,9 @@ use Innmind\Immutable\Str;
 
 final class Of implements Command
 {
-    private $load;
-    private $render;
-    private $processes;
+    private Dependencies $load;
+    private Render $render;
+    private Processes $processes;
 
     public function __construct(Dependencies $load, Render $render, Processes $processes)
     {

@@ -24,7 +24,7 @@ use Innmind\Stream\Readable;
 
 final class Render
 {
-    private $locate;
+    private Locate $locate;
 
     public function __construct(Locate $locate = null)
     {

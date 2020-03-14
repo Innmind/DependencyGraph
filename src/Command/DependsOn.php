@@ -27,9 +27,9 @@ use Innmind\Immutable\{
 
 final class DependsOn implements Command
 {
-    private $load;
-    private $render;
-    private $processes;
+    private Dependents $load;
+    private Render $render;
+    private Processes $processes;
 
     public function __construct(Dependents $load, Render $render, Processes $processes)
     {

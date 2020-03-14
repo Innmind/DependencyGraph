@@ -18,8 +18,8 @@ use Innmind\Immutable\{
 
 final class VendorDependencies
 {
-    private $loadVendor;
-    private $loadPackage;
+    private Vendor $loadVendor;
+    private Package $loadPackage;
 
     public function __construct(
         Vendor $loadVendor,

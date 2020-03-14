@@ -24,7 +24,7 @@ use Innmind\Immutable\{
 
 final class ComposerLock
 {
-    private $filesystem;
+    private Filesystem $filesystem;
 
     public function __construct(Filesystem $filesystem)
     {

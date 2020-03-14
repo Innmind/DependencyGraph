@@ -11,8 +11,8 @@ use Innmind\Immutable\Str;
 
 final class Name
 {
-    private $vendor;
-    private $package;
+    private Vendor\Name $vendor;
+    private string $package;
 
     public function __construct(Vendor\Name $vendor, string $package)
     {

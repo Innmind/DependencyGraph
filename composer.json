@@ -15,7 +15,7 @@
         "issues": "http://github.com/Innmind/DependencyGraph/issues"
     },
     "require": {
-        "php": "~7.2",
+        "php": "~7.4",
         "innmind/immutable": "^2.13",
         "innmind/url": "^2.0",
         "innmind/operating-system": "^1.3",
