@@ -1,10 +1,8 @@
 # DependencyGraph
 
-| `develop` |
-|-----------|
-| [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/badges/quality-score.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/?branch=develop) |
-| [![Code Coverage](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/badges/coverage.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/?branch=develop) |
-| [![Build Status](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/badges/build.png?b=develop)](https://scrutinizer-ci.com/g/Innmind/DependencyGraph/build-status/develop) |
+[![Build Status](https://github.com/Innmind/DependencyGraph/workflows/CI/badge.svg)](https://github.com/Innmind/DependencyGraph/actions?query=workflow%3ACI)
+[![codecov](https://codecov.io/gh/Innmind/DependencyGraph/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/DependencyGraph)
+[![Type Coverage](https://shepherd.dev/github/Innmind/DependencyGraph/coverage.svg)](https://shepherd.dev/github/Innmind/DependencyGraph)
 
 Tool to help visualize the various dependencies between packages.
 
