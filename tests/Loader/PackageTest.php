@@ -20,7 +20,7 @@ class PackageTest extends TestCase
 
         $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('innmind/url', $package->name()->toString());
-        $this->assertSame('3.3.0', $package->version()->toString());
+        $this->assertSame('3.6.0', $package->version()->toString());
         $this->assertSame(
             'https://packagist.org/packages/innmind/url',
             $package->packagist()->toString(),
@@ -34,6 +34,6 @@ class PackageTest extends TestCase
 
         $package = $load(Model\Name::of('guzzlehttp/guzzle'));
 
-        $this->assertSame('6.5.2', $package->version()->toString());
+        $this->assertSame('7.0.1', $package->version()->toString());
     }
 }
