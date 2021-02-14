@@ -15,7 +15,6 @@ use Innmind\Immutable\{
     Set,
     Str,
 };
-use function Innmind\Immutable\unwrap;
 
 final class PackageNode
 {
@@ -41,7 +40,6 @@ final class PackageNode
             Map::of('string', Node::class),
             static function(Map $nodes, Package $package) use ($locate, $packages): Map {
                 /** @var Map<string, Node> $nodes */
-
                 $node = self::node($package, $nodes, $locate, $packages);
 
                 return ($nodes)($node->name()->toString(), $node);
@@ -80,7 +78,7 @@ final class PackageNode
 
         return $package->relations()->reduce(
             $node,
-            function(Node $package, Relation $relation) use ($nodes, $colour, $packages): Node {
+            static function(Node $package, Relation $relation) use ($nodes, $colour, $packages): Node {
                 $node = self::of($relation->name());
 
                 // if the package has already been transformed into a node, then

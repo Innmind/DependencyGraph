@@ -48,7 +48,7 @@ final class Vendor
             ->values()
             ->toSetOf(
                 self::class,
-                static fn(Set $packages): \Generator => yield new Vendor(
+                static fn(Set $packages): \Generator => yield new self(
                     ...unwrap($packages),
                 ),
             );
