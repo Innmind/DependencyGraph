@@ -34,6 +34,6 @@ class DependentsTest extends TestCase
 
         $this->assertInstanceOf(Set::class, $packages);
         $this->assertSame(PackageModel::class, (string) $packages->type());
-        $this->assertCount(67, $packages);
+        $this->assertCount(71, $packages);
     }
 }

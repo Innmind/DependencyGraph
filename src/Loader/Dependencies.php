@@ -11,7 +11,6 @@ use Innmind\Immutable\{
     Set,
     Map,
 };
-use function Innmind\Immutable\unwrap;
 
 final class Dependencies
 {

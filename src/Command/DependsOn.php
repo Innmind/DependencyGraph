@@ -55,10 +55,10 @@ final class DependsOn implements Command
 
         if ($options->contains('direct')) {
             $packages = $packages
-                ->filter(function(Package $dependents) use ($package): bool {
+                ->filter(static function(Package $dependents) use ($package): bool {
                     return $dependents->dependsOn($package) || $dependents->name()->equals($package);
                 })
-                ->map(function(Package $dependents) use ($package): Package {
+                ->map(static function(Package $dependents) use ($package): Package {
                     return $dependents->keep($package);
                 });
             $fileName = $fileName->prepend('direct_');
@@ -77,7 +77,7 @@ final class DependsOn implements Command
             );
         $process->wait();
 
-        if (!$process->exitCode()->isSuccessful()) {
+        if (!$process->exitCode()->successful()) {
             $env->exit(1);
             $env->error()->write(Str::of($process->output()->toString()));
 

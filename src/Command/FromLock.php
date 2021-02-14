@@ -60,7 +60,7 @@ final class FromLock implements Command
             );
         $process->wait();
 
-        if (!$process->exitCode()->isSuccessful()) {
+        if (!$process->exitCode()->successful()) {
             $env->exit(1);
             $env->error()->write(Str::of($process->output()->toString()));
 

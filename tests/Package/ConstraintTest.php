@@ -9,22 +9,19 @@ use Innmind\DependencyGraph\{
     Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;
-use Eris\{
-    Generator,
-    TestTrait,
+use Innmind\BlackBox\{
+    PHPUnit\BlackBox,
+    Set,
 };
 
 class ConstraintTest extends TestCase
 {
-    use TestTrait;
+    use BlackBox;
 
     public function testInterface()
     {
         $this
-            ->forAll(Generator\string())
-            ->when(static function(string $string): bool {
-                return $string !== '';
-            })
+            ->forAll(Set\Strings::any()->filter(static fn($string) => $string !== ''))
             ->then(function(string $string): void {
                 $this->assertSame($string, (new Constraint($string))->toString());
             });

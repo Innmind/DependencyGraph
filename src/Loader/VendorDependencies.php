@@ -12,6 +12,7 @@ use Innmind\DependencyGraph\{
 use Innmind\Immutable\{
     Set,
     Map,
+    Sequence,
 };
 use function Innmind\Immutable\unwrap;
 
@@ -42,6 +43,7 @@ final class VendorDependencies
                 yield $package->name()->toString() => $package;
             },
         );
+        /** @var Map<string, PackageModel> */
         $packages = $packages->reduce(
             $packages,
             function(Map $packages, string $name, PackageModel $package): Map {
@@ -53,6 +55,7 @@ final class VendorDependencies
             static fn(string $name): PackageModel\Name => PackageModel\Name::of($name),
         );
 
+        /** @var Sequence<PackageModel> */
         $dependencies = $packages
             ->values()
             ->map(static function(PackageModel $package) use ($names): PackageModel {

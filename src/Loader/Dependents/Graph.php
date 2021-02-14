@@ -13,7 +13,9 @@ use function Innmind\Immutable\unwrap;
 final class Graph
 {
     private Package $package;
+    /** @var Set<self> */
     private Set $parents;
+    /** @var Set<self> */
     private Set $children;
     private bool $cleaned = false;
 
@@ -45,6 +47,8 @@ final class Graph
 
     /**
      * Create biderectionnal relations between dependents and dependencies
+     *
+     * @param Set<self> $dependents
      */
     private static function bind(self $node, Set $dependents): void
     {
