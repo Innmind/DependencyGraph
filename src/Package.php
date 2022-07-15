@@ -29,7 +29,6 @@ final class Package
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
-        /** @var Set<Relation> */
         $this->relations = Set::of(Relation::class, ...$relations);
     }
 

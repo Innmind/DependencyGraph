@@ -35,7 +35,6 @@ final class VendorDependencies
     public function __invoke(VendorModel\Name $name): Set
     {
         $vendor = ($this->loadVendor)($name);
-        /** @var Map<string, PackageModel> */
         $packages = $vendor->packages()->toMapOf(
             'string',
             PackageModel::class,
@@ -46,7 +45,7 @@ final class VendorDependencies
         /** @var Map<string, PackageModel> */
         $packages = $packages->reduce(
             $packages,
-            function(Map $packages, string $name, PackageModel $package): Map {
+            function(Map $packages, string $_, PackageModel $package): Map {
                 return $this->load($package, $packages);
             }
         );
@@ -55,7 +54,6 @@ final class VendorDependencies
             static fn(string $name): PackageModel\Name => PackageModel\Name::of($name),
         );
 
-        /** @var Sequence<PackageModel> */
         $dependencies = $packages
             ->values()
             ->map(static function(PackageModel $package) use ($names): PackageModel {

@@ -31,7 +31,6 @@ final class Dependents
         Model\Name $required,
         Model\Name ...$vendors
     ): Set {
-        /** @var Set<Model\Name> */
         $vendors = Set::of(Model\Name::class, $required, ...$vendors);
 
         /** @var Set<Package> */

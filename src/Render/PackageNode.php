@@ -27,7 +27,6 @@ final class PackageNode
      */
     public static function graph(Locate $locate, Package ...$packages): Set
     {
-        /** @var Map<string, Package> */
         $packages = Set::of(Package::class, ...$packages)->toMapOf(
             'string',
             Package::class,

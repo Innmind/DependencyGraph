@@ -24,7 +24,6 @@ final class Vendor
     public function __construct(Package $first, Package ...$others)
     {
         $this->name = $first->name()->vendor();
-        /** @var Set<Package> */
         $this->packages = Set::of(Package::class, $first, ...$others);
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
