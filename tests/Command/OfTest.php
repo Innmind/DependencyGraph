@@ -46,11 +46,11 @@ class OfTest extends TestCase
             Command::class,
             new Of(
                 new Dependencies(
-                    new Package($this->http)
+                    new Package($this->http),
                 ),
                 new Render,
-                $this->createMock(Processes::class)
-            )
+                $this->createMock(Processes::class),
+            ),
         );
     }
 
@@ -66,10 +66,10 @@ USAGE;
             $expected,
             (new Of(
                 new Dependencies(
-                    new Package($this->http)
+                    new Package($this->http),
                 ),
                 new Render,
-                $this->createMock(Processes::class)
+                $this->createMock(Processes::class),
             ))->toString(),
         );
     }
@@ -78,10 +78,10 @@ USAGE;
     {
         $command = new Of(
             new Dependencies(
-                new Package($this->http)
+                new Package($this->http),
             ),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -112,9 +112,9 @@ USAGE;
             $env,
             new Arguments(
                 Map::of('string', 'string')
-                    ('package', 'innmind/cli')
+                    ('package', 'innmind/cli'),
             ),
-            new Options
+            new Options,
         ));
     }
 
@@ -122,10 +122,10 @@ USAGE;
     {
         $command = new Of(
             new Dependencies(
-                new Package($this->http)
+                new Package($this->http),
             ),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -176,9 +176,9 @@ USAGE;
             $env,
             new Arguments(
                 Map::of('string', 'string')
-                    ('package', 'innmind/cli')
+                    ('package', 'innmind/cli'),
             ),
-            new Options
+            new Options,
         ));
     }
 }

@@ -17,7 +17,7 @@ class RelationTest extends TestCase
     {
         $relation = new Relation(
             $name = new Name(new Vendor\Name('foo'), 'bar'),
-            $constraint = new Constraint('~1.0')
+            $constraint = new Constraint('~1.0'),
         );
 
         $this->assertSame($name, $relation->name());

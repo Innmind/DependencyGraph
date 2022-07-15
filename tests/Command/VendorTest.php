@@ -41,7 +41,7 @@ class VendorTest extends TestCase
         $http = http()['default']();
         $this->loader = new VendorDependencies(
             new VendorLoader($http, new Package($http)),
-            new Package($http)
+            new Package($http),
         );
     }
 
@@ -52,8 +52,8 @@ class VendorTest extends TestCase
             new Vendor(
                 $this->loader,
                 new Render,
-                $this->createMock(Processes::class)
-            )
+                $this->createMock(Processes::class),
+            ),
         );
     }
 
@@ -70,7 +70,7 @@ USAGE;
             (new Vendor(
                 $this->loader,
                 new Render,
-                $this->createMock(Processes::class)
+                $this->createMock(Processes::class),
             ))->toString(),
         );
     }
@@ -80,7 +80,7 @@ USAGE;
         $command = new Vendor(
             $this->loader,
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -111,9 +111,9 @@ USAGE;
             $env,
             new Arguments(
                 Map::of('string', 'string')
-                    ('vendor', 'innmind')
+                    ('vendor', 'innmind'),
             ),
-            new Options
+            new Options,
         ));
     }
 
@@ -122,7 +122,7 @@ USAGE;
         $command = new Vendor(
             $this->loader,
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -173,9 +173,9 @@ USAGE;
             $env,
             new Arguments(
                 Map::of('string', 'string')
-                    ('vendor', 'innmind')
+                    ('vendor', 'innmind'),
             ),
-            new Options
+            new Options,
         ));
     }
 }

@@ -47,11 +47,11 @@ class DependsOnTest extends TestCase
             Command::class,
             new DependsOn(
                 new Dependents(
-                    new Vendor($this->http, new Package($this->http))
+                    new Vendor($this->http, new Package($this->http)),
                 ),
                 new Render,
-                $this->createMock(Processes::class)
-            )
+                $this->createMock(Processes::class),
+            ),
         );
     }
 
@@ -73,11 +73,11 @@ USAGE;
                 new Dependents(
                     new Vendor(
                         $this->http,
-                        new Package($this->http)
-                    )
+                        new Package($this->http),
+                    ),
                 ),
                 new Render,
-                $this->createMock(Processes::class)
+                $this->createMock(Processes::class),
             ))->toString(),
         );
     }
@@ -88,11 +88,11 @@ USAGE;
             new Dependents(
                 new Vendor(
                     $this->http,
-                    new Package($this->http)
-                )
+                    new Package($this->http),
+                ),
             ),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -127,7 +127,7 @@ USAGE;
                     ('vendor', 'innmind'),
                 Sequence::of('string', 'foo'),
             ),
-            new Options
+            new Options,
         ));
     }
 
@@ -137,11 +137,11 @@ USAGE;
             new Dependents(
                 new Vendor(
                     $this->http,
-                    new Package($this->http)
-                )
+                    new Package($this->http),
+                ),
             ),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -178,8 +178,8 @@ USAGE;
             ),
             new Options(
                 Map::of('string', 'string')
-                    ('direct', '')
-            )
+                    ('direct', ''),
+            ),
         ));
     }
 
@@ -189,11 +189,11 @@ USAGE;
             new Dependents(
                 new Vendor(
                     $this->http,
-                    new Package($this->http)
-                )
+                    new Package($this->http),
+                ),
             ),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -248,7 +248,7 @@ USAGE;
                     ('vendor', 'innmind'),
                 Sequence::of('string', 'foo'),
             ),
-            new Options
+            new Options,
         ));
     }
 }

@@ -25,13 +25,13 @@ class VendorTest extends TestCase
             $bar = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
+                Url::of('http://example.com'),
             ),
             $baz = new Package(
                 new Name(new Vendor\Name('foo'), 'baz'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
+                Url::of('http://example.com'),
+            ),
         );
 
         $this->assertInstanceOf(Vendor\Name::class, $vendor->name());
@@ -49,13 +49,13 @@ class VendorTest extends TestCase
             new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
+                Url::of('http://example.com'),
             ),
             new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
+                Url::of('http://example.com'),
+            ),
         );
     }
 
@@ -65,13 +65,13 @@ class VendorTest extends TestCase
             $foo = new Package(
                 new Name(new Vendor\Name('foo'), 'bar'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
+                Url::of('http://example.com'),
             ),
             $bar = new Package(
                 new Name(new Vendor\Name('bar'), 'baz'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
+                Url::of('http://example.com'),
+            ),
         );
 
         $this->assertInstanceOf(Set::class, $vendors);
@@ -89,14 +89,14 @@ class VendorTest extends TestCase
             new Package(
                 Name::of('foo/bar'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
+                Url::of('http://example.com'),
             ),
             new Package(
                 Name::of('foo/baz'),
                 new Version('1.0.0'),
                 Url::of('http://example.com'),
-                new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
-            )
+                new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+            ),
         );
 
         $this->assertTrue($vendor->dependsOn(Name::of('bar/baz')));

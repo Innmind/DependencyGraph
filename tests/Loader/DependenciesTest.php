@@ -19,7 +19,7 @@ class DependenciesTest extends TestCase
     public function testInvokation()
     {
         $load = new Dependencies(
-            new Package(http()['default']())
+            new Package(http()['default']()),
         );
 
         $packages = $load(PackageModel\Name::of('innmind/url'));

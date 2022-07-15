@@ -11,7 +11,7 @@ use Innmind\CLI\Commands;
 function bootstrap(
     Filesystem $filesystem,
     Processes $processes,
-    Transport $http
+    Transport $http,
 ): Commands {
     $render = new Render;
     $package = new Loader\Package($http);

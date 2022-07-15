@@ -23,7 +23,7 @@ final class VendorDependencies
 
     public function __construct(
         Vendor $loadVendor,
-        Package $loadPackage
+        Package $loadPackage,
     ) {
         $this->loadVendor = $loadVendor;
         $this->loadPackage = $loadPackage;
@@ -47,7 +47,7 @@ final class VendorDependencies
             $packages,
             function(Map $packages, string $_, PackageModel $package): Map {
                 return $this->load($package, $packages);
-            }
+            },
         );
         $names = $packages->keys()->mapTo(
             PackageModel\Name::class,

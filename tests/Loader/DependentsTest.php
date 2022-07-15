@@ -23,13 +23,13 @@ class DependentsTest extends TestCase
         $load = new Dependents(
             new Vendor(
                 $http,
-                new Package($http)
-            )
+                new Package($http),
+            ),
         );
 
         $packages = $load(
             PackageModel\Name::of('innmind/immutable'),
-            new VendorModel\Name('innmind')
+            new VendorModel\Name('innmind'),
         );
 
         $this->assertInstanceOf(Set::class, $packages);

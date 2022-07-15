@@ -116,7 +116,7 @@ final class Graph
         return $this->parents->reduce(
             Set::of(Package::class, $this->package),
             static fn(Set $packages, self $parent): Set => $packages->merge(
-                $parent->collectPackages()
+                $parent->collectPackages(),
             ),
         );
     }

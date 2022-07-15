@@ -42,7 +42,7 @@ final class PackageNode
                 $node = self::node($package, $nodes, $locate, $packages);
 
                 return ($nodes)($node->name()->toString(), $node);
-            }
+            },
         );
 
         /** @var Set<Node> */
@@ -68,7 +68,7 @@ final class PackageNode
         Package $package,
         Map $nodes,
         Locate $locate,
-        Map $packages
+        Map $packages,
     ): Node {
         $colour = self::colorize($package->name());
         $node = self::of($package->name());
@@ -96,7 +96,7 @@ final class PackageNode
                 }
 
                 return $package;
-            }
+            },
         );
     }
 

@@ -48,8 +48,8 @@ class FromLockTest extends TestCase
             new FromLock(
                 new ComposerLock($this->filesystem),
                 new Render,
-                $this->createMock(Processes::class)
-            )
+                $this->createMock(Processes::class),
+            ),
         );
     }
 
@@ -68,7 +68,7 @@ USAGE;
             (new FromLock(
                 new ComposerLock($this->filesystem),
                 new Render,
-                $this->createMock(Processes::class)
+                $this->createMock(Processes::class),
             ))->toString(),
         );
     }
@@ -78,7 +78,7 @@ USAGE;
         $command = new FromLock(
             new ComposerLock($this->filesystem),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->never())
@@ -96,7 +96,7 @@ USAGE;
         $this->assertNull($command(
             $env,
             new Arguments,
-            new Options
+            new Options,
         ));
     }
 
@@ -105,7 +105,7 @@ USAGE;
         $command = new FromLock(
             new ComposerLock($this->filesystem),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -135,7 +135,7 @@ USAGE;
         $this->assertNull($command(
             $env,
             new Arguments,
-            new Options
+            new Options,
         ));
     }
 
@@ -144,7 +144,7 @@ USAGE;
         $command = new FromLock(
             new ComposerLock($this->filesystem),
             new Render,
-            $processes = $this->createMock(Processes::class)
+            $processes = $this->createMock(Processes::class),
         );
         $processes
             ->expects($this->once())
@@ -194,7 +194,7 @@ USAGE;
         $this->assertNull($command(
             $env,
             new Arguments,
-            new Options
+            new Options,
         ));
     }
 }

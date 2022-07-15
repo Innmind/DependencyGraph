@@ -26,8 +26,8 @@ class PackageTest extends TestCase
             $packagist = Url::of('http://example.com'),
             $relation = new Relation(
                 new Name(new Vendor\Name('bar'), 'baz'),
-                new Constraint('~1.0')
-            )
+                new Constraint('~1.0'),
+            ),
         );
 
         $this->assertSame($name, $package->name());
@@ -44,7 +44,7 @@ class PackageTest extends TestCase
             Name::of('foo/bar'),
             new Version('1.0.0'),
             Url::of('http://example.com'),
-            new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
+            new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
         );
 
         $this->assertTrue($package->dependsOn(Name::of('bar/baz')));
@@ -59,7 +59,7 @@ class PackageTest extends TestCase
             Url::of('http://example.com'),
             $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
             new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
-            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0'))
+            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0')),
         );
 
         $package2 = $package->keep(Name::of('foo/bar'), Name::of('bar/baz'));
@@ -79,7 +79,7 @@ class PackageTest extends TestCase
             Url::of('http://example.com'),
             $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
             new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
-            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0'))
+            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0')),
         );
 
         $package2 = $package->removeRelations();

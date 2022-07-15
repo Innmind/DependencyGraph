@@ -17,7 +17,7 @@ class BootstrapTest extends TestCase
         $commands = bootstrap(
             $this->createMock(Filesystem::class),
             $this->createMock(Processes::class),
-            $this->createMock(Transport::class)
+            $this->createMock(Transport::class),
         );
 
         $this->assertInstanceOf(Commands::class, $commands);

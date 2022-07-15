@@ -28,8 +28,8 @@ class GraphTest extends TestCase
                 Url::of('http://example.com'),
                 new Relation(
                     Name::of('rand/om'),
-                    new Constraint('~1.0')
-                )
+                    new Constraint('~1.0'),
+                ),
             ),
             new Package(
                 Name::of('vendor/libA'),
@@ -37,12 +37,12 @@ class GraphTest extends TestCase
                 Url::of('http://example.com'),
                 new Relation(
                     Name::of('vendor/root'),
-                    new Constraint('~1.0')
+                    new Constraint('~1.0'),
                 ),
                 new Relation(
                     Name::of('watev/lib'),
-                    new Constraint('~1.0')
-                )
+                    new Constraint('~1.0'),
+                ),
             ),
             new Package(
                 Name::of('vendor/libB'),
@@ -50,12 +50,12 @@ class GraphTest extends TestCase
                 Url::of('http://example.com'),
                 new Relation(
                     Name::of('vendor/root'),
-                    new Constraint('~1.0')
+                    new Constraint('~1.0'),
                 ),
                 new Relation(
                     Name::of('watev/other'),
-                    new Constraint('~1.0')
-                )
+                    new Constraint('~1.0'),
+                ),
             ),
             new Package(
                 Name::of('watev/foo'),
@@ -63,22 +63,22 @@ class GraphTest extends TestCase
                 Url::of('http://example.com'),
                 new Relation(
                     Name::of('vendor/libA'),
-                    new Constraint('~1.0')
+                    new Constraint('~1.0'),
                 ),
                 new Relation(
                     Name::of('vendor/libB'),
-                    new Constraint('~1.0')
+                    new Constraint('~1.0'),
                 ),
                 new Relation(
                     Name::of('vendor/libC'),
-                    new Constraint('~1.0')
-                )
+                    new Constraint('~1.0'),
+                ),
             ),
             new Package(
                 Name::of('vendor/libC'),
                 new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
+                Url::of('http://example.com'),
+            ),
         );
 
         $this->assertInstanceOf(Set::class, $packages);

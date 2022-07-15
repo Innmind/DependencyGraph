@@ -29,7 +29,7 @@ final class Dependents
     public function __invoke(
         Package\Name $name,
         Model\Name $required,
-        Model\Name ...$vendors
+        Model\Name ...$vendors,
     ): Set {
         $vendors = Set::of(Model\Name::class, $required, ...$vendors);
 

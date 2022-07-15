@@ -104,7 +104,7 @@ final class ComposerLock
 
         return $packages->map(
             static fn(Package $package): Package => $package->keep(
-                ...unwrap($installed)
+                ...unwrap($installed),
             ),
         );
     }

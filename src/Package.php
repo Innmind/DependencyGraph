@@ -24,7 +24,7 @@ final class Package
         Name $name,
         Version $version,
         Url $packagist,
-        Relation ...$relations
+        Relation ...$relations,
     ) {
         $this->name = $name;
         $this->version = $version;

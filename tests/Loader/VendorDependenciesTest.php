@@ -22,7 +22,7 @@ class VendorDependenciesTest extends TestCase
         $package = new Package($http);
         $load = new VendorDependencies(
             new Vendor($http, $package),
-            $package
+            $package,
         );
 
         $vendor = $load(new Name('innmind'));

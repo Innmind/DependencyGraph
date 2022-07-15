@@ -23,7 +23,7 @@ final class Cluster
     {
         $name = $vendor->name()->toString();
         $cluster = Graph\Graph::directed(
-            Str::of($name)->replace('-', '_')->toString()
+            Str::of($name)->replace('-', '_')->toString(),
         );
         $cluster->displayAs($name);
         $cluster->target($vendor->packagist());
