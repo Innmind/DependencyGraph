@@ -20,12 +20,12 @@ class PackageTest extends TestCase
 
         $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('innmind/url', $package->name()->toString());
-        $this->assertSame('3.6.0', $package->version()->toString());
+        $this->assertSame('4.1.0', $package->version()->toString());
         $this->assertSame(
             'https://packagist.org/packages/innmind/url',
             $package->packagist()->toString(),
         );
-        $this->assertCount(2, $package->relations());
+        $this->assertCount(3, $package->relations());
     }
 
     public function testMostRecentVersionIsLoaded()
@@ -34,6 +34,6 @@ class PackageTest extends TestCase
 
         $package = $load(Model\Name::of('guzzlehttp/guzzle'));
 
-        $this->assertSame('7.0.1', $package->version()->toString());
+        $this->assertSame('7.4.5', $package->version()->toString());
     }
 }
