@@ -22,7 +22,7 @@
         "innmind/json": "^1.1",
         "innmind/graphviz": "~2.0",
         "innmind/cli": "~2.0",
-        "composer/semver": "^1.4"
+        "composer/semver": "~3.0"
     },
     "autoload": {
         "psr-4": {
