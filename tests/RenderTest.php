@@ -13,13 +13,12 @@ use Innmind\OperatingSystem\Filesystem\Generic;
 use Innmind\Server\Control\Server\Processes;
 use Innmind\TimeWarp\Halt;
 use Innmind\TimeContinuum\Clock;
+use Innmind\Filesystem\File\Content;
 use Innmind\Url\{
     Url,
     Path,
     Scheme,
 };
-use function Innmind\Immutable\unwrap;
-use Innmind\Stream\Readable;
 use PHPUnit\Framework\TestCase;
 
 class RenderTest extends TestCase
@@ -28,7 +27,7 @@ class RenderTest extends TestCase
 
     public function setUp(): void
     {
-        $this->filesystem = new Generic(
+        $this->filesystem = Generic::of(
             $this->createMock(Processes::class),
             $this->createMock(Halt::class),
             $this->createMock(Clock::class),
@@ -40,9 +39,9 @@ class RenderTest extends TestCase
         $render = new Render;
         $packages = (new ComposerLock($this->filesystem))(Path::of(__DIR__.'/../fixtures/'));
 
-        $stream = $render(...unwrap($packages));
+        $stream = $render(...$packages->toList());
 
-        $this->assertInstanceOf(Readable::class, $stream);
+        $this->assertInstanceOf(Content::class, $stream);
         $expected = <<<DOT
 digraph packages {
     subgraph cluster_innmind {
@@ -84,10 +83,9 @@ digraph packages {
     innmind__filesystem -> innmind__stream [color="#a45b8d", label="^1.3"];
     innmind__filesystem -> symfony__filesystem [color="#a45b8d", label="^3.0|~4.0"];
     innmind__filesystem -> symfony__finder [color="#a45b8d", label="~3.0|~4.0"];
+    innmind__operating_system -> innmind__time_continuum [color="#bb6188", label="^1.2"];
     innmind__stream -> innmind__immutable [color="#5eb3ec", label="^2.3"];
     innmind__stream -> innmind__time_continuum [color="#5eb3ec", label="^1.0"];
-    symfony__filesystem -> symfony__polyfill_ctype [color="#1a4d29", label="~1.8"];
-    innmind__operating_system -> innmind__time_continuum [color="#bb6188", label="^1.2"];
     innmind__url -> innmind__immutable [color="#085cd3", label="~2.0"];
     innmind__url -> league__uri [color="#085cd3", label="~5.0"];
     league__uri -> league__uri_components [color="#ef36b1", label="^1.8"];
@@ -105,13 +103,12 @@ digraph packages {
     league__uri_schemes -> league__uri_interfaces [color="#8cd717", label="^1.1"];
     league__uri_schemes -> league__uri_parser [color="#8cd717", label="^1.4.0"];
     league__uri_schemes -> psr__http_message [color="#8cd717", label="^1.0"];
+    symfony__filesystem -> symfony__polyfill_ctype [color="#1a4d29", label="~1.8"];
     innmind__filesystem [shape="ellipse", width="0.75", height="0.5", color="#a45b8d", URL="https://packagist.org/packages/innmind/filesystem#3.3.0"];
     innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://packagist.org/packages/innmind/immutable#2.13.0"];
-    innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="https://packagist.org/packages/innmind/stream#1.4.0"];
-    symfony__filesystem [shape="ellipse", width="0.75", height="0.5", color="#1a4d29", URL="https://packagist.org/packages/symfony/filesystem#v4.2.2"];
-    symfony__finder [shape="ellipse", width="0.75", height="0.5", color="#952a8a", URL="https://packagist.org/packages/symfony/finder#v4.2.2"];
     innmind__json [shape="ellipse", width="0.75", height="0.5", color="#cb2336", URL="https://packagist.org/packages/innmind/json#1.1.0"];
     innmind__operating_system [shape="ellipse", width="0.75", height="0.5", color="#bb6188", URL="https://packagist.org/packages/innmind/operating-system#1.3.0"];
+    innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="https://packagist.org/packages/innmind/stream#1.4.0"];
     innmind__time_continuum [shape="ellipse", width="0.75", height="0.5", color="#dfbeb0", URL="https://packagist.org/packages/innmind/time-continuum#1.3.0"];
     innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="https://packagist.org/packages/innmind/url#2.0.3"];
     league__uri [shape="ellipse", width="0.75", height="0.5", color="#ef36b1", URL="https://packagist.org/packages/league/uri#5.3.0"];
@@ -123,6 +120,8 @@ digraph packages {
     league__uri_schemes [shape="ellipse", width="0.75", height="0.5", color="#8cd717", URL="https://packagist.org/packages/league/uri-schemes#1.2.1"];
     psr__http_message [shape="ellipse", width="0.75", height="0.5", color="#8da3f1", URL="https://packagist.org/packages/psr/http-message#1.0.1"];
     psr__simple_cache [shape="ellipse", width="0.75", height="0.5", color="#01186e", URL="https://packagist.org/packages/psr/simple-cache#1.0.1"];
+    symfony__filesystem [shape="ellipse", width="0.75", height="0.5", color="#1a4d29", URL="https://packagist.org/packages/symfony/filesystem#v4.2.2"];
+    symfony__finder [shape="ellipse", width="0.75", height="0.5", color="#952a8a", URL="https://packagist.org/packages/symfony/finder#v4.2.2"];
     symfony__polyfill_ctype [shape="ellipse", width="0.75", height="0.5", color="#96e3a7", URL="https://packagist.org/packages/symfony/polyfill-ctype#v1.10.0"];
 }
 DOT;
@@ -139,9 +138,9 @@ DOT;
         });
         $packages = (new ComposerLock($this->filesystem))(Path::of(__DIR__.'/../fixtures/'));
 
-        $stream = $render(...unwrap($packages));
+        $stream = $render(...$packages->toList());
 
-        $this->assertInstanceOf(Readable::class, $stream);
+        $this->assertInstanceOf(Content::class, $stream);
         $expected = <<<DOT
 digraph packages {
     subgraph cluster_innmind {
@@ -183,10 +182,9 @@ digraph packages {
     innmind__filesystem -> innmind__stream [color="#a45b8d", label="^1.3"];
     innmind__filesystem -> symfony__filesystem [color="#a45b8d", label="^3.0|~4.0"];
     innmind__filesystem -> symfony__finder [color="#a45b8d", label="~3.0|~4.0"];
+    innmind__operating_system -> innmind__time_continuum [color="#bb6188", label="^1.2"];
     innmind__stream -> innmind__immutable [color="#5eb3ec", label="^2.3"];
     innmind__stream -> innmind__time_continuum [color="#5eb3ec", label="^1.0"];
-    symfony__filesystem -> symfony__polyfill_ctype [color="#1a4d29", label="~1.8"];
-    innmind__operating_system -> innmind__time_continuum [color="#bb6188", label="^1.2"];
     innmind__url -> innmind__immutable [color="#085cd3", label="~2.0"];
     innmind__url -> league__uri [color="#085cd3", label="~5.0"];
     league__uri -> league__uri_components [color="#ef36b1", label="^1.8"];
@@ -204,13 +202,12 @@ digraph packages {
     league__uri_schemes -> league__uri_interfaces [color="#8cd717", label="^1.1"];
     league__uri_schemes -> league__uri_parser [color="#8cd717", label="^1.4.0"];
     league__uri_schemes -> psr__http_message [color="#8cd717", label="^1.0"];
+    symfony__filesystem -> symfony__polyfill_ctype [color="#1a4d29", label="~1.8"];
     innmind__filesystem [shape="ellipse", width="0.75", height="0.5", color="#a45b8d", URL="foo://packagist.org/packages/innmind/filesystem"];
     innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="foo://packagist.org/packages/innmind/immutable"];
-    innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="foo://packagist.org/packages/innmind/stream"];
-    symfony__filesystem [shape="ellipse", width="0.75", height="0.5", color="#1a4d29", URL="foo://packagist.org/packages/symfony/filesystem"];
-    symfony__finder [shape="ellipse", width="0.75", height="0.5", color="#952a8a", URL="foo://packagist.org/packages/symfony/finder"];
     innmind__json [shape="ellipse", width="0.75", height="0.5", color="#cb2336", URL="foo://packagist.org/packages/innmind/json"];
     innmind__operating_system [shape="ellipse", width="0.75", height="0.5", color="#bb6188", URL="foo://packagist.org/packages/innmind/operating-system"];
+    innmind__stream [shape="ellipse", width="0.75", height="0.5", color="#5eb3ec", URL="foo://packagist.org/packages/innmind/stream"];
     innmind__time_continuum [shape="ellipse", width="0.75", height="0.5", color="#dfbeb0", URL="foo://packagist.org/packages/innmind/time-continuum"];
     innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="foo://packagist.org/packages/innmind/url"];
     league__uri [shape="ellipse", width="0.75", height="0.5", color="#ef36b1", URL="foo://packagist.org/packages/league/uri"];
@@ -222,6 +219,8 @@ digraph packages {
     league__uri_schemes [shape="ellipse", width="0.75", height="0.5", color="#8cd717", URL="foo://packagist.org/packages/league/uri-schemes"];
     psr__http_message [shape="ellipse", width="0.75", height="0.5", color="#8da3f1", URL="foo://packagist.org/packages/psr/http-message"];
     psr__simple_cache [shape="ellipse", width="0.75", height="0.5", color="#01186e", URL="foo://packagist.org/packages/psr/simple-cache"];
+    symfony__filesystem [shape="ellipse", width="0.75", height="0.5", color="#1a4d29", URL="foo://packagist.org/packages/symfony/filesystem"];
+    symfony__finder [shape="ellipse", width="0.75", height="0.5", color="#952a8a", URL="foo://packagist.org/packages/symfony/finder"];
     symfony__polyfill_ctype [shape="ellipse", width="0.75", height="0.5", color="#96e3a7", URL="foo://packagist.org/packages/symfony/polyfill-ctype"];
 }
 DOT;

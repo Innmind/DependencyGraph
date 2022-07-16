@@ -20,6 +20,9 @@ final class Package
     /** @var Set<Relation> */
     private Set $relations;
 
+    /**
+     * @no-named-arguments
+     */
     public function __construct(
         Name $name,
         Version $version,
@@ -29,7 +32,7 @@ final class Package
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
-        $this->relations = Set::of(Relation::class, ...$relations);
+        $this->relations = Set::of(...$relations);
     }
 
     public function name(): Name
@@ -57,28 +60,24 @@ final class Package
 
     public function dependsOn(Name $name): bool
     {
-        return $this->relations->reduce(
-            false,
-            static function(bool $dependsOn, Relation $relation) use ($name): bool {
-                return $dependsOn || $relation->name()->equals($name);
-            },
+        return $this->relations->any(
+            static fn($relation) => $relation->name()->equals($name),
         );
     }
 
     /**
      * Remove all the relations not from the given set
+     *
+     * @no-named-arguments
      */
     public function keep(Name ...$packages): self
     {
-        $packages = Set::of(Name::class, ...$packages);
+        $packages = Set::of(...$packages);
 
         $self = clone $this;
         $self->relations = $this->relations->filter(static function(Relation $relation) use ($packages): bool {
-            return $packages->reduce(
-                false,
-                static function(bool $inSet, Name $package) use ($relation): bool {
-                    return $inSet || $relation->name()->equals($package);
-                },
+            return $packages->any(
+                static fn($package) => $relation->name()->equals($package),
             );
         });
 

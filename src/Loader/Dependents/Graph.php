@@ -8,7 +8,6 @@ use Innmind\DependencyGraph\{
     Package\Name,
 };
 use Innmind\Immutable\Set;
-use function Innmind\Immutable\unwrap;
 
 final class Graph
 {
@@ -22,22 +21,25 @@ final class Graph
     private function __construct(Package $package)
     {
         $this->package = $package;
-        $this->parents = Set::of(self::class);
-        $this->children = Set::of(self::class);
+        /** @var Set<self> */
+        $this->parents = Set::of();
+        /** @var Set<self> */
+        $this->children = Set::of();
     }
 
     /**
+     * @no-named-arguments
+     *
      * @return Set<Package>
      */
     public static function of(Package $root, Package ...$dependents): Set
     {
         $root = new self($root->removeRelations());
-        $dependents = Set::of(Package::class, ...$dependents)->mapTo(
-            self::class,
+        $dependents = Set::of(...$dependents)->map(
             static fn(Package $package): self => new self($package),
         );
         self::bind($root, $dependents);
-        $dependents->foreach(
+        $_ = $dependents->foreach(
             static fn(self $dependent) => self::bind($dependent, $dependents),
         );
         $root->keepPaths($root->package->name());
@@ -52,7 +54,7 @@ final class Graph
      */
     private static function bind(self $node, Set $dependents): void
     {
-        $dependents->foreach(static function(self $dependent) use ($node): void {
+        $_ = $dependents->foreach(static function(self $dependent) use ($node): void {
             if ($dependent->package->dependsOn($node->package->name())) {
                 $node->add($dependent);
             }
@@ -73,10 +75,10 @@ final class Graph
 
         $this->cleaned = true;
 
-        $this->parents->foreach(static function(self $parent) use ($root): void {
+        $_ = $this->parents->foreach(static function(self $parent) use ($root): void {
             $parent->keepRelationsToChildren($root);
         });
-        $this->parents->foreach(static function(self $parent) use ($root): void {
+        $_ = $this->parents->foreach(static function(self $parent) use ($root): void {
             $parent->keepPaths($root);
         });
     }
@@ -85,14 +87,10 @@ final class Graph
     {
         $children = $this
             ->children
-            ->filter(static function(self $child) use ($root): bool {
-                return $child->dependsOn($root);
-            })
-            ->mapTo(
-                Name::class,
-                static fn(self $child): Name => $child->package->name(),
-            );
-        $this->package = $this->package->keep($root, ...unwrap($children));
+            ->filter(static fn($child) => $child->dependsOn($root))
+            ->map(static fn(self $child): Name => $child->package->name());
+
+        $this->package = $this->package->keep($root, ...$children->toList());
     }
 
     private function dependsOn(Name $root): bool
@@ -101,9 +99,8 @@ final class Graph
             return true;
         }
 
-        return $this->children->reduce(
-            false,
-            static fn(bool $dependsOn, self $child): bool => $dependsOn || $child->dependsOn($root),
+        return $this->children->any(
+            static fn($child) => $child->dependsOn($root),
         );
     }
 
@@ -112,12 +109,9 @@ final class Graph
      */
     private function collectPackages(): Set
     {
-        /** @var Set<Package> */
-        return $this->parents->reduce(
-            Set::of(Package::class, $this->package),
-            static fn(Set $packages, self $parent): Set => $packages->merge(
-                $parent->collectPackages(),
-            ),
-        );
+        return $this
+            ->parents
+            ->flatMap(static fn($parent) => $parent->collectPackages())
+            ->add($this->package);
     }
 }

@@ -9,9 +9,9 @@ use Innmind\DependencyGraph\{
     Package as PackageModel,
     Render,
 };
-use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\HttpTransport\Curl;
+use Innmind\TimeContinuum\Earth\Clock;
 use Innmind\Immutable\Set;
-use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class DependenciesTest extends TestCase
@@ -19,13 +19,12 @@ class DependenciesTest extends TestCase
     public function testInvokation()
     {
         $load = new Dependencies(
-            new Package(http()['default']()),
+            new Package(Curl::of(new Clock)),
         );
 
         $packages = $load(PackageModel\Name::of('innmind/url'));
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertSame(PackageModel::class, (string) $packages->type());
         $this->assertCount(6, $packages);
         $expected = <<<DOT
 digraph packages {
@@ -61,6 +60,6 @@ digraph packages {
 }
 DOT;
 
-        $this->assertSame($expected, (new Render)(...unwrap($packages))->toString());
+        $this->assertSame($expected, (new Render)(...$packages->toList())->toString());
     }
 }

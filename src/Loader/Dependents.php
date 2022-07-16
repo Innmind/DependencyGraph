@@ -12,7 +12,6 @@ use Innmind\Immutable\{
     Set,
     Map,
 };
-use function Innmind\Immutable\unwrap;
 
 final class Dependents
 {
@@ -31,45 +30,34 @@ final class Dependents
         Model\Name $required,
         Model\Name ...$vendors,
     ): Set {
-        $vendors = Set::of(Model\Name::class, $required, ...$vendors);
+        $vendors = Set::of($required, ...$vendors);
 
-        /** @var Set<Package> */
         $packages = $vendors
-            ->mapTo(
-                Model::class,
-                fn(Model\Name $vendor): Model => ($this->load)($vendor),
-            )
-            ->reduce(
-                Set::of(Package::class),
-                static function(Set $packages, Model $vendor): Set {
-                    /** @var Set<Package> $packages */
-
-                    return $packages->merge($vendor->packages());
-                },
-            );
+            ->map(fn(Model\Name $vendor): Model => ($this->load)($vendor))
+            ->flatMap(static fn($vendor) => $vendor->packages());
         /** @var Map<string, Package> */
-        $packages = $packages
-            ->reduce(
-                Map::of('string', Package::class),
-                static function(Map $packages, Package $package): Map {
-                    /** @var Map<string, Package> $packages */
+        $packages = $packages->reduce(
+            Map::of(),
+            static function(Map $packages, Package $package): Map {
+                /** @var Map<string, Package> $packages */
 
-                    return ($packages)(
-                        $package->name()->toString(),
-                        $package,
-                    );
-                },
-            );
+                return ($packages)(
+                    $package->name()->toString(),
+                    $package,
+                );
+            },
+        );
 
         $name = $name->toString();
 
-        if (!$packages->contains($name)) {
-            return Set::of(Package::class);
-        }
-
-        return Graph::of(
-            $packages->get($name),
-            ...unwrap($packages->remove($name)->values()),
-        );
+        return $packages
+            ->get($name)
+            ->match(
+                static fn($package) => Graph::of(
+                    $package,
+                    ...$packages->remove($name)->values()->toList(),
+                ),
+                static fn() => Set::of(),
+            );
     }
 }

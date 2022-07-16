@@ -14,7 +14,6 @@ use Innmind\Immutable\{
     Map,
     Sequence,
 };
-use function Innmind\Immutable\unwrap;
 
 final class VendorDependencies
 {
@@ -35,60 +34,57 @@ final class VendorDependencies
     public function __invoke(VendorModel\Name $name): Set
     {
         $vendor = ($this->loadVendor)($name);
-        $packages = $vendor->packages()->toMapOf(
-            'string',
-            PackageModel::class,
-            static function(PackageModel $package): \Generator {
-                yield $package->name()->toString() => $package;
-            },
+        $packages = Map::of(
+            ...$vendor
+                ->packages()
+                ->map(static fn($package) => [$package->name()->toString(), $package])
+                ->toList(),
         );
-        /** @var Map<string, PackageModel> */
-        $packages = $packages->reduce(
-            $packages,
-            function(Map $packages, string $_, PackageModel $package): Map {
-                return $this->load($package, $packages);
-            },
-        );
-        $names = $packages->keys()->mapTo(
-            PackageModel\Name::class,
+        $packages = $packages
+            ->values()
+            ->reduce(
+                $packages,
+                $this->load(...),
+            );
+        $names = $packages->keys()->map(
             static fn(string $name): PackageModel\Name => PackageModel\Name::of($name),
         );
 
         $dependencies = $packages
             ->values()
             ->map(static function(PackageModel $package) use ($names): PackageModel {
-                return $package->keep(...unwrap($names)); // remove relations with no stable releases
+                return $package->keep(...$names->toList()); // remove relations with no stable releases
             });
 
-        return Set::of(
-            PackageModel::class,
-            ...unwrap($dependencies),
-        );
+        return Set::of(...$dependencies->toList());
     }
 
-    private function load(PackageModel $package, Map $packages): Map
+    /**
+     * @param Map<string, PackageModel> $packages
+     *
+     * @return Map<string, PackageModel>
+     */
+    private function load(Map $packages, PackageModel $package): Map
     {
-        return $package->relations()->reduce(
-            $packages,
-            function(Map $packages, Relation $relation): Map {
-                if ($packages->contains($relation->name()->toString())) {
-                    return $packages;
-                }
-
+        /** @psalm-suppress MixedArgumentTypeCoercion */
+        return $package
+            ->relations()
+            ->map(static fn($relation) => $relation->name())
+            ->filter(static fn($name) => !$packages->contains($name->toString()))
+            ->flatMap(function($name): Set {
                 try {
-                    $relation = ($this->loadPackage)($relation->name());
-                } catch (NoPublishedVersion $e) {
-                    return $packages;
+                    return Set::of(($this->loadPackage)($name));
+                } catch (NoPublishedVersion) {
+                    /** @var Set<PackageModel> */
+                    return Set::of();
                 }
-
-                return $this->load(
+            })
+            ->reduce(
+                $packages,
+                fn(Map $packages, $relation) => $this->load(
+                    ($packages)($relation->name()->toString(), $relation),
                     $relation,
-                    ($packages)(
-                        $relation->name()->toString(),
-                        $relation,
-                    ),
-                );
-            },
-        );
+                ),
+            );
     }
 }

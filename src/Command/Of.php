@@ -10,16 +10,13 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
-    Command\Arguments,
-    Command\Options,
-    Environment,
+    Console,
 };
 use Innmind\Server\Control\Server\{
     Processes,
     Command as Executable,
 };
 use Innmind\Immutable\Str;
-use function Innmind\Immutable\unwrap;
 
 final class Of implements Command
 {
@@ -34,10 +31,10 @@ final class Of implements Command
         $this->processes = $processes;
     }
 
-    public function __invoke(Environment $env, Arguments $arguments, Options $options): void
+    public function __invoke(Console $console): Console
     {
-        $packages = ($this->load)(Name::of($arguments->get('package')));
-        $fileName = Str::of($arguments->get('package'))
+        $packages = ($this->load)(Name::of($console->arguments()->get('package')));
+        $fileName = Str::of($console->arguments()->get('package'))
             ->replace('/', '_')
             ->append('_dependencies.svg');
 
@@ -47,24 +44,29 @@ final class Of implements Command
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', $fileName->toString())
-                    ->withWorkingDirectory($env->workingDirectory())
+                    ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(
-                        ($this->render)(...unwrap($packages)),
+                        ($this->render)(...$packages->toList()),
                     ),
             );
-        $process->wait();
+        $successful = $process->wait()->match(
+            static fn() => true,
+            static fn() => false,
+        );
 
-        if (!$process->exitCode()->successful()) {
-            $env->exit(1);
-            $env->error()->write(Str::of($process->output()->toString()));
-
-            return;
+        if (!$successful) {
+            return $console
+                ->error(Str::of($process->output()->toString()))
+                ->exit(1);
         }
 
-        $env->output()->write($fileName);
+        return $console->output($fileName);
     }
 
-    public function toString(): string
+    /**
+     * @psalm-pure
+     */
+    public function usage(): string
     {
         return <<<USAGE
 of package

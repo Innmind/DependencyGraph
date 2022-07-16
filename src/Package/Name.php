@@ -8,7 +8,6 @@ use Innmind\DependencyGraph\{
     Exception\DomainException,
 };
 use Innmind\Immutable\Str;
-use function Innmind\Immutable\unwrap;
 
 final class Name
 {
@@ -27,7 +26,7 @@ final class Name
 
     public static function of(string $name): self
     {
-        [$vendor, $package] = unwrap(Str::of($name)->split('/'));
+        [$vendor, $package] = Str::of($name)->split('/')->toList();
 
         return new self(
             new Vendor\Name($vendor->toString()),

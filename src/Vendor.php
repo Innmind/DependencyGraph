@@ -12,7 +12,6 @@ use Innmind\Immutable\{
     Set,
     Map,
 };
-use function Innmind\Immutable\unwrap;
 
 final class Vendor
 {
@@ -24,10 +23,10 @@ final class Vendor
     public function __construct(Package $first, Package ...$others)
     {
         $this->name = $first->name()->vendor();
-        $this->packages = Set::of(Package::class, $first, ...$others);
+        $this->packages = Set::of($first, ...$others);
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
-        $this->packages->foreach(function(Package $package): void {
+        $_ = $this->packages->foreach(function(Package $package): void {
             if (!$package->name()->vendor()->equals($this->name)) {
                 throw new LogicException;
             }
@@ -35,22 +34,20 @@ final class Vendor
     }
 
     /**
+     * @no-named-arguments
+     *
      * @return Set<self>
      */
     public static function group(Package ...$packages): Set
     {
-        /** @var Set<self> */
-        return Set::of(Package::class, ...$packages)
+        $vendors = Set::of(...$packages)
             ->groupBy(static function(Package $package): string {
                 return $package->name()->vendor()->toString();
             })
             ->values()
-            ->toSetOf(
-                self::class,
-                static fn(Set $packages): \Generator => yield new self(
-                    ...unwrap($packages),
-                ),
-            );
+            ->map(static fn($packages) => new self(...$packages->toList()));
+
+        return Set::of(...$vendors->toList());
     }
 
     public function name(): Vendor\Name

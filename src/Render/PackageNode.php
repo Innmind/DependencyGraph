@@ -23,20 +23,21 @@ final class PackageNode
     }
 
     /**
+     * @no-named-arguments
+     *
      * @return Set<Node>
      */
     public static function graph(Locate $locate, Package ...$packages): Set
     {
-        $packages = Set::of(Package::class, ...$packages)->toMapOf(
-            'string',
-            Package::class,
-            static function(Package $package): \Generator {
-                yield $package->name()->toString() => $package;
-            },
-        );
+        $packages = Set::of(...$packages)
+            ->groupBy(static fn($package) => $package->name()->toString())
+            ->map(static fn($_, $packages) => $packages->find(static fn() => true)->match(
+                static fn($package) => $package,
+                static fn() => throw new \LogicException('unreachable'),
+            ));
         /** @var Map<string, Node> */
         $nodes = $packages->values()->reduce(
-            Map::of('string', Node::class),
+            Map::of(),
             static function(Map $nodes, Package $package) use ($locate, $packages): Map {
                 /** @var Map<string, Node> $nodes */
                 $node = self::node($package, $nodes, $locate, $packages);
@@ -45,11 +46,10 @@ final class PackageNode
             },
         );
 
-        /** @var Set<Node> */
-        return $nodes->values()->toSetOf(Node::class);
+        return Set::of(...$nodes->values()->toList());
     }
 
-    public static function of(Name $name): Node\Node
+    public static function of(Name $name): Node
     {
         $name = Str::of($name->toString())
             ->replace('-', '_')
@@ -57,7 +57,7 @@ final class PackageNode
             ->replace('/', '__')
             ->toString();
 
-        return Node\Node::named($name);
+        return Node::named($name);
     }
 
     /**
@@ -71,31 +71,36 @@ final class PackageNode
         Map $packages,
     ): Node {
         $colour = self::colorize($package->name());
-        $node = self::of($package->name());
-        $node->target($locate($package));
-        $node->shaped(Node\Shape::ellipse()->withColor($colour));
+        $node = self::of($package->name())
+            ->target($locate($package))
+            ->shaped(Node\Shape::ellipse()->withColor($colour));
 
         return $package->relations()->reduce(
             $node,
             static function(Node $package, Relation $relation) use ($nodes, $colour, $packages): Node {
                 $node = self::of($relation->name());
+                $upToDate = $packages
+                    ->get($relation->name()->toString())
+                    ->map(static fn($package) => $package->version())
+                    ->filter(static fn($version) => $relation->constraint()->satisfiedBy($version))
+                    ->match(
+                        static fn() => true,
+                        static fn() => false,
+                    );
 
                 // if the package has already been transformed into a node, then
                 // reuse its instance so the attributes are not lost
-                $edge = $package->linkedTo(
-                    $nodes->contains($node->name()->toString()) ?
-                        $nodes->get($node->name()->toString()) : $node,
+                return $package->linkedTo(
+                    $nodes->get($node->name()->toString())->match(
+                        static fn($node) => $node->name(),
+                        static fn() => $node->name(),
+                    ),
+                    static fn($edge) => (match ($upToDate) {
+                        false => $edge->bold()->useColor(RGBA::of('FF0000')),
+                        true => $edge->useColor($colour),
+                    })
+                        ->displayAs($relation->constraint()->toString()),
                 );
-                $edge->useColor($colour);
-                $edge->displayAs($relation->constraint()->toString());
-                $version = $packages->get($relation->name()->toString())->version();
-
-                if (!$relation->constraint()->satisfiedBy($version)) {
-                    $edge->bold();
-                    $edge->useColor(RGBA::of('FF0000'));
-                }
-
-                return $package;
             },
         );
     }

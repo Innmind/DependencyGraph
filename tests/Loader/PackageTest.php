@@ -7,14 +7,15 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Package as Model,
 };
-use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\HttpTransport\Curl;
+use Innmind\TimeContinuum\Earth\Clock;
 use PHPUnit\Framework\TestCase;
 
 class PackageTest extends TestCase
 {
     public function testInvokation()
     {
-        $load = new Package(http()['default']());
+        $load = new Package(Curl::of(new Clock));
 
         $package = $load(Model\Name::of('innmind/url'));
 
@@ -30,7 +31,7 @@ class PackageTest extends TestCase
 
     public function testMostRecentVersionIsLoaded()
     {
-        $load = new Package(http()['default']());
+        $load = new Package(Curl::of(new Clock));
 
         $package = $load(Model\Name::of('guzzlehttp/guzzle'));
 

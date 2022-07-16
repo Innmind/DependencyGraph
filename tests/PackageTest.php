@@ -13,7 +13,6 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
-use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class PackageTest extends TestCase
@@ -34,8 +33,7 @@ class PackageTest extends TestCase
         $this->assertSame($version, $package->version());
         $this->assertSame($packagist, $package->packagist());
         $this->assertInstanceOf(Set::class, $package->relations());
-        $this->assertSame(Relation::class, (string) $package->relations()->type());
-        $this->assertSame([$relation], unwrap($package->relations()));
+        $this->assertSame([$relation], $package->relations()->toList());
     }
 
     public function testDependsOn()
@@ -68,7 +66,7 @@ class PackageTest extends TestCase
         $this->assertNotSame($package, $package2);
         $this->assertCount(3, $package->relations());
         $this->assertCount(2, $package2->relations());
-        $this->assertSame([$bar, $foo], unwrap($package2->relations()));
+        $this->assertSame([$bar, $foo], $package2->relations()->toList());
     }
 
     public function testRemoveRelations()

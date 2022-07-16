@@ -9,17 +9,13 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
-    Command\Arguments,
-    Command\Options,
-    Environment,
+    Console,
 };
 use Innmind\Server\Control\Server\{
     Processes,
     Command as Executable,
 };
-use Innmind\Filesystem\Exception\FileNotFound;
 use Innmind\Immutable\Str;
-use function Innmind\Immutable\unwrap;
 
 final class FromLock implements Command
 {
@@ -34,15 +30,14 @@ final class FromLock implements Command
         $this->processes = $processes;
     }
 
-    public function __invoke(Environment $env, Arguments $arguments, Options $options): void
+    public function __invoke(Console $console): Console
     {
-        try {
-            $packages = ($this->load)($env->workingDirectory());
-        } catch (FileNotFound $e) {
-            $env->error()->write(Str::of('No composer.lock found'));
-            $env->exit(1);
+        $packages = ($this->load)($console->workingDirectory());
 
-            return;
+        if ($packages->empty()) {
+            return $console
+                ->error(Str::of("No packages found\n"))
+                ->exit(1);
         }
 
         $fileName = Str::of('dependencies.svg');
@@ -53,24 +48,29 @@ final class FromLock implements Command
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', $fileName->toString())
-                    ->withWorkingDirectory($env->workingDirectory())
+                    ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(
-                        ($this->render)(...unwrap($packages)),
+                        ($this->render)(...$packages->toList()),
                     ),
             );
-        $process->wait();
+        $successful = $process->wait()->match(
+            static fn() => true,
+            static fn() => false,
+        );
 
-        if (!$process->exitCode()->successful()) {
-            $env->exit(1);
-            $env->error()->write(Str::of($process->output()->toString()));
-
-            return;
+        if (!$successful) {
+            return $console
+                ->error(Str::of($process->output()->toString()))
+                ->exit(1);
         }
 
-        $env->output()->write($fileName);
+        return $console->output($fileName);
     }
 
-    public function toString(): string
+    /**
+     * @psalm-pure
+     */
+    public function usage(): string
     {
         return <<<USAGE
 from-lock

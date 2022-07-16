@@ -14,7 +14,6 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
-use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
@@ -38,7 +37,7 @@ class VendorTest extends TestCase
         $this->assertSame('foo', $vendor->name()->toString());
         $this->assertInstanceOf(Url::class, $vendor->packagist());
         $this->assertSame('https://packagist.org/packages/foo/', $vendor->packagist()->toString());
-        $this->assertSame([$bar, $baz], unwrap($vendor->packages()));
+        $this->assertSame([$bar, $baz], $vendor->packages()->toList());
     }
 
     public function testThrowWhenPackagesDoNotBelongToTheSameVendor()
@@ -75,12 +74,11 @@ class VendorTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $vendors);
-        $this->assertSame(Vendor::class, (string) $vendors->type());
         $this->assertCount(2, $vendors);
-        $vendors = unwrap($vendors);
-        $this->assertSame([$foo], unwrap(\current($vendors)->packages()));
+        $vendors = $vendors->toList();
+        $this->assertSame([$foo], \current($vendors)->packages()->toList());
         \next($vendors);
-        $this->assertSame([$bar], unwrap(\current($vendors)->packages()));
+        $this->assertSame([$bar], \current($vendors)->packages()->toList());
     }
 
     public function testDependsOn()

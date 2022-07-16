@@ -19,8 +19,8 @@ use Innmind\Immutable\{
     Set,
     Map,
     Str,
+    Sequence,
 };
-use function Innmind\Immutable\unwrap;
 use Composer\Semver\{
     VersionParser,
     Semver,
@@ -42,10 +42,13 @@ final class Package
     {
         $request = new Request(
             Url::of("https://packagist.org/packages/{$name->toString()}.json"),
-            Method::get(),
-            new ProtocolVersion(2, 0),
+            Method::get,
+            ProtocolVersion::v20,
         );
-        $response = ($this->fulfill)($request);
+        $response = ($this->fulfill)($request)->match(
+            static fn($success) => $success->response(),
+            static fn() => throw new \RuntimeException,
+        );
         /** @var array{package: array{name: string, versions: array<string, array{version: string, abandoned?: bool, require?: array<string, string>}>}} */
         $body = Json::decode($response->body()->toString());
         $content = $body['package'];
@@ -57,7 +60,7 @@ final class Package
             Model\Name::of($content['name']),
             new Model\Version($version['version']),
             Url::of("https://packagist.org/packages/{$name->toString()}"),
-            ...unwrap($relations),
+            ...$relations->toList(),
         );
     }
 
@@ -69,7 +72,7 @@ final class Package
     private function mostRecentVersion(array $versions): array
     {
         /** @var Map<string, array{version: string, abandoned?: bool, require?: array<string, string>}> */
-        $published = Map::of('string', 'array');
+        $published = Map::of();
 
         foreach ($versions as $key => $value) {
             $published = ($published)($key, $value);
@@ -83,14 +86,16 @@ final class Package
                 return !($version['abandoned'] ?? false);
             });
 
-        if ($published->empty()) {
-            throw new NoPublishedVersion;
-        }
+        /** @var Sequence<string> */
+        $versions = Sequence::of(...Semver::rsort($published->keys()->toList()));
 
-        /** @var list<string> */
-        $versions = Semver::rsort(unwrap($published->keys()));
-
-        return $published->get($versions[0]);
+        return $versions
+            ->first()
+            ->flatMap($published->get(...))
+            ->match(
+                static fn($version) => $version,
+                static fn() => throw new NoPublishedVersion,
+            );
     }
 
     /**
@@ -113,6 +118,6 @@ final class Package
             );
         }
 
-        return Set::of(Model\Relation::class, ...$relations);
+        return Set::of(...$relations);
     }
 }

@@ -11,9 +11,7 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
-    Command\Arguments,
-    Command\Options,
-    Environment,
+    Console,
 };
 use Innmind\Server\Control\Server\{
     Processes,
@@ -23,7 +21,6 @@ use Innmind\Immutable\{
     Set,
     Str,
 };
-use function Innmind\Immutable\unwrap;
 
 final class DependsOn implements Command
 {
@@ -38,22 +35,23 @@ final class DependsOn implements Command
         $this->processes = $processes;
     }
 
-    public function __invoke(Environment $env, Arguments $arguments, Options $options): void
+    public function __invoke(Console $console): Console
     {
         $packages = ($this->load)(
-            $package = Package\Name::of($arguments->get('package')),
-            new Vendor\Name($arguments->get('vendor')),
-            ...unwrap($arguments->pack()->mapTo(
-                Vendor\Name::class,
-                static fn(string $vendor): Vendor\Name => new Vendor\Name($vendor),
-            )),
+            $package = Package\Name::of($console->arguments()->get('package')),
+            new Vendor\Name($console->arguments()->get('vendor')),
+            ...$console
+                ->arguments()
+                ->pack()
+                ->map(static fn(string $vendor): Vendor\Name => new Vendor\Name($vendor))
+                ->toList(),
         );
 
         $fileName = Str::of($package->toString())
             ->replace('/', '_')
             ->append('_dependents.svg');
 
-        if ($options->contains('direct')) {
+        if ($console->options()->contains('direct')) {
             $packages = $packages
                 ->filter(static function(Package $dependents) use ($package): bool {
                     return $dependents->dependsOn($package) || $dependents->name()->equals($package);
@@ -70,24 +68,29 @@ final class DependsOn implements Command
                 Executable::foreground('dot')
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', $fileName->toString())
-                    ->withWorkingDirectory($env->workingDirectory())
+                    ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(
-                        ($this->render)(...unwrap($packages)),
+                        ($this->render)(...$packages->toList()),
                     ),
             );
-        $process->wait();
+        $successful = $process->wait()->match(
+            static fn() => true,
+            static fn() => false,
+        );
 
-        if (!$process->exitCode()->successful()) {
-            $env->exit(1);
-            $env->error()->write(Str::of($process->output()->toString()));
-
-            return;
+        if (!$successful) {
+            return $console
+                ->error(Str::of($process->output()->toString()))
+                ->exit(1);
         }
 
-        $env->output()->write($fileName);
+        return $console->output($fileName);
     }
 
-    public function toString(): string
+    /**
+     * @psalm-pure
+     */
+    public function usage(): string
     {
         return <<<USAGE
 depends-on package vendor ...vendors --direct

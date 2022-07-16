@@ -26,13 +26,17 @@ final class Dependencies
      */
     public function __invoke(Model\Name $name): Set
     {
-        $packages = $this->load($name, Map::of('string', Model::class));
+        $packages = $this->load(Map::of(), $name);
 
-        /** @var Set<Model> */
-        return $packages->values()->toSetOf(Model::class);
+        return Set::of(...$packages->values()->toList());
     }
 
-    private function load(Model\Name $name, Map $packages): Map
+    /**
+     * @param Map<string, Model> $packages
+     *
+     * @return Map<string, Model>
+     */
+    private function load(Map $packages, Model\Name $name): Map
     {
         if ($packages->contains($name->toString())) {
             return $packages;
@@ -40,11 +44,12 @@ final class Dependencies
 
         $package = ($this->load)($name);
 
-        return $package->relations()->reduce(
-            ($packages)($name->toString(), $package),
-            function(Map $packages, Model\Relation $relation): Map {
-                return $this->load($relation->name(), $packages);
-            },
-        );
+        return $package
+            ->relations()
+            ->map(static fn($relation) => $relation->name())
+            ->reduce(
+                ($packages)($name->toString(), $package),
+                $this->load(...),
+            );
     }
 }

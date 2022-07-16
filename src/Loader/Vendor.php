@@ -37,10 +37,13 @@ final class Vendor
         do {
             $request = new Request(
                 Url::of($url),
-                Method::get(),
-                new ProtocolVersion(2, 0),
+                Method::get,
+                ProtocolVersion::v20,
             );
-            $response = ($this->fulfill)($request);
+            $response = ($this->fulfill)($request)->match(
+                static fn($success) => $success->response(),
+                static fn($e) => throw new \RuntimeException,
+            );
             /** @var array{results: list<array{name: string, description: string, url: string, repository: string, virtual?: bool}>, total: int, next?: string} */
             $content = Json::decode($response->body()->toString());
             $results = \array_merge($results, $content['results']);

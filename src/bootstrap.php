@@ -17,7 +17,7 @@ function bootstrap(
     $package = new Loader\Package($http);
     $vendor = new Loader\Vendor($http, $package);
 
-    return new Commands(
+    return Commands::of(
         new Command\FromLock(
             new Loader\ComposerLock($filesystem),
             $render,
