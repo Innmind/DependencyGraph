@@ -7,7 +7,6 @@ use Innmind\DependencyGraph\{
     Package as PackageModel,
     Package\Relation,
     Vendor as VendorModel,
-    Exception\NoPublishedVersion,
 };
 use Innmind\Immutable\{
     Set,
@@ -72,12 +71,11 @@ final class VendorDependencies
             ->map(static fn($relation) => $relation->name())
             ->filter(static fn($name) => !$packages->contains($name->toString()))
             ->flatMap(function($name): Set {
-                try {
-                    return Set::of(($this->loadPackage)($name));
-                } catch (NoPublishedVersion) {
-                    /** @var Set<PackageModel> */
-                    return Set::of();
-                }
+                /** @var Set<PackageModel> */
+                return ($this->loadPackage)($name)->match(
+                    static fn($package) => Set::of($package),
+                    static fn() => Set::of(),
+                );
             })
             ->reduce(
                 $packages,

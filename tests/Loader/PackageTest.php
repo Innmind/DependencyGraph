@@ -17,7 +17,10 @@ class PackageTest extends TestCase
     {
         $load = new Package(Curl::of(new Clock));
 
-        $package = $load(Model\Name::of('innmind/url'));
+        $package = $load(Model\Name::of('innmind/url'))->match(
+            static fn($package) => $package,
+            static fn() => null,
+        );
 
         $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('innmind/url', $package->name()->toString());
@@ -33,8 +36,12 @@ class PackageTest extends TestCase
     {
         $load = new Package(Curl::of(new Clock));
 
-        $package = $load(Model\Name::of('guzzlehttp/guzzle'));
+        $package = $load(Model\Name::of('guzzlehttp/guzzle'))->match(
+            static fn($package) => $package,
+            static fn() => null,
+        );
 
+        $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('7.4.5', $package->version()->toString());
     }
 }

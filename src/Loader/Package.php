@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph\Loader;
 
-use Innmind\DependencyGraph\{
-    Package as Model,
-    Exception\NoPublishedVersion,
-};
+use Innmind\DependencyGraph\Package as Model;
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Message\Request\Request,
@@ -20,12 +17,16 @@ use Innmind\Immutable\{
     Map,
     Str,
     Sequence,
+    Maybe,
 };
 use Composer\Semver\{
     VersionParser,
     Semver,
 };
 
+/**
+ * @psalm-type Definition = array{version: string, abandoned?: bool, require?: array<string, string>}
+ */
 final class Package
 {
     private Transport $fulfill;
@@ -36,9 +37,9 @@ final class Package
     }
 
     /**
-     * @throws NoPublishedVersion
+     * @return Maybe<Model>
      */
-    public function __invoke(Model\Name $name): Model
+    public function __invoke(Model\Name $name): Maybe
     {
         $request = new Request(
             Url::of("https://packagist.org/packages/{$name->toString()}.json"),
@@ -49,29 +50,28 @@ final class Package
             static fn($success) => $success->response(),
             static fn() => throw new \RuntimeException,
         );
-        /** @var array{package: array{name: string, versions: array<string, array{version: string, abandoned?: bool, require?: array<string, string>}>}} */
+        /** @var array{package: array{name: string, versions: array<string, Definition>}} */
         $body = Json::decode($response->body()->toString());
         $content = $body['package'];
 
-        $version = $this->mostRecentVersion($content['versions']);
-        $relations = $this->loadRelations($version);
-
-        return new Model(
-            Model\Name::of($content['name']),
-            new Model\Version($version['version']),
-            Url::of("https://packagist.org/packages/{$name->toString()}"),
-            ...$relations->toList(),
-        );
+        return $this
+            ->mostRecentVersion($content['versions'])
+            ->map(fn($version) => new Model(
+                Model\Name::of($content['name']),
+                new Model\Version($version['version']),
+                Url::of("https://packagist.org/packages/{$name->toString()}"),
+                ...$this->loadRelations($version)->toList(),
+            ));
     }
 
     /**
-     * @param array<string, array{version: string, abandoned?: bool, require?: array<string, string>}> $versions
+     * @param array<string, Definition> $versions
      *
-     * @return array{version: string, abandoned?: bool,require?: array<string, string>}
+     * @return Maybe<Definition>
      */
-    private function mostRecentVersion(array $versions): array
+    private function mostRecentVersion(array $versions): Maybe
     {
-        /** @var Map<string, array{version: string, abandoned?: bool, require?: array<string, string>}> */
+        /** @var Map<string, Definition> */
         $published = Map::of();
 
         foreach ($versions as $key => $value) {
@@ -86,20 +86,16 @@ final class Package
                 return !($version['abandoned'] ?? false);
             });
 
-        /** @var Sequence<string> */
-        $versions = Sequence::of(...Semver::rsort($published->keys()->toList()));
+        $versions = Sequence::of(...\array_values(Semver::rsort($published->keys()->toList())));
 
+        /** @var Maybe<Definition> */
         return $versions
             ->first()
-            ->flatMap($published->get(...))
-            ->match(
-                static fn($version) => $version,
-                static fn() => throw new NoPublishedVersion,
-            );
+            ->flatMap(static fn($version) => $published->get($version));
     }
 
     /**
-     * @param array{version: string, abandoned?: bool, require?: array<string, string>} $version
+     * @param Definition $version
      *
      * @return Set<Model\Relation>
      */

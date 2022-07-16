@@ -42,14 +42,15 @@ final class Dependencies
             return $packages;
         }
 
-        $package = ($this->load)($name);
-
-        return $package
-            ->relations()
-            ->map(static fn($relation) => $relation->name())
-            ->reduce(
-                ($packages)($name->toString(), $package),
-                $this->load(...),
-            );
+        return ($this->load)($name)->match(
+            fn($package) => $package
+                ->relations()
+                ->map(static fn($relation) => $relation->name())
+                ->reduce(
+                    ($packages)($name->toString(), $package),
+                    $this->load(...),
+                ),
+            static fn() => $packages,
+        );
     }
 }
