@@ -78,24 +78,25 @@ final class ComposerLock
                 continue;
             }
 
-            $relations = [];
+            /** @var Set<Relation> */
+            $relations = Set::of();
 
             foreach ($package['require'] ?? [] as $require => $constraint) {
                 if (!$this->accepted($require)) {
                     continue;
                 }
 
-                $relations[] = new Relation(
+                $relations = ($relations)(new Relation(
                     Name::of($require),
                     new Constraint($constraint),
-                );
+                ));
             }
 
             $packages = ($packages)(new Package(
                 Name::of($package['name']),
                 new Version($package['version']),
                 Url::of('https://packagist.org/packages/'.$package['name']),
-                ...$relations,
+                $relations,
             ));
         }
 
@@ -120,9 +121,7 @@ final class ComposerLock
         );
 
         return $packages->map(
-            static fn(Package $package): Package => $package->keep(
-                ...$installed->toList(),
-            ),
+            static fn(Package $package): Package => $package->keep($installed),
         );
     }
 }

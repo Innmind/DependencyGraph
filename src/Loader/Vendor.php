@@ -17,7 +17,7 @@ use Innmind\Url\Url;
 use Innmind\Json\Json;
 use Innmind\Immutable\{
     Str,
-    Sequence,
+    Set,
 };
 
 final class Vendor
@@ -52,8 +52,8 @@ final class Vendor
             $url = $content['next'] ?? null;
         } while (!\is_null($url));
 
-        /** @var Sequence<PackageModel> */
-        $packages = Sequence::of();
+        /** @var Set<PackageModel> */
+        $packages = Set::of();
 
         foreach ($results as $result) {
             if (!Str::of($result['name'])->matches("~^{$name->toString()}/~")) {
@@ -70,6 +70,6 @@ final class Vendor
             );
         }
 
-        return new VendorModel(...$packages->toList());
+        return new VendorModel($packages);
     }
 }

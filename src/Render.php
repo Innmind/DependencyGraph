@@ -21,6 +21,7 @@ use Innmind\Url\{
     Url,
     Fragment,
 };
+use Innmind\Immutable\Set;
 
 final class Render
 {
@@ -39,21 +40,21 @@ final class Render
     }
 
     /**
-     * @no-named-arguments
+     * @param Set<Package> $packages
      */
-    public function __invoke(Package ...$packages): Content
+    public function __invoke(Set $packages): Content
     {
         $graph = Graph::directed('packages');
 
         // create the dependencies between the packages
-        $nodes = PackageNode::graph($this->locate, ...$packages);
+        $nodes = PackageNode::graph($this->locate, ...$packages->toList());
         $graph = $nodes->reduce(
             $graph,
             static fn($graph, Node $node) => $graph->add($node),
         );
 
         // cluster packages by vendor
-        $graph = Vendor::group(...$packages)->reduce(
+        $graph = Vendor::group($packages)->reduce(
             $graph,
             static fn($graph, Vendor $vendor) => $graph->cluster(
                 Cluster::of($vendor),

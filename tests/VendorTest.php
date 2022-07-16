@@ -21,15 +21,19 @@ class VendorTest extends TestCase
     public function testInterface()
     {
         $vendor = new Vendor(
-            $bar = new Package(
-                new Name(new Vendor\Name('foo'), 'bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
-            ),
-            $baz = new Package(
-                new Name(new Vendor\Name('foo'), 'baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
+            Set::of(
+                $bar = new Package(
+                    new Name(new Vendor\Name('foo'), 'bar'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                $baz = new Package(
+                    new Name(new Vendor\Name('foo'), 'baz'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
             ),
         );
 
@@ -45,15 +49,19 @@ class VendorTest extends TestCase
         $this->expectException(LogicException::class);
 
         new Vendor(
-            new Package(
-                new Name(new Vendor\Name('foo'), 'bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
-            ),
-            new Package(
-                new Name(new Vendor\Name('bar'), 'baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
+            Set::of(
+                new Package(
+                    new Name(new Vendor\Name('foo'), 'bar'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                new Package(
+                    new Name(new Vendor\Name('bar'), 'baz'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
             ),
         );
     }
@@ -61,15 +69,19 @@ class VendorTest extends TestCase
     public function testGroup()
     {
         $vendors = Vendor::group(
-            $foo = new Package(
-                new Name(new Vendor\Name('foo'), 'bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
-            ),
-            $bar = new Package(
-                new Name(new Vendor\Name('bar'), 'baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
+            Set::of(
+                $foo = new Package(
+                    new Name(new Vendor\Name('foo'), 'bar'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                $bar = new Package(
+                    new Name(new Vendor\Name('bar'), 'baz'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
             ),
         );
 
@@ -84,16 +96,21 @@ class VendorTest extends TestCase
     public function testDependsOn()
     {
         $vendor = new Vendor(
-            new Package(
-                Name::of('foo/bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
-            ),
-            new Package(
-                Name::of('foo/baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
-                new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+            Set::of(
+                new Package(
+                    Name::of('foo/bar'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                new Package(
+                    Name::of('foo/baz'),
+                    new Version('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(
+                        new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+                    ),
+                ),
             ),
         );
 

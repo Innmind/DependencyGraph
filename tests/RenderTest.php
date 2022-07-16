@@ -39,7 +39,7 @@ class RenderTest extends TestCase
         $render = new Render;
         $packages = (new ComposerLock($this->filesystem))(Path::of(__DIR__.'/../fixtures/'));
 
-        $stream = $render(...$packages->toList());
+        $stream = $render($packages);
 
         $this->assertInstanceOf(Content::class, $stream);
         $expected = <<<DOT
@@ -138,7 +138,7 @@ DOT;
         });
         $packages = (new ComposerLock($this->filesystem))(Path::of(__DIR__.'/../fixtures/'));
 
-        $stream = $render(...$packages->toList());
+        $stream = $render($packages);
 
         $this->assertInstanceOf(Content::class, $stream);
         $expected = <<<DOT

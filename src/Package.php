@@ -21,18 +21,18 @@ final class Package
     private Set $relations;
 
     /**
-     * @no-named-arguments
+     * @param Set<Relation> $relations
      */
     public function __construct(
         Name $name,
         Version $version,
         Url $packagist,
-        Relation ...$relations,
+        Set $relations,
     ) {
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
-        $this->relations = Set::of(...$relations);
+        $this->relations = $relations;
     }
 
     public function name(): Name
@@ -68,12 +68,10 @@ final class Package
     /**
      * Remove all the relations not from the given set
      *
-     * @no-named-arguments
+     * @param Set<Name> $packages
      */
-    public function keep(Name ...$packages): self
+    public function keep(Set $packages): self
     {
-        $packages = Set::of(...$packages);
-
         $self = clone $this;
         $self->relations = $this->relations->filter(static function(Relation $relation) use ($packages): bool {
             return $packages->any(

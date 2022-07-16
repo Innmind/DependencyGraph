@@ -25,58 +25,65 @@ class GraphTest extends TestCase
                 Name::of('vendor/root'),
                 new Version('1.0.0'),
                 Url::of('http://example.com'),
-                new Relation(
+                Set::of(new Relation(
                     Name::of('rand/om'),
                     new Constraint('~1.0'),
-                ),
+                )),
             ),
             new Package(
                 Name::of('vendor/libA'),
                 new Version('1.0.0'),
                 Url::of('http://example.com'),
-                new Relation(
-                    Name::of('vendor/root'),
-                    new Constraint('~1.0'),
-                ),
-                new Relation(
-                    Name::of('watev/lib'),
-                    new Constraint('~1.0'),
+                Set::of(
+                    new Relation(
+                        Name::of('vendor/root'),
+                        new Constraint('~1.0'),
+                    ),
+                    new Relation(
+                        Name::of('watev/lib'),
+                        new Constraint('~1.0'),
+                    ),
                 ),
             ),
             new Package(
                 Name::of('vendor/libB'),
                 new Version('1.0.0'),
                 Url::of('http://example.com'),
-                new Relation(
-                    Name::of('vendor/root'),
-                    new Constraint('~1.0'),
-                ),
-                new Relation(
-                    Name::of('watev/other'),
-                    new Constraint('~1.0'),
+                Set::of(
+                    new Relation(
+                        Name::of('vendor/root'),
+                        new Constraint('~1.0'),
+                    ),
+                    new Relation(
+                        Name::of('watev/other'),
+                        new Constraint('~1.0'),
+                    ),
                 ),
             ),
             new Package(
                 Name::of('watev/foo'),
                 new Version('1.0.0'),
                 Url::of('http://example.com'),
-                new Relation(
-                    Name::of('vendor/libA'),
-                    new Constraint('~1.0'),
-                ),
-                new Relation(
-                    Name::of('vendor/libB'),
-                    new Constraint('~1.0'),
-                ),
-                new Relation(
-                    Name::of('vendor/libC'),
-                    new Constraint('~1.0'),
+                Set::of(
+                    new Relation(
+                        Name::of('vendor/libA'),
+                        new Constraint('~1.0'),
+                    ),
+                    new Relation(
+                        Name::of('vendor/libB'),
+                        new Constraint('~1.0'),
+                    ),
+                    new Relation(
+                        Name::of('vendor/libC'),
+                        new Constraint('~1.0'),
+                    ),
                 ),
             ),
             new Package(
                 Name::of('vendor/libC'),
                 new Version('1.0.0'),
                 Url::of('http://example.com'),
+                Set::of(),
             ),
         );
 
@@ -108,6 +115,6 @@ digraph packages {
 }
 DOT;
 
-        $this->assertSame($expected, (new Render)(...$packages->toList())->toString());
+        $this->assertSame($expected, (new Render)($packages)->toString());
     }
 }

@@ -23,17 +23,17 @@ class PackageTest extends TestCase
             $name = new Name(new Vendor\Name('foo'), 'bar'),
             $version = new Version('1.0.0'),
             $packagist = Url::of('http://example.com'),
-            $relation = new Relation(
+            $relations = Set::of(new Relation(
                 new Name(new Vendor\Name('bar'), 'baz'),
                 new Constraint('~1.0'),
-            ),
+            )),
         );
 
         $this->assertSame($name, $package->name());
         $this->assertSame($version, $package->version());
         $this->assertSame($packagist, $package->packagist());
         $this->assertInstanceOf(Set::class, $package->relations());
-        $this->assertSame([$relation], $package->relations()->toList());
+        $this->assertSame($relations, $package->relations());
     }
 
     public function testDependsOn()
@@ -42,7 +42,9 @@ class PackageTest extends TestCase
             Name::of('foo/bar'),
             new Version('1.0.0'),
             Url::of('http://example.com'),
-            new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+            Set::of(
+                new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+            ),
         );
 
         $this->assertTrue($package->dependsOn(Name::of('bar/baz')));
@@ -55,12 +57,14 @@ class PackageTest extends TestCase
             Name::of('foo/bar'),
             new Version('1.0.0'),
             Url::of('http://example.com'),
-            $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
-            new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
-            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0')),
+            Set::of(
+                $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+                new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
+                $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0')),
+            ),
         );
 
-        $package2 = $package->keep(Name::of('foo/bar'), Name::of('bar/baz'));
+        $package2 = $package->keep(Set::of(Name::of('foo/bar'), Name::of('bar/baz')));
 
         $this->assertInstanceOf(Package::class, $package2);
         $this->assertNotSame($package, $package2);
@@ -75,9 +79,11 @@ class PackageTest extends TestCase
             Name::of('foo/bar'),
             new Version('1.0.0'),
             Url::of('http://example.com'),
-            $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
-            new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
-            $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0')),
+            Set::of(
+                $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+                new Relation(Name::of('baz/foo'), new Constraint('~1.0')),
+                $foo = new Relation(Name::of('foo/bar'), new Constraint('~1.0')),
+            ),
         );
 
         $package2 = $package->removeRelations();

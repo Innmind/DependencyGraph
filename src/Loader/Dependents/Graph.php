@@ -90,7 +90,7 @@ final class Graph
             ->filter(static fn($child) => $child->dependsOn($root))
             ->map(static fn(self $child): Name => $child->package->name());
 
-        $this->package = $this->package->keep($root, ...$children->toList());
+        $this->package = $this->package->keep(($children)($root));
     }
 
     private function dependsOn(Name $root): bool

@@ -45,9 +45,7 @@ final class Of implements Command
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', $fileName->toString())
                     ->withWorkingDirectory($console->workingDirectory())
-                    ->withInput(
-                        ($this->render)(...$packages->toList()),
-                    ),
+                    ->withInput(($this->render)($packages)),
             );
         $successful = $process->wait()->match(
             static fn() => true,

@@ -20,10 +20,17 @@ final class Vendor
     private Set $packages;
     private Url $packagist;
 
-    public function __construct(Package $first, Package ...$others)
+    /**
+     * @param Set<Package> $packages
+     */
+    public function __construct(Set $packages)
     {
+        $first = $packages->find(static fn() => true)->match(
+            static fn($first) => $first,
+            static fn() => throw new \LogicException,
+        );
         $this->name = $first->name()->vendor();
-        $this->packages = Set::of($first, ...$others);
+        $this->packages = $packages;
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
         $_ = $this->packages->foreach(function(Package $package): void {
@@ -34,18 +41,18 @@ final class Vendor
     }
 
     /**
-     * @no-named-arguments
+     * @param Set<Package> $packages
      *
      * @return Set<self>
      */
-    public static function group(Package ...$packages): Set
+    public static function group(Set $packages): Set
     {
-        $vendors = Set::of(...$packages)
+        $vendors = $packages
             ->groupBy(static function(Package $package): string {
                 return $package->name()->vendor()->toString();
             })
             ->values()
-            ->map(static fn($packages) => new self(...$packages->toList()));
+            ->map(static fn($packages) => new self($packages));
 
         return Set::of(...$vendors->toList());
     }

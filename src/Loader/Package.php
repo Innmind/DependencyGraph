@@ -60,7 +60,7 @@ final class Package
                 Model\Name::of($content['name']),
                 new Model\Version($version['version']),
                 Url::of("https://packagist.org/packages/{$name->toString()}"),
-                ...$this->loadRelations($version)->toList(),
+                $this->loadRelations($version),
             ));
     }
 
@@ -101,19 +101,20 @@ final class Package
      */
     private function loadRelations(array $version): Set
     {
-        $relations = [];
+        /** @var Set<Model\Relation> */
+        $relations = Set::of();
 
         foreach ($version['require'] ?? [] as $relation => $constraint) {
             if (!Str::of($relation)->matches('~.+/.+~')) {
                 continue;
             }
 
-            $relations[] = new Model\Relation(
+            $relations = ($relations)(new Model\Relation(
                 Model\Name::of($relation),
                 new Model\Constraint($constraint),
-            );
+            ));
         }
 
-        return Set::of(...$relations);
+        return $relations;
     }
 }

@@ -57,7 +57,7 @@ final class DependsOn implements Command
                     return $dependents->dependsOn($package) || $dependents->name()->equals($package);
                 })
                 ->map(static function(Package $dependents) use ($package): Package {
-                    return $dependents->keep($package);
+                    return $dependents->keep(Set::of($package));
                 });
             $fileName = $fileName->prepend('direct_');
         }
@@ -69,9 +69,7 @@ final class DependsOn implements Command
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', $fileName->toString())
                     ->withWorkingDirectory($console->workingDirectory())
-                    ->withInput(
-                        ($this->render)(...$packages->toList()),
-                    ),
+                    ->withInput(($this->render)($packages)),
             );
         $successful = $process->wait()->match(
             static fn() => true,

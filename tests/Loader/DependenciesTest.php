@@ -60,6 +60,6 @@ digraph packages {
 }
 DOT;
 
-        $this->assertSame($expected, (new Render)(...$packages->toList())->toString());
+        $this->assertSame($expected, (new Render)($packages)->toString());
     }
 }

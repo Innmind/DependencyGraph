@@ -52,7 +52,7 @@ final class VendorDependencies
         $dependencies = $packages
             ->values()
             ->map(static function(PackageModel $package) use ($names): PackageModel {
-                return $package->keep(...$names->toList()); // remove relations with no stable releases
+                return $package->keep($names); // remove relations with no stable releases
             });
 
         return Set::of(...$dependencies->toList());
