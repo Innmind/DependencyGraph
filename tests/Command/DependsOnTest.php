@@ -129,7 +129,7 @@ USAGE;
 
         $console = $command($console);
         $this->assertSame(
-            ['innmind_immutable_dependents.svg'],
+            ["innmind_immutable_dependents.svg\n"],
             $console->environment()->outputs(),
         );
         $this->assertNull($console->environment()->exitCode()->match(
@@ -183,7 +183,7 @@ USAGE;
 
         $console = $command($console);
         $this->assertSame(
-            ['direct_innmind_immutable_dependents.svg'],
+            ["direct_innmind_immutable_dependents.svg\n"],
             $console->environment()->outputs(),
         );
         $this->assertNull($console->environment()->exitCode()->match(

@@ -117,7 +117,7 @@ USAGE;
 
         $console = $command($console);
         $this->assertSame(
-            ['innmind.svg'],
+            ["innmind.svg\n"],
             $console->environment()->outputs(),
         );
         $this->assertNull($console->environment()->exitCode()->match(

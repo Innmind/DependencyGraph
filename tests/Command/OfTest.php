@@ -118,7 +118,7 @@ USAGE;
 
         $console = $command($console);
         $this->assertSame(
-            ['innmind_cli_dependencies.svg'],
+            ["innmind_cli_dependencies.svg\n"],
             $console->environment()->outputs(),
         );
         $this->assertNull($console->environment()->exitCode()->match(

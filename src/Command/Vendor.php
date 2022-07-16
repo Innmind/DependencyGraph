@@ -58,7 +58,7 @@ final class Vendor implements Command
                 ->exit(1);
         }
 
-        return $console->output($fileName);
+        return $console->output($fileName->append("\n"));
     }
 
     /**

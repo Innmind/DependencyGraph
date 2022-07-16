@@ -148,7 +148,7 @@ USAGE;
 
         $console = $command($console);
         $this->assertSame(
-            ['dependencies.svg'],
+            ["dependencies.svg\n"],
             $console->environment()->outputs(),
         );
     }
