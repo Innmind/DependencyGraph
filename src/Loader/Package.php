@@ -61,7 +61,7 @@ final class Package
 
         /** @psalm-suppress MixedArgumentTypeCoercion */
         return Maybe::all($version, $relations)
-            ->map(fn(Model\Version $version, Set $relations) => new Model(
+            ->map(static fn(Model\Version $version, Set $relations) => new Model(
                 $name,
                 $version,
                 Url::of("https://packagist.org/packages/{$name->toString()}"),

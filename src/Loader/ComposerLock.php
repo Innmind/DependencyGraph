@@ -88,9 +88,9 @@ final class ComposerLock
             }
 
             $packages = Maybe::all(
-                    Name::maybe($package['name']),
-                    Version::maybe($package['version']),
-                )
+                Name::maybe($package['name']),
+                Version::maybe($package['version']),
+            )
                 ->map(static fn(Name $name, Version $version) => new Package(
                     $name,
                     $version,

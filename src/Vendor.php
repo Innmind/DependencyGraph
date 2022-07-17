@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph;
 
-use Innmind\DependencyGraph\Package\Relation;
 use Innmind\Url\Url;
 use Innmind\Immutable\{
     Set,
