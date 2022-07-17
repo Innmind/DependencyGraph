@@ -11,13 +11,15 @@ use Innmind\DependencyGraph\{
 use Innmind\Immutable\{
     Set,
     Map,
-    Sequence,
+    Maybe,
 };
 
 final class VendorDependencies
 {
     private Vendor $loadVendor;
     private Package $loadPackage;
+    /** @var Map<string, \WeakReference<PackageModel>> */
+    private Map $cache;
 
     public function __construct(
         Vendor $loadVendor,
@@ -25,6 +27,8 @@ final class VendorDependencies
     ) {
         $this->loadVendor = $loadVendor;
         $this->loadPackage = $loadPackage;
+        /** @var Map<string, \WeakReference<PackageModel>> */
+        $this->cache = Map::of();
     }
 
     /**
@@ -32,57 +36,67 @@ final class VendorDependencies
      */
     public function __invoke(VendorModel\Name $name): Set
     {
-        $vendor = ($this->loadVendor)($name);
-        $packages = Map::of(
-            ...$vendor
-                ->packages()
-                ->map(static fn($package) => [$package->name()->toString(), $package])
-                ->toList(),
-        );
-        $packages = $packages
-            ->values()
-            ->reduce(
-                $packages,
-                $this->load(...),
-            );
-        $names = $packages->keys()->map(
-            static fn(string $name): PackageModel\Name => PackageModel\Name::of($name),
-        );
+        $packages = ($this->loadVendor)($name)
+            ->packages()
+            ->map($this->cache(...))
+            ->flatMap($this->loadRelations(...));
+        $concrete = $packages->map(static fn($package) => $package->name());
 
-        $dependencies = $packages
-            ->values()
-            ->map(static function(PackageModel $package) use ($names): PackageModel {
-                return $package->keep($names); // remove relations with no stable releases
-            });
-
-        return Set::of(...$dependencies->toList());
+        // remove the relations with no stable releases
+        return $packages->map(static fn($package) => $package->keep($concrete));
     }
 
     /**
-     * @param Map<string, PackageModel> $packages
-     *
-     * @return Map<string, PackageModel>
+     * @return Set<PackageModel>
      */
-    private function load(Map $packages, PackageModel $package): Map
+    private function loadRelations(PackageModel $dependency): Set
     {
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return $package
+        return $dependency
             ->relations()
             ->map(static fn($relation) => $relation->name())
-            ->filter(static fn($name) => !$packages->contains($name->toString()))
-            ->flatMap(function($name): Set {
-                /** @var Set<PackageModel> */
-                return ($this->loadPackage)($name)->match(
-                    static fn($package) => Set::of($package),
-                    static fn() => Set::of(),
-                );
-            })
-            ->reduce(
-                $packages,
-                fn(Map $packages, $relation) => $this->load(
-                    ($packages)($relation->name()->toString(), $relation),
-                    $relation,
-                ),
+            ->flatMap($this->lookup(...))
+            ->add($dependency);
+    }
+
+    /**
+     * @return Set<PackageModel>
+     */
+    private function lookup(PackageModel\Name $relation): Set
+    {
+        /** @psalm-suppress InvalidArgument Because it doesn't understand the filter */
+        return $this
+            ->cache
+            ->get($relation->toString())
+            ->filter(static fn($ref) => \is_object($ref->get()))
+            ->map(static fn($ref) => $ref->get())
+            ->otherwise(fn() => $this->fetch($relation))
+            ->map($this->loadRelations(...))
+            ->match(
+                static fn($packages) => $packages,
+                static fn() => Set::of(),
             );
+    }
+
+    /**
+     * @return Maybe<PackageModel>
+     */
+    private function fetch(PackageModel\Name $relation): Maybe
+    {
+        // remove dead references
+        $this->cache = $this->cache->filter(
+            static fn($_, $ref) => \is_object($ref->get()),
+        );
+
+        return ($this->loadPackage)($relation)->map($this->cache(...));
+    }
+
+    private function cache(PackageModel $package): PackageModel
+    {
+        $this->cache = ($this->cache)(
+            $package->name()->toString(),
+            \WeakReference::create($package),
+        );
+
+        return $package;
     }
 }
