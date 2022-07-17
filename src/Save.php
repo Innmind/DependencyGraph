@@ -47,8 +47,12 @@ final class Save
         );
 
         if (!$successful) {
-            return $console
-                ->error(Str::of($process->output()->toString()))
+            return $process
+                ->output()
+                ->reduce(
+                    $console,
+                    static fn(Console $console, $output) => $console->error($output),
+                )
                 ->exit(1);
         }
 
