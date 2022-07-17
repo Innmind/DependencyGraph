@@ -22,7 +22,7 @@ class VersionTest extends TestCase
         $this
             ->forAll(Set\Strings::any()->filter(static fn($string) => $string !== ''))
             ->then(function(string $string): void {
-                $this->assertSame($string, (new Version($string))->toString());
+                $this->assertSame($string, Version::of($string)->toString());
             });
     }
 
@@ -30,6 +30,6 @@ class VersionTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        new Version('');
+        Version::of('');
     }
 }

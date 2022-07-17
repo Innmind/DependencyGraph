@@ -6,7 +6,6 @@ namespace Innmind\DependencyGraph\Loader;
 use Innmind\DependencyGraph\{
     Package as PackageModel,
     Vendor as VendorModel,
-    Exception\NoPublishedVersion,
 };
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
@@ -16,7 +15,10 @@ use Innmind\Http\{
 };
 use Innmind\Url\Url;
 use Innmind\Json\Json;
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Set,
+};
 
 final class Vendor
 {
@@ -37,17 +39,21 @@ final class Vendor
         do {
             $request = new Request(
                 Url::of($url),
-                Method::get(),
-                new ProtocolVersion(2, 0),
+                Method::get,
+                ProtocolVersion::v20,
             );
-            $response = ($this->fulfill)($request);
+            $response = ($this->fulfill)($request)->match(
+                static fn($success) => $success->response(),
+                static fn() => throw new \RuntimeException,
+            );
             /** @var array{results: list<array{name: string, description: string, url: string, repository: string, virtual?: bool}>, total: int, next?: string} */
             $content = Json::decode($response->body()->toString());
             $results = \array_merge($results, $content['results']);
             $url = $content['next'] ?? null;
         } while (!\is_null($url));
 
-        $packages = [];
+        /** @var Set<PackageModel> */
+        $packages = Set::of();
 
         foreach ($results as $result) {
             if (!Str::of($result['name'])->matches("~^{$name->toString()}/~")) {
@@ -58,13 +64,14 @@ final class Vendor
                 continue;
             }
 
-            try {
-                $packages[] = ($this->load)(PackageModel\Name::of($result['name']));
-            } catch (NoPublishedVersion $e) {
-                // do not expose the package if no tag found
-            }
+            $packages = PackageModel\Name::maybe($result['name'])
+                ->flatMap($this->load)
+                ->match(
+                    static fn($package) => ($packages)($package),
+                    static fn() => $packages,
+                );
         }
 
-        return new VendorModel(...$packages);
+        return new VendorModel($name, $packages);
     }
 }

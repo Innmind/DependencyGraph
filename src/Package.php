@@ -12,6 +12,9 @@ use Innmind\DependencyGraph\{
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
 
+/**
+ * @psalm-immutable
+ */
 final class Package
 {
     private Name $name;
@@ -20,17 +23,19 @@ final class Package
     /** @var Set<Relation> */
     private Set $relations;
 
+    /**
+     * @param Set<Relation> $relations
+     */
     public function __construct(
         Name $name,
         Version $version,
         Url $packagist,
-        Relation ...$relations
+        Set $relations,
     ) {
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
-        /** @var Set<Relation> */
-        $this->relations = Set::of(Relation::class, ...$relations);
+        $this->relations = $relations;
     }
 
     public function name(): Name
@@ -58,28 +63,22 @@ final class Package
 
     public function dependsOn(Name $name): bool
     {
-        return $this->relations->reduce(
-            false,
-            static function(bool $dependsOn, Relation $relation) use ($name): bool {
-                return $dependsOn || $relation->name()->equals($name);
-            },
+        return $this->relations->any(
+            static fn($relation) => $relation->name()->equals($name),
         );
     }
 
     /**
      * Remove all the relations not from the given set
+     *
+     * @param Set<Name> $packages
      */
-    public function keep(Name ...$packages): self
+    public function keep(Set $packages): self
     {
-        $packages = Set::of(Name::class, ...$packages);
-
         $self = clone $this;
         $self->relations = $this->relations->filter(static function(Relation $relation) use ($packages): bool {
-            return $packages->reduce(
-                false,
-                static function(bool $inSet, Name $package) use ($relation): bool {
-                    return $inSet || $relation->name()->equals($package);
-                },
+            return $packages->any(
+                static fn($package) => $relation->name()->equals($package),
             );
         });
 

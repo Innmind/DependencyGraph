@@ -5,69 +5,52 @@ namespace Innmind\DependencyGraph\Command;
 
 use Innmind\DependencyGraph\{
     Loader\Dependencies,
-    Render,
+    Save,
+    Display,
     Package\Name,
 };
 use Innmind\CLI\{
     Command,
-    Command\Arguments,
-    Command\Options,
-    Environment,
-};
-use Innmind\Server\Control\Server\{
-    Processes,
-    Command as Executable,
+    Console,
 };
 use Innmind\Immutable\Str;
-use function Innmind\Immutable\unwrap;
 
 final class Of implements Command
 {
     private Dependencies $load;
-    private Render $render;
-    private Processes $processes;
+    private Save $save;
+    private Display $display;
 
-    public function __construct(Dependencies $load, Render $render, Processes $processes)
+    public function __construct(Dependencies $load, Save $save, Display $display)
     {
         $this->load = $load;
-        $this->render = $render;
-        $this->processes = $processes;
+        $this->save = $save;
+        $this->display = $display;
     }
 
-    public function __invoke(Environment $env, Arguments $arguments, Options $options): void
+    public function __invoke(Console $console): Console
     {
-        $packages = ($this->load)(Name::of($arguments->get('package')));
-        $fileName = Str::of($arguments->get('package'))
+        $packages = ($this->load)(Name::of($console->arguments()->get('package')));
+        $fileName = Str::of($console->arguments()->get('package'))
             ->replace('/', '_')
             ->append('_dependencies.svg');
 
-        $process = $this
-            ->processes
-            ->execute(
-                Executable::foreground('dot')
-                    ->withShortOption('Tsvg')
-                    ->withShortOption('o', $fileName->toString())
-                    ->withWorkingDirectory($env->workingDirectory())
-                    ->withInput(
-                        ($this->render)(...unwrap($packages)),
-                    ),
+        return $console
+            ->options()
+            ->maybe('output')
+            ->match(
+                fn() => ($this->display)($console, $packages),
+                fn() => ($this->save)($console, $fileName, $packages),
             );
-        $process->wait();
-
-        if (!$process->exitCode()->successful()) {
-            $env->exit(1);
-            $env->error()->write(Str::of($process->output()->toString()));
-
-            return;
-        }
-
-        $env->output()->write($fileName);
     }
 
-    public function toString(): string
+    /**
+     * @psalm-pure
+     */
+    public function usage(): string
     {
         return <<<USAGE
-of package
+of package --output
 
 Generate the dependency graph of the given package
 USAGE;

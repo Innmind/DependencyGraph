@@ -11,32 +11,34 @@ use Innmind\CLI\Commands;
 function bootstrap(
     Filesystem $filesystem,
     Processes $processes,
-    Transport $http
+    Transport $http,
 ): Commands {
     $render = new Render;
+    $save = new Save($render, $processes);
+    $display = new Display($render, $processes);
     $package = new Loader\Package($http);
     $vendor = new Loader\Vendor($http, $package);
 
-    return new Commands(
+    return Commands::of(
         new Command\FromLock(
             new Loader\ComposerLock($filesystem),
-            $render,
-            $processes,
+            $save,
+            $display,
         ),
         new Command\DependsOn(
             new Loader\Dependents($vendor),
-            $render,
-            $processes,
+            $save,
+            $display,
         ),
         new Command\Of(
             new Loader\Dependencies($package),
-            $render,
-            $processes,
+            $save,
+            $display,
         ),
         new Command\Vendor(
             new Loader\VendorDependencies($vendor, $package),
-            $render,
-            $processes,
+            $save,
+            $display,
         ),
     );
 }

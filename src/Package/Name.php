@@ -7,15 +7,20 @@ use Innmind\DependencyGraph\{
     Vendor,
     Exception\DomainException,
 };
-use Innmind\Immutable\Str;
-use function Innmind\Immutable\unwrap;
+use Innmind\Immutable\{
+    Str,
+    Maybe,
+};
 
+/**
+ * @psalm-immutable
+ */
 final class Name
 {
     private Vendor\Name $vendor;
     private string $package;
 
-    public function __construct(Vendor\Name $vendor, string $package)
+    private function __construct(Vendor\Name $vendor, string $package)
     {
         if (Str::of($package)->empty()) {
             throw new DomainException;
@@ -25,13 +30,38 @@ final class Name
         $this->package = $package;
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function of(string $name): self
     {
-        [$vendor, $package] = unwrap(Str::of($name)->split('/'));
+        [$vendor, $package] = Str::of($name)->split('/')->toList();
 
         return new self(
-            new Vendor\Name($vendor->toString()),
+            Vendor\Name::of($vendor->toString()),
             $package->toString(),
+        );
+    }
+
+    /**
+     * @psalm-pure
+     *
+     * @return Maybe<self>
+     */
+    public static function maybe(string $name): Maybe
+    {
+        $parts = Str::of($name)->split('/');
+        $vendor = $parts
+            ->first()
+            ->map(static fn($value) => $value->toString())
+            ->flatMap(Vendor\Name::maybe(...));
+        $package = $parts
+            ->get(1)
+            ->filter(static fn($value) => !$value->empty())
+            ->map(static fn($value) => $value->toString());
+
+        return Maybe::all($vendor, $package)->map(
+            static fn(Vendor\Name $vendor, string $package) => new self($vendor, $package),
         );
     }
 

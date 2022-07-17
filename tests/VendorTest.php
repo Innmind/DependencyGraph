@@ -14,7 +14,6 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
-use function Innmind\Immutable\unwrap;
 use PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
@@ -22,81 +21,100 @@ class VendorTest extends TestCase
     public function testInterface()
     {
         $vendor = new Vendor(
-            $bar = new Package(
-                new Name(new Vendor\Name('foo'), 'bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
+            Vendor\Name::of('foo'),
+            Set::of(
+                $bar = new Package(
+                    Name::of('foo/bar'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                $baz = new Package(
+                    Name::of('foo/baz'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
             ),
-            $baz = new Package(
-                new Name(new Vendor\Name('foo'), 'baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
         );
 
         $this->assertInstanceOf(Vendor\Name::class, $vendor->name());
         $this->assertSame('foo', $vendor->name()->toString());
         $this->assertInstanceOf(Url::class, $vendor->packagist());
         $this->assertSame('https://packagist.org/packages/foo/', $vendor->packagist()->toString());
-        $this->assertSame([$bar, $baz], unwrap($vendor->packages()));
+        $this->assertSame([$bar, $baz], $vendor->packages()->toList());
     }
 
-    public function testThrowWhenPackagesDoNotBelongToTheSameVendor()
+    public function testDiscardPackagesFromOtherVendors()
     {
-        $this->expectException(LogicException::class);
-
-        new Vendor(
-            new Package(
-                new Name(new Vendor\Name('foo'), 'bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
+        $vendor = new Vendor(
+            Vendor\Name::of('foo'),
+            Set::of(
+                $bar = new Package(
+                    Name::of('foo/bar'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                new Package(
+                    Name::of('bar/baz'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
             ),
-            new Package(
-                new Name(new Vendor\Name('bar'), 'baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
         );
+
+        $this->assertSame([$bar], $vendor->packages()->toList());
     }
 
     public function testGroup()
     {
         $vendors = Vendor::group(
-            $foo = new Package(
-                new Name(new Vendor\Name('foo'), 'bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
+            Set::of(
+                $foo = new Package(
+                    Name::of('foo/bar'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                $bar = new Package(
+                    Name::of('bar/baz'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
             ),
-            $bar = new Package(
-                new Name(new Vendor\Name('bar'), 'baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
-            )
         );
 
         $this->assertInstanceOf(Set::class, $vendors);
-        $this->assertSame(Vendor::class, (string) $vendors->type());
         $this->assertCount(2, $vendors);
-        $vendors = unwrap($vendors);
-        $this->assertSame([$foo], unwrap(\current($vendors)->packages()));
+        $vendors = $vendors->toList();
+        $this->assertSame([$foo], \current($vendors)->packages()->toList());
         \next($vendors);
-        $this->assertSame([$bar], unwrap(\current($vendors)->packages()));
+        $this->assertSame([$bar], \current($vendors)->packages()->toList());
     }
 
     public function testDependsOn()
     {
         $vendor = new Vendor(
-            new Package(
-                Name::of('foo/bar'),
-                new Version('1.0.0'),
-                Url::of('http://example.com')
+            Vendor\Name::of('foo'),
+            Set::of(
+                new Package(
+                    Name::of('foo/bar'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(),
+                ),
+                new Package(
+                    Name::of('foo/baz'),
+                    Version::of('1.0.0'),
+                    Url::of('http://example.com'),
+                    Set::of(
+                        new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
+                    ),
+                ),
             ),
-            new Package(
-                Name::of('foo/baz'),
-                new Version('1.0.0'),
-                Url::of('http://example.com'),
-                new Relation(Name::of('bar/baz'), new Constraint('~1.0'))
-            )
         );
 
         $this->assertTrue($vendor->dependsOn(Name::of('bar/baz')));

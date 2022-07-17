@@ -22,14 +22,15 @@ use Innmind\CLI\{
 use Innmind\OperatingSystem\OperatingSystem;
 
 new class extends Main {
-    protected function main(Environment $env, OperatingSystem $os): void
+    protected function main(Environment $env, OperatingSystem $os): Environment
     {
         $run = bootstrap(
             $os->filesystem(),
             $os->control()->processes(),
             $os->remote()->http()
         );
-        $run($env);
+
+        return $run($env);
     }
 };
 

@@ -10,15 +10,20 @@ use Innmind\DependencyGraph\{
 use Innmind\Immutable\{
     Set,
     Map,
+    Maybe,
 };
 
 final class Dependencies
 {
     private Package $load;
+    /** @var Map<string, \WeakReference<Model>> */
+    private Map $cache;
 
     public function __construct(Package $load)
     {
         $this->load = $load;
+        /** @var Map<string, \WeakReference<Model>> */
+        $this->cache = Map::of();
     }
 
     /**
@@ -26,25 +31,65 @@ final class Dependencies
      */
     public function __invoke(Model\Name $name): Set
     {
-        $packages = $this->load($name, Map::of('string', Model::class));
-
-        /** @var Set<Model> */
-        return $packages->values()->toSetOf(Model::class);
+        return ($this->load)($name)
+            ->map($this->cache(...))
+            ->match(
+                $this->loadRelations(...),
+                static fn() => Set::of(),
+            );
     }
 
-    private function load(Model\Name $name, Map $packages): Map
+    /**
+     * @return Set<Model>
+     */
+    private function loadRelations(Model $dependency): Set
     {
-        if ($packages->contains($name->toString())) {
-            return $packages;
-        }
+        return $dependency
+            ->relations()
+            ->map(static fn($relation) => $relation->name())
+            ->flatMap($this->lookup(...))
+            ->add($dependency);
+    }
 
-        $package = ($this->load)($name);
+    /**
+     * @return Set<Model>
+     */
+    private function lookup(Model\Name $relation): Set
+    {
+        /** @psalm-suppress InvalidArgument Because it doesn't understand the filter */
+        return $this
+            ->cache
+            ->get($relation->toString())
+            ->filter(static fn($ref) => \is_object($ref->get()))
+            ->map(static fn($ref) => $ref->get())
+            ->otherwise(fn() => $this->fetch($relation))
+            ->map($this->loadRelations(...))
+            ->match(
+                static fn($packages) => $packages,
+                static fn() => Set::of(),
+            );
+    }
 
-        return $package->relations()->reduce(
-            ($packages)($name->toString(), $package),
-            function(Map $packages, Model\Relation $relation): Map {
-                return $this->load($relation->name(), $packages);
-            },
+    /**
+     * @return Maybe<Model>
+     */
+    private function fetch(Model\Name $relation): Maybe
+    {
+        // remove dead references
+        $this->cache = $this->cache->filter(
+            static fn($_, $ref) => \is_object($ref->get()),
         );
+
+        return ($this->load)($relation)->map($this->cache(...));
+    }
+
+    private function cache(Model $package): Model
+    {
+        $this->cache = ($this->cache)(
+            $package->name()->toString(),
+            \WeakReference::create($package),
+        );
+
+        return $package;
     }
 }

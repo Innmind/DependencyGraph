@@ -8,5 +8,8 @@ use Innmind\Url\Url;
 
 interface Locate
 {
+    /**
+     * @psalm-pure
+     */
     public function __invoke(Package $package): Url;
 }

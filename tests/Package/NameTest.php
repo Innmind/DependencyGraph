@@ -12,21 +12,13 @@ use PHPUnit\Framework\TestCase;
 
 class NameTest extends TestCase
 {
-    public function testInterface()
-    {
-        $name = new Name(new Vendor\Name('vendor'), 'package');
-
-        $this->assertInstanceOf(Vendor\Name::class, $name->vendor());
-        $this->assertSame('vendor', $name->vendor()->toString());
-        $this->assertSame('package', $name->package());
-        $this->assertSame('vendor/package', $name->toString());
-    }
-
     public function testOf()
     {
         $name = Name::of('vendor/package');
 
         $this->assertInstanceOf(Name::class, $name);
+        $this->assertSame('vendor', $name->vendor()->toString());
+        $this->assertSame('package', $name->package());
         $this->assertSame('vendor/package', $name->toString());
     }
 
@@ -40,6 +32,6 @@ class NameTest extends TestCase
     {
         $this->expectException(DomainException::class);
 
-        new Name(new Vendor\Name('vendor'), '');
+        Name::of('vendor/');
     }
 }

@@ -9,9 +9,11 @@ use Innmind\DependencyGraph\{
     Package\Name,
 };
 use Innmind\Graphviz\Node;
-use Innmind\Colour\RGBA;
+use Innmind\Colour\{
+    Colour,
+    RGBA,
+};
 use Innmind\Immutable\{
-    Map,
     Set,
     Str,
 };
@@ -23,34 +25,23 @@ final class PackageNode
     }
 
     /**
+     * @psalm-pure
+     *
+     * @param Set<Package> $packages
+     *
      * @return Set<Node>
      */
-    public static function graph(Locate $locate, Package ...$packages): Set
+    public static function graph(Locate $locate, Set $packages): Set
     {
-        /** @var Map<string, Package> */
-        $packages = Set::of(Package::class, ...$packages)->toMapOf(
-            'string',
-            Package::class,
-            static function(Package $package): \Generator {
-                yield $package->name()->toString() => $package;
-            },
+        return $packages->map(
+            static fn($package) => self::node($package, $locate, $packages),
         );
-        /** @var Map<string, Node> */
-        $nodes = $packages->values()->reduce(
-            Map::of('string', Node::class),
-            static function(Map $nodes, Package $package) use ($locate, $packages): Map {
-                /** @var Map<string, Node> $nodes */
-                $node = self::node($package, $nodes, $locate, $packages);
-
-                return ($nodes)($node->name()->toString(), $node);
-            }
-        );
-
-        /** @var Set<Node> */
-        return $nodes->values()->toSetOf(Node::class);
     }
 
-    public static function of(Name $name): Node\Node
+    /**
+     * @psalm-pure
+     */
+    public static function of(Name $name): Node
     {
         $name = Str::of($name->toString())
             ->replace('-', '_')
@@ -58,55 +49,50 @@ final class PackageNode
             ->replace('/', '__')
             ->toString();
 
-        return Node\Node::named($name);
+        return Node::named($name);
     }
 
     /**
-     * @param Map<string, Node> $nodes
-     * @param Map<string, Package> $packages
+     * @psalm-pure
+     *
+     * @param Set<Package> $packages
      */
     private static function node(
         Package $package,
-        Map $nodes,
         Locate $locate,
-        Map $packages
+        Set $packages,
     ): Node {
         $colour = self::colorize($package->name());
-        $node = self::of($package->name());
-        $node->target($locate($package));
-        $node->shaped(Node\Shape::ellipse()->withColor($colour));
+        $node = self::of($package->name())
+            ->target($locate($package))
+            ->shaped(Node\Shape::ellipse()->withColor($colour));
 
         return $package->relations()->reduce(
             $node,
-            static function(Node $package, Relation $relation) use ($nodes, $colour, $packages): Node {
-                $node = self::of($relation->name());
-
-                // if the package has already been transformed into a node, then
-                // reuse its instance so the attributes are not lost
-                $edge = $package->linkedTo(
-                    $nodes->contains($node->name()->toString()) ?
-                        $nodes->get($node->name()->toString()) : $node,
-                );
-                $edge->useColor($colour);
-                $edge->displayAs($relation->constraint()->toString());
-                $version = $packages->get($relation->name()->toString())->version();
-
-                if (!$relation->constraint()->satisfiedBy($version)) {
-                    $edge->bold();
-                    $edge->useColor(RGBA::of('FF0000'));
-                }
-
-                return $package;
-            }
+            static fn(Node $node, $relation) => $node->linkedTo(
+                self::of($relation->name())->name(),
+                static fn($edge) => $packages
+                    ->find(static fn($package) => $package->name()->equals($relation->name()))
+                    ->map(static fn($package) => $package->version())
+                    ->filter(static fn($version) => $relation->constraint()->satisfiedBy($version))
+                    ->match(
+                        static fn() => $edge->useColor($colour),
+                        static fn() => $edge->bold()->useColor(Colour::red->toRGBA()),
+                    )
+                    ->displayAs($relation->constraint()->toString()),
+            ),
         );
     }
 
+    /**
+     * @psalm-pure
+     */
     private static function colorize(Name $name): RGBA
     {
         $hash = Str::of(\md5($name->toString()));
-        $red = $hash->substring(0, 2)->toString();
-        $green = $hash->substring(2, 2)->toString();
-        $blue = $hash->substring(4, 2)->toString();
+        $red = $hash->take(2)->toString();
+        $green = $hash->drop(2)->take(2)->toString();
+        $blue = $hash->drop(4)->take(2)->toString();
 
         return RGBA::of($red.$green.$blue);
     }
