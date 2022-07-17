@@ -9,9 +9,11 @@ use Innmind\DependencyGraph\{
     Package\Name,
 };
 use Innmind\Graphviz\Node;
-use Innmind\Colour\RGBA;
+use Innmind\Colour\{
+    Colour,
+    RGBA,
+};
 use Innmind\Immutable\{
-    Map,
     Set,
     Str,
 };
@@ -29,24 +31,9 @@ final class PackageNode
      */
     public static function graph(Locate $locate, Set $packages): Set
     {
-        $packages = $packages
-            ->groupBy(static fn($package) => $package->name()->toString())
-            ->map(static fn($_, $packages) => $packages->find(static fn() => true)->match(
-                static fn($package) => $package,
-                static fn() => throw new \LogicException('unreachable'),
-            ));
-        /** @var Map<string, Node> */
-        $nodes = $packages->values()->reduce(
-            Map::of(),
-            static function(Map $nodes, Package $package) use ($locate, $packages): Map {
-                /** @var Map<string, Node> $nodes */
-                $node = self::node($package, $nodes, $locate, $packages);
-
-                return ($nodes)($node->name()->toString(), $node);
-            },
+        return $packages->map(
+            static fn($package) => self::node($package, $locate, $packages),
         );
-
-        return Set::of(...$nodes->values()->toList());
     }
 
     public static function of(Name $name): Node
@@ -61,14 +48,12 @@ final class PackageNode
     }
 
     /**
-     * @param Map<string, Node> $nodes
-     * @param Map<string, Package> $packages
+     * @param Set<Package> $packages
      */
     private static function node(
         Package $package,
-        Map $nodes,
         Locate $locate,
-        Map $packages,
+        Set $packages,
     ): Node {
         $colour = self::colorize($package->name());
         $node = self::of($package->name())
@@ -77,40 +62,27 @@ final class PackageNode
 
         return $package->relations()->reduce(
             $node,
-            static function(Node $package, Relation $relation) use ($nodes, $colour, $packages): Node {
-                $node = self::of($relation->name());
-                $upToDate = $packages
-                    ->get($relation->name()->toString())
+            static fn($node, $relation) => $node->linkedTo(
+                self::of($relation->name())->name(),
+                static fn($edge) => $packages
+                    ->find(static fn($package) => $package->name()->equals($relation->name()))
                     ->map(static fn($package) => $package->version())
                     ->filter(static fn($version) => $relation->constraint()->satisfiedBy($version))
                     ->match(
-                        static fn() => true,
-                        static fn() => false,
-                    );
-
-                // if the package has already been transformed into a node, then
-                // reuse its instance so the attributes are not lost
-                return $package->linkedTo(
-                    $nodes->get($node->name()->toString())->match(
-                        static fn($node) => $node->name(),
-                        static fn() => $node->name(),
-                    ),
-                    static fn($edge) => (match ($upToDate) {
-                        false => $edge->bold()->useColor(RGBA::of('FF0000')),
-                        true => $edge->useColor($colour),
-                    })
-                        ->displayAs($relation->constraint()->toString()),
-                );
-            },
+                        static fn() => $edge->useColor($colour),
+                        static fn() => $edge->bold()->useColor(Colour::red->toRGBA()),
+                    )
+                    ->displayAs($relation->constraint()->toString()),
+            ),
         );
     }
 
     private static function colorize(Name $name): RGBA
     {
         $hash = Str::of(\md5($name->toString()));
-        $red = $hash->substring(0, 2)->toString();
-        $green = $hash->substring(2, 2)->toString();
-        $blue = $hash->substring(4, 2)->toString();
+        $red = $hash->take(2)->toString();
+        $green = $hash->drop(2)->take(2)->toString();
+        $blue = $hash->drop(4)->take(2)->toString();
 
         return RGBA::of($red.$green.$blue);
     }
