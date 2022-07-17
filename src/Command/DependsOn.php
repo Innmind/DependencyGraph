@@ -37,14 +37,18 @@ final class DependsOn implements Command
 
     public function __invoke(Console $console): Console
     {
+        /** @psalm-suppress MixedArgument Due to the reduce */
+        $vendors = $console
+            ->arguments()
+            ->pack()
+            ->reduce(
+                Set::of($console->arguments()->get('vendor')),
+                static fn(Set $vendors, $vendor) => ($vendors)($vendor),
+            )
+            ->map(static fn($vendor) => new Vendor\Name($vendor));
         $packages = ($this->load)(
             $package = Package\Name::of($console->arguments()->get('package')),
-            new Vendor\Name($console->arguments()->get('vendor')),
-            ...$console
-                ->arguments()
-                ->pack()
-                ->map(static fn(string $vendor): Vendor\Name => new Vendor\Name($vendor))
-                ->toList(),
+            $vendors,
         );
 
         $fileName = Str::of($package->toString())

@@ -20,15 +20,12 @@ final class Dependents
     }
 
     /**
+     * @param Set<Model\Name> $vendors
+     *
      * @return Set<Package>
      */
-    public function __invoke(
-        Package\Name $name,
-        Model\Name $required,
-        Model\Name ...$vendors,
-    ): Set {
-        $vendors = Set::of($required, ...$vendors);
-
+    public function __invoke(Package\Name $name, Set $vendors): Set
+    {
         $packages = $vendors
             ->map(fn(Model\Name $vendor): Model => ($this->load)($vendor))
             ->flatMap(static fn($vendor) => $vendor->packages());
@@ -38,9 +35,9 @@ final class Dependents
             ->match(
                 static fn($package) => Graph::of(
                     $package,
-                    ...$packages
-                        ->filter(static fn($package) => !$package->name()->equals($name))
-                        ->toList(),
+                    $packages->filter(
+                        static fn($package) => !$package->name()->equals($name),
+                    ),
                 ),
                 static fn() => Set::of(),
             );

@@ -28,14 +28,14 @@ final class Graph
     }
 
     /**
-     * @no-named-arguments
+     * @param Set<Package> $dependents
      *
      * @return Set<Package>
      */
-    public static function of(Package $root, Package ...$dependents): Set
+    public static function of(Package $root, Set $dependents): Set
     {
         $root = new self($root->removeRelations());
-        $dependents = Set::of(...$dependents)->map(
+        $dependents = $dependents->map(
             static fn(Package $package): self => new self($package),
         );
         self::bind($root, $dependents);
