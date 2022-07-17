@@ -30,6 +30,9 @@ final class Render
     public function __construct(Locate $locate = null)
     {
         $this->locate = $locate ?? new class implements Locate {
+            /**
+             * @psalm-pure
+             */
             public function __invoke(Package $package): Url
             {
                 return $package->packagist()->withFragment(Fragment::of(

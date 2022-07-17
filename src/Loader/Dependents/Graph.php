@@ -16,6 +16,8 @@ final class Graph
     }
 
     /**
+     * @psalm-pure
+     *
      * @param Set<Package> $packages
      *
      * @return Set<Package>

@@ -12,6 +12,9 @@ use Innmind\Immutable\{
     Maybe,
 };
 
+/**
+ * @psalm-immutable
+ */
 final class Name
 {
     private Vendor\Name $vendor;
@@ -27,6 +30,9 @@ final class Name
         $this->package = $package;
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function of(string $name): self
     {
         [$vendor, $package] = Str::of($name)->split('/')->toList();
@@ -38,6 +44,8 @@ final class Name
     }
 
     /**
+     * @psalm-pure
+     *
      * @return Maybe<self>
      */
     public static function maybe(string $name): Maybe

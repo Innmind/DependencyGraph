@@ -9,6 +9,9 @@ use Innmind\Immutable\{
     Maybe,
 };
 
+/**
+ * @psalm-immutable
+ */
 final class Version
 {
     private string $version;
@@ -22,12 +25,17 @@ final class Version
         $this->version = $version;
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function of(string $version): self
     {
         return new self($version);
     }
 
     /**
+     * @psalm-pure
+     *
      * @return Maybe<self>
      */
     public static function maybe(string $version): Maybe

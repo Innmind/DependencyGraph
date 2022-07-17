@@ -9,6 +9,9 @@ use Innmind\Immutable\{
     Map,
 };
 
+/**
+ * @psalm-immutable
+ */
 final class Vendor
 {
     private Vendor\Name $name;
@@ -29,6 +32,8 @@ final class Vendor
     }
 
     /**
+     * @psalm-pure
+     *
      * @param Set<Package> $packages
      *
      * @return Set<self>

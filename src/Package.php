@@ -12,6 +12,9 @@ use Innmind\DependencyGraph\{
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
 
+/**
+ * @psalm-immutable
+ */
 final class Package
 {
     private Name $name;

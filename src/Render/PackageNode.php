@@ -25,6 +25,8 @@ final class PackageNode
     }
 
     /**
+     * @psalm-pure
+     *
      * @param Set<Package> $packages
      *
      * @return Set<Node>
@@ -36,6 +38,9 @@ final class PackageNode
         );
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function of(Name $name): Node
     {
         $name = Str::of($name->toString())
@@ -48,6 +53,8 @@ final class PackageNode
     }
 
     /**
+     * @psalm-pure
+     *
      * @param Set<Package> $packages
      */
     private static function node(
@@ -77,6 +84,9 @@ final class PackageNode
         );
     }
 
+    /**
+     * @psalm-pure
+     */
     private static function colorize(Name $name): RGBA
     {
         $hash = Str::of(\md5($name->toString()));

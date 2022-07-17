@@ -10,6 +10,9 @@ use Innmind\Immutable\{
 };
 use Composer\Semver\Semver;
 
+/**
+ * @psalm-immutable
+ */
 final class Constraint
 {
     private string $value;
@@ -24,6 +27,8 @@ final class Constraint
     }
 
     /**
+     * @psalm-pure
+     *
      * @return Maybe<self>
      */
     public static function maybe(string $value): Maybe
@@ -35,6 +40,7 @@ final class Constraint
 
     public function satisfiedBy(Version $version): bool
     {
+        /** @psalm-suppress ImpureMethodCall */
         return Semver::satisfies($version->toString(), $this->value);
     }
 

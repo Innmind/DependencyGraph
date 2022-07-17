@@ -20,6 +20,8 @@ final class Cluster
     }
 
     /**
+     * @psalm-pure
+     *
      * @return Graph<'directed'>
      */
     public static function of(Vendor $vendor): Graph
