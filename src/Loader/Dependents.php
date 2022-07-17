@@ -8,10 +8,7 @@ use Innmind\DependencyGraph\{
     Package,
     Vendor as Model,
 };
-use Innmind\Immutable\{
-    Set,
-    Map,
-};
+use Innmind\Immutable\Set;
 
 final class Dependents
 {
@@ -35,27 +32,15 @@ final class Dependents
         $packages = $vendors
             ->map(fn(Model\Name $vendor): Model => ($this->load)($vendor))
             ->flatMap(static fn($vendor) => $vendor->packages());
-        /** @var Map<string, Package> */
-        $packages = $packages->reduce(
-            Map::of(),
-            static function(Map $packages, Package $package): Map {
-                /** @var Map<string, Package> $packages */
-
-                return ($packages)(
-                    $package->name()->toString(),
-                    $package,
-                );
-            },
-        );
-
-        $name = $name->toString();
 
         return $packages
-            ->get($name)
+            ->find(static fn($package) => $package->name()->equals($name))
             ->match(
                 static fn($package) => Graph::of(
                     $package,
-                    ...$packages->remove($name)->values()->toList(),
+                    ...$packages
+                        ->filter(static fn($package) => !$package->name()->equals($name))
+                        ->toList(),
                 ),
                 static fn() => Set::of(),
             );
