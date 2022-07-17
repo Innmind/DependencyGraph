@@ -47,7 +47,7 @@ final class Render
         $graph = Graph::directed('packages');
 
         // create the dependencies between the packages
-        $nodes = PackageNode::graph($this->locate, ...$packages->toList());
+        $nodes = PackageNode::graph($this->locate, $packages);
         /** @var Graph<'directed'> */
         $graph = $nodes->reduce(
             $graph,

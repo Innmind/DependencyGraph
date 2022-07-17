@@ -23,13 +23,13 @@ final class PackageNode
     }
 
     /**
-     * @no-named-arguments
+     * @param Set<Package> $packages
      *
      * @return Set<Node>
      */
-    public static function graph(Locate $locate, Package ...$packages): Set
+    public static function graph(Locate $locate, Set $packages): Set
     {
-        $packages = Set::of(...$packages)
+        $packages = $packages
             ->groupBy(static fn($package) => $package->name()->toString())
             ->map(static fn($_, $packages) => $packages->find(static fn() => true)->match(
                 static fn($package) => $package,
