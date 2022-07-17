@@ -94,11 +94,6 @@ class GraphTest extends TestCase
 
         $expected = <<<DOT
 digraph packages {
-    subgraph cluster_watev {
-        label="watev"
-        URL="https://packagist.org/packages/watev/"
-    watev__foo [label="foo@1.0.0"];
-    }
     subgraph cluster_vendor {
         label="vendor"
         URL="https://packagist.org/packages/vendor/"
@@ -106,13 +101,18 @@ digraph packages {
     vendor__libB [label="libB@1.0.0"];
     vendor__root [label="root@1.0.0"];
     }
-    watev__foo -> vendor__libA [color="#416be8", label="~1.0"];
-    watev__foo -> vendor__libB [color="#416be8", label="~1.0"];
+    subgraph cluster_watev {
+        label="watev"
+        URL="https://packagist.org/packages/watev/"
+    watev__foo [label="foo@1.0.0"];
+    }
     vendor__libA -> vendor__root [color="#c34ca0", label="~1.0"];
     vendor__libB -> vendor__root [color="#f76ead", label="~1.0"];
-    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL="http://example.com#1.0.0"];
+    watev__foo -> vendor__libA [color="#416be8", label="~1.0"];
+    watev__foo -> vendor__libB [color="#416be8", label="~1.0"];
     vendor__libA [shape="ellipse", width="0.75", height="0.5", color="#c34ca0", URL="http://example.com#1.0.0"];
     vendor__libB [shape="ellipse", width="0.75", height="0.5", color="#f76ead", URL="http://example.com#1.0.0"];
+    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL="http://example.com#1.0.0"];
     vendor__root [shape="ellipse", width="0.75", height="0.5", color="#39b791", URL="http://example.com#1.0.0"];
 }
 DOT;
