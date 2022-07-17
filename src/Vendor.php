@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph;
 
-use Innmind\DependencyGraph\{
-    Package\Relation,
-    Exception\LogicException,
-};
+use Innmind\DependencyGraph\Package\Relation;
 use Innmind\Url\Url;
 use Innmind\Immutable\{
     Set,
@@ -26,14 +23,10 @@ final class Vendor
     public function __construct(Vendor\Name $name, Set $packages)
     {
         $this->name = $name;
-        $this->packages = $packages;
+        $this->packages = $packages->filter(
+            static fn($package) => $package->name()->vendor()->equals($name),
+        );
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
-
-        $_ = $this->packages->foreach(function(Package $package): void {
-            if (!$package->name()->vendor()->equals($this->name)) {
-                throw new LogicException;
-            }
-        });
     }
 
     /**

@@ -45,14 +45,12 @@ class VendorTest extends TestCase
         $this->assertSame([$bar, $baz], $vendor->packages()->toList());
     }
 
-    public function testThrowWhenPackagesDoNotBelongToTheSameVendor()
+    public function testDiscardPackagesFromOtherVendors()
     {
-        $this->expectException(LogicException::class);
-
-        new Vendor(
+        $vendor = new Vendor(
             Vendor\Name::of('foo'),
             Set::of(
-                new Package(
+                $bar = new Package(
                     Name::of('foo/bar'),
                     Version::of('1.0.0'),
                     Url::of('http://example.com'),
@@ -66,6 +64,8 @@ class VendorTest extends TestCase
                 ),
             ),
         );
+
+        $this->assertSame([$bar], $vendor->packages()->toList());
     }
 
     public function testGroup()
