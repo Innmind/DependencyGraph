@@ -10,6 +10,7 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Render,
     Save,
+    Display,
 };
 use Innmind\CLI\{
     Command,
@@ -58,6 +59,10 @@ class VendorTest extends TestCase
                     new Render,
                     $this->createMock(Processes::class),
                 ),
+                new Display(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ),
         );
     }
@@ -65,7 +70,7 @@ class VendorTest extends TestCase
     public function testUsage()
     {
         $expected = <<<USAGE
-vendor vendor
+vendor vendor --output
 
 Generate a graph of all packages of a vendor and their dependencies
 USAGE;
@@ -75,6 +80,10 @@ USAGE;
             (new Vendor(
                 $this->loader,
                 new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
+                new Display(
                     new Render,
                     $this->createMock(Processes::class),
                 ),
@@ -89,6 +98,10 @@ USAGE;
             new Save(
                 new Render,
                 $processes = $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
             ),
         );
         $processes
@@ -141,6 +154,10 @@ USAGE;
                 new Render,
                 $processes = $this->createMock(Processes::class),
             ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -187,6 +204,68 @@ USAGE;
         );
         $this->assertSame(1, $console->environment()->exitCode()->match(
             static fn($code) => $code->toInt(),
+            static fn() => null,
+        ));
+    }
+
+    public function testOutputSvg()
+    {
+        $command = new Vendor(
+            $this->loader,
+            new Save(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
+        );
+        $processes
+            ->expects($this->once())
+            ->method('execute')
+            ->with($this->callback(static function($command): bool {
+                return $command->toString() === "dot '-Tsvg'" &&
+                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ) &&
+                    null !== $command->input()->match(
+                        static fn($input) => $input->toString(),
+                        static fn() => null,
+                    );
+            }))
+            ->willReturn($process = $this->createMock(Process::class));
+        $process
+            ->expects($this->once())
+            ->method('wait')
+            ->willReturn(Either::right(new SideEffect));
+        $process
+            ->expects($this->once())
+            ->method('output')
+            ->willReturn(new Output\Output(Sequence::of(
+                [Str::of('<svg>'), Output\Type::output],
+                [Str::of('</svg>'), Output\Type::output],
+            )));
+        $console = Console::of(
+            Environment\InMemory::of(
+                [],
+                true,
+                ['innmind', '--output'],
+                [],
+                __DIR__.'/../../fixtures',
+            ),
+            new Arguments(Map::of(['vendor', 'innmind'])),
+            new Options(Map::of(['output', ''])),
+        );
+
+        $console = $command($console);
+        $this->assertSame(
+            ['<svg>', '</svg>'],
+            $console->environment()->outputs(),
+        );
+        $this->assertNull($console->environment()->exitCode()->match(
+            static fn($code) => $code,
             static fn() => null,
         ));
     }

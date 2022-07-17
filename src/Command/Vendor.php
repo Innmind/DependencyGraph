@@ -6,6 +6,7 @@ namespace Innmind\DependencyGraph\Command;
 use Innmind\DependencyGraph\{
     Loader\VendorDependencies,
     Save,
+    Display,
     Vendor\Name,
 };
 use Innmind\CLI\{
@@ -18,11 +19,13 @@ final class Vendor implements Command
 {
     private VendorDependencies $load;
     private Save $save;
+    private Display $display;
 
-    public function __construct(VendorDependencies $load, Save $save)
+    public function __construct(VendorDependencies $load, Save $save, Display $display)
     {
         $this->load = $load;
         $this->save = $save;
+        $this->display = $display;
     }
 
     public function __invoke(Console $console): Console
@@ -30,7 +33,13 @@ final class Vendor implements Command
         $packages = ($this->load)($vendor = new Name($console->arguments()->get('vendor')));
         $fileName = Str::of("{$vendor->toString()}.svg");
 
-        return ($this->save)($console, $fileName, $packages);
+        return $console
+            ->options()
+            ->maybe('output')
+            ->match(
+                fn() => ($this->display)($console, $packages),
+                fn() => ($this->save)($console, $fileName, $packages),
+            );
     }
 
     /**
@@ -39,7 +48,7 @@ final class Vendor implements Command
     public function usage(): string
     {
         return <<<USAGE
-vendor vendor
+vendor vendor --output
 
 Generate a graph of all packages of a vendor and their dependencies
 USAGE;

@@ -10,6 +10,7 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Render,
     Save,
+    Display,
 };
 use Innmind\CLI\{
     Command,
@@ -56,6 +57,10 @@ class DependsOnTest extends TestCase
                     new Render,
                     $this->createMock(Processes::class),
                 ),
+                new Display(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ),
         );
     }
@@ -63,7 +68,7 @@ class DependsOnTest extends TestCase
     public function testUsage()
     {
         $expected = <<<USAGE
-depends-on package vendor ...vendors --direct
+depends-on package vendor ...vendors --direct --output
 
 Generate a graph of all packages depending on a given package
 
@@ -85,6 +90,10 @@ USAGE;
                     new Render,
                     $this->createMock(Processes::class),
                 ),
+                new Display(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ))->usage(),
         );
     }
@@ -101,6 +110,10 @@ USAGE;
             new Save(
                 new Render,
                 $processes = $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
             ),
         );
         $processes
@@ -158,6 +171,10 @@ USAGE;
                 new Render,
                 $processes = $this->createMock(Processes::class),
             ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -214,6 +231,10 @@ USAGE;
                 new Render,
                 $processes = $this->createMock(Processes::class),
             ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -257,6 +278,73 @@ USAGE;
         $this->assertSame(['foo'], $console->environment()->errors());
         $this->assertSame(1, $console->environment()->exitCode()->match(
             static fn($code) => $code->toInt(),
+            static fn() => null,
+        ));
+    }
+
+    public function testOutputSvg()
+    {
+        $command = new DependsOn(
+            new Dependents(
+                new Vendor(
+                    $this->http,
+                    new Package($this->http),
+                ),
+            ),
+            new Save(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
+        );
+        $processes
+            ->expects($this->once())
+            ->method('execute')
+            ->with($this->callback(static function($command): bool {
+                return $command->toString() === "dot '-Tsvg'" &&
+                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ) &&
+                    null !== $command->input()->match(
+                        static fn($input) => $input->toString(),
+                        static fn() => null,
+                    );
+            }))
+            ->willReturn($process = $this->createMock(Process::class));
+        $process
+            ->expects($this->once())
+            ->method('wait')
+            ->willReturn(Either::right(new SideEffect));
+        $process
+            ->expects($this->once())
+            ->method('output')
+            ->willReturn(new Output\Output(Sequence::of(
+                [Str::of('<svg>'), Output\Type::output],
+                [Str::of('</svg>'), Output\Type::output],
+            )));
+        $console = Console::of(
+            Environment\InMemory::of(
+                [],
+                true,
+                ['innmind/immutable', 'innmind', '--output'],
+                [],
+                __DIR__.'/../../fixtures',
+            ),
+            new Arguments(Map::of(['package', 'innmind/immutable'], ['vendor', 'innmind'])),
+            new Options(Map::of(['output', ''])),
+        );
+
+        $console = $command($console);
+        $this->assertSame(
+            ['<svg>', '</svg>'],
+            $console->environment()->outputs(),
+        );
+        $this->assertNull($console->environment()->exitCode()->match(
+            static fn($code) => $code,
             static fn() => null,
         ));
     }

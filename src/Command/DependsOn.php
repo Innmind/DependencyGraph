@@ -8,6 +8,7 @@ use Innmind\DependencyGraph\{
     Package,
     Vendor,
     Save,
+    Display,
 };
 use Innmind\CLI\{
     Command,
@@ -22,11 +23,13 @@ final class DependsOn implements Command
 {
     private Dependents $load;
     private Save $save;
+    private Display $display;
 
-    public function __construct(Dependents $load, Save $save)
+    public function __construct(Dependents $load, Save $save, Display $display)
     {
         $this->load = $load;
         $this->save = $save;
+        $this->display = $display;
     }
 
     public function __invoke(Console $console): Console
@@ -60,7 +63,13 @@ final class DependsOn implements Command
             $fileName = $fileName->prepend('direct_');
         }
 
-        return ($this->save)($console, $fileName, $packages);
+        return $console
+            ->options()
+            ->maybe('output')
+            ->match(
+                fn() => ($this->display)($console, $packages),
+                fn() => ($this->save)($console, $fileName, $packages),
+            );
     }
 
     /**
@@ -69,7 +78,7 @@ final class DependsOn implements Command
     public function usage(): string
     {
         return <<<USAGE
-depends-on package vendor ...vendors --direct
+depends-on package vendor ...vendors --direct --output
 
 Generate a graph of all packages depending on a given package
 
