@@ -41,21 +41,18 @@ final class Save
                     ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(($this->render)($packages)),
             );
-        $successful = $process->wait()->match(
-            static fn() => true,
-            static fn() => false,
-        );
 
-        if (!$successful) {
-            return $process
-                ->output()
-                ->reduce(
-                    $console,
-                    static fn(Console $console, $output) => $console->error($output),
-                )
-                ->exit(1);
-        }
-
-        return $console->output($file->append("\n"));
+        return $process
+            ->wait()
+            ->match(
+                static fn() => $console->output($file->append("\n")),
+                static fn() => $process
+                    ->output()
+                    ->reduce(
+                        $console,
+                        static fn(Console $console, $output) => $console->error($output),
+                    )
+                    ->exit(1),
+            );
     }
 }
