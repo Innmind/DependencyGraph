@@ -24,13 +24,13 @@ class VendorTest extends TestCase
             Set::of(
                 $bar = new Package(
                     Name::of('foo/bar'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 $baz = new Package(
                     Name::of('foo/baz'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
@@ -52,13 +52,13 @@ class VendorTest extends TestCase
             Set::of(
                 new Package(
                     Name::of('foo/bar'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 new Package(
                     Name::of('bar/baz'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
@@ -72,13 +72,13 @@ class VendorTest extends TestCase
             Set::of(
                 $foo = new Package(
                     Name::of('foo/bar'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 $bar = new Package(
                     Name::of('bar/baz'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
@@ -99,13 +99,13 @@ class VendorTest extends TestCase
             Set::of(
                 new Package(
                     Name::of('foo/bar'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 new Package(
                     Name::of('foo/baz'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(
                         new Relation(Name::of('bar/baz'), new Constraint('~1.0')),

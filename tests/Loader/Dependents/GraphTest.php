@@ -23,7 +23,7 @@ class GraphTest extends TestCase
         $packages = Graph::of(
             new Package(
                 Name::of('vendor/root'),
-                new Version('1.0.0'),
+                Version::of('1.0.0'),
                 Url::of('http://example.com'),
                 Set::of(new Relation(
                     Name::of('rand/om'),
@@ -33,7 +33,7 @@ class GraphTest extends TestCase
             Set::of(
                 new Package(
                     Name::of('vendor/libA'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(
                         new Relation(
@@ -48,7 +48,7 @@ class GraphTest extends TestCase
                 ),
                 new Package(
                     Name::of('vendor/libB'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(
                         new Relation(
@@ -63,7 +63,7 @@ class GraphTest extends TestCase
                 ),
                 new Package(
                     Name::of('watev/foo'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(
                         new Relation(
@@ -82,7 +82,7 @@ class GraphTest extends TestCase
                 ),
                 new Package(
                     Name::of('vendor/libC'),
-                    new Version('1.0.0'),
+                    Version::of('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),

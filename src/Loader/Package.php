@@ -53,13 +53,19 @@ final class Package
         $body = Json::decode($response->body()->toString());
         $content = $body['package'];
 
-        return $this
-            ->mostRecentVersion($content['versions'])
-            ->map(fn($version) => new Model(
+        $version = $this->mostRecentVersion($content['versions']);
+        $relations = $version->map($this->loadRelations(...));
+        $version = $version
+            ->map(static fn($version) => $version['version'])
+            ->flatMap(Model\Version::maybe(...));
+
+        /** @psalm-suppress MixedArgumentTypeCoercion */
+        return Maybe::all($version, $relations)
+            ->map(fn(Model\Version $version, Set $relations) => new Model(
                 $name,
-                new Model\Version($version['version']),
+                $version,
                 Url::of("https://packagist.org/packages/{$name->toString()}"),
-                $this->loadRelations($version),
+                $relations,
             ));
     }
 

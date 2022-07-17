@@ -21,7 +21,7 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             $name = Name::of('foo/bar'),
-            $version = new Version('1.0.0'),
+            $version = Version::of('1.0.0'),
             $packagist = Url::of('http://example.com'),
             $relations = Set::of(new Relation(
                 Name::of('bar/baz'),
@@ -40,7 +40,7 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
-            new Version('1.0.0'),
+            Version::of('1.0.0'),
             Url::of('http://example.com'),
             Set::of(
                 new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
@@ -55,7 +55,7 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
-            new Version('1.0.0'),
+            Version::of('1.0.0'),
             Url::of('http://example.com'),
             Set::of(
                 $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
@@ -77,7 +77,7 @@ class PackageTest extends TestCase
     {
         $package = new Package(
             Name::of('foo/bar'),
-            new Version('1.0.0'),
+            Version::of('1.0.0'),
             Url::of('http://example.com'),
             Set::of(
                 $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),

@@ -87,10 +87,13 @@ final class ComposerLock
                     );
             }
 
-            $packages = Name::maybe($package['name'])
-                ->map(static fn($name) => new Package(
+            $packages = Maybe::all(
+                    Name::maybe($package['name']),
+                    Version::maybe($package['version']),
+                )
+                ->map(static fn(Name $name, Version $version) => new Package(
                     $name,
-                    new Version($package['version']),
+                    $version,
                     Url::of('https://packagist.org/packages/'.$package['name']),
                     $relations,
                 ))
