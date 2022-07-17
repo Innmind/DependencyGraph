@@ -48,15 +48,17 @@ final class Render
 
         // create the dependencies between the packages
         $nodes = PackageNode::graph($this->locate, ...$packages->toList());
+        /** @var Graph<'directed'> */
         $graph = $nodes->reduce(
             $graph,
-            static fn($graph, Node $node) => $graph->add($node),
+            static fn(Graph $graph, Node $node) => $graph->add($node),
         );
 
         // cluster packages by vendor
+        /** @var Graph<'directed'> */
         $graph = Vendor::group($packages)->reduce(
             $graph,
-            static fn($graph, Vendor $vendor) => $graph->cluster(
+            static fn(Graph $graph, Vendor $vendor) => $graph->cluster(
                 Cluster::of($vendor),
             ),
         );
