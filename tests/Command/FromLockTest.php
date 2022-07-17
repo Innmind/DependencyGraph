@@ -7,6 +7,7 @@ use Innmind\DependencyGraph\{
     Command\FromLock,
     Loader\ComposerLock,
     Render,
+    Save,
 };
 use Innmind\CLI\{
     Command,
@@ -51,8 +52,10 @@ class FromLockTest extends TestCase
             Command::class,
             new FromLock(
                 new ComposerLock($this->filesystem),
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ),
         );
     }
@@ -71,8 +74,10 @@ USAGE;
             $expected,
             (new FromLock(
                 new ComposerLock($this->filesystem),
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ))->usage(),
         );
     }
@@ -81,8 +86,10 @@ USAGE;
     {
         $command = new FromLock(
             new ComposerLock($this->filesystem),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->never())
@@ -112,8 +119,10 @@ USAGE;
     {
         $command = new FromLock(
             new ComposerLock($this->filesystem),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -157,8 +166,10 @@ USAGE;
     {
         $command = new FromLock(
             new ComposerLock($this->filesystem),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())

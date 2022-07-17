@@ -13,30 +13,26 @@ function bootstrap(
     Processes $processes,
     Transport $http,
 ): Commands {
-    $render = new Render;
+    $save = new Save(new Render, $processes);
     $package = new Loader\Package($http);
     $vendor = new Loader\Vendor($http, $package);
 
     return Commands::of(
         new Command\FromLock(
             new Loader\ComposerLock($filesystem),
-            $render,
-            $processes,
+            $save,
         ),
         new Command\DependsOn(
             new Loader\Dependents($vendor),
-            $render,
-            $processes,
+            $save,
         ),
         new Command\Of(
             new Loader\Dependencies($package),
-            $render,
-            $processes,
+            $save,
         ),
         new Command\Vendor(
             new Loader\VendorDependencies($vendor, $package),
-            $render,
-            $processes,
+            $save,
         ),
     );
 }

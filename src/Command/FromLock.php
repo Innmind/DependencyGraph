@@ -5,29 +5,23 @@ namespace Innmind\DependencyGraph\Command;
 
 use Innmind\DependencyGraph\{
     Loader\ComposerLock,
-    Render,
+    Save,
 };
 use Innmind\CLI\{
     Command,
     Console,
-};
-use Innmind\Server\Control\Server\{
-    Processes,
-    Command as Executable,
 };
 use Innmind\Immutable\Str;
 
 final class FromLock implements Command
 {
     private ComposerLock $load;
-    private Render $render;
-    private Processes $processes;
+    private Save $save;
 
-    public function __construct(ComposerLock $load, Render $render, Processes $processes)
+    public function __construct(ComposerLock $load, Save $save)
     {
         $this->load = $load;
-        $this->render = $render;
-        $this->processes = $processes;
+        $this->save = $save;
     }
 
     public function __invoke(Console $console): Console
@@ -42,27 +36,7 @@ final class FromLock implements Command
 
         $fileName = Str::of('dependencies.svg');
 
-        $process = $this
-            ->processes
-            ->execute(
-                Executable::foreground('dot')
-                    ->withShortOption('Tsvg')
-                    ->withShortOption('o', $fileName->toString())
-                    ->withWorkingDirectory($console->workingDirectory())
-                    ->withInput(($this->render)($packages)),
-            );
-        $successful = $process->wait()->match(
-            static fn() => true,
-            static fn() => false,
-        );
-
-        if (!$successful) {
-            return $console
-                ->error(Str::of($process->output()->toString()))
-                ->exit(1);
-        }
-
-        return $console->output($fileName->append("\n"));
+        return ($this->save)($console, $fileName, $packages);
     }
 
     /**

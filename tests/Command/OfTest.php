@@ -8,6 +8,7 @@ use Innmind\DependencyGraph\{
     Loader\Dependencies,
     Loader\Package,
     Render,
+    Save,
 };
 use Innmind\CLI\{
     Command,
@@ -50,8 +51,10 @@ class OfTest extends TestCase
                 new Dependencies(
                     new Package($this->http),
                 ),
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ),
         );
     }
@@ -70,8 +73,10 @@ USAGE;
                 new Dependencies(
                     new Package($this->http),
                 ),
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ))->usage(),
         );
     }
@@ -82,8 +87,10 @@ USAGE;
             new Dependencies(
                 new Package($this->http),
             ),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -133,8 +140,10 @@ USAGE;
             new Dependencies(
                 new Package($this->http),
             ),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())

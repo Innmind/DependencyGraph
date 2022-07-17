@@ -9,6 +9,7 @@ use Innmind\DependencyGraph\{
     Loader\Vendor,
     Loader\Package,
     Render,
+    Save,
 };
 use Innmind\CLI\{
     Command,
@@ -51,8 +52,10 @@ class DependsOnTest extends TestCase
                 new Dependents(
                     new Vendor($this->http, new Package($this->http)),
                 ),
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ),
         );
     }
@@ -78,8 +81,10 @@ USAGE;
                         new Package($this->http),
                     ),
                 ),
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ))->usage(),
         );
     }
@@ -93,8 +98,10 @@ USAGE;
                     new Package($this->http),
                 ),
             ),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -147,8 +154,10 @@ USAGE;
                     new Package($this->http),
                 ),
             ),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -201,8 +210,10 @@ USAGE;
                     new Package($this->http),
                 ),
             ),
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())

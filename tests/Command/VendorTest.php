@@ -9,6 +9,7 @@ use Innmind\DependencyGraph\{
     Loader\Vendor as VendorLoader,
     Loader\Package,
     Render,
+    Save,
 };
 use Innmind\CLI\{
     Command,
@@ -53,8 +54,10 @@ class VendorTest extends TestCase
             Command::class,
             new Vendor(
                 $this->loader,
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ),
         );
     }
@@ -71,8 +74,10 @@ USAGE;
             $expected,
             (new Vendor(
                 $this->loader,
-                new Render,
-                $this->createMock(Processes::class),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
             ))->usage(),
         );
     }
@@ -81,8 +86,10 @@ USAGE;
     {
         $command = new Vendor(
             $this->loader,
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
@@ -130,8 +137,10 @@ USAGE;
     {
         $command = new Vendor(
             $this->loader,
-            new Render,
-            $processes = $this->createMock(Processes::class),
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
