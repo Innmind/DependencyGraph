@@ -62,7 +62,7 @@ final class PackageNode
 
         return $package->relations()->reduce(
             $node,
-            static fn($node, $relation) => $node->linkedTo(
+            static fn(Node $node, $relation) => $node->linkedTo(
                 self::of($relation->name())->name(),
                 static fn($edge) => $packages
                     ->find(static fn($package) => $package->name()->equals($relation->name()))
