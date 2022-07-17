@@ -72,6 +72,6 @@ final class Vendor
                 );
         }
 
-        return new VendorModel($packages);
+        return new VendorModel($name, $packages);
     }
 }

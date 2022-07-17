@@ -21,6 +21,7 @@ class VendorTest extends TestCase
     public function testInterface()
     {
         $vendor = new Vendor(
+            Vendor\Name::of('foo'),
             Set::of(
                 $bar = new Package(
                     Name::of('foo/bar'),
@@ -49,6 +50,7 @@ class VendorTest extends TestCase
         $this->expectException(LogicException::class);
 
         new Vendor(
+            Vendor\Name::of('foo'),
             Set::of(
                 new Package(
                     Name::of('foo/bar'),
@@ -96,6 +98,7 @@ class VendorTest extends TestCase
     public function testDependsOn()
     {
         $vendor = new Vendor(
+            Vendor\Name::of('foo'),
             Set::of(
                 new Package(
                     Name::of('foo/bar'),

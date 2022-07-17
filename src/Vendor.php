@@ -23,13 +23,9 @@ final class Vendor
     /**
      * @param Set<Package> $packages
      */
-    public function __construct(Set $packages)
+    public function __construct(Vendor\Name $name, Set $packages)
     {
-        $first = $packages->find(static fn() => true)->match(
-            static fn($first) => $first,
-            static fn() => throw new \LogicException,
-        );
-        $this->name = $first->name()->vendor();
+        $this->name = $name;
         $this->packages = $packages;
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
 
@@ -51,8 +47,11 @@ final class Vendor
             ->groupBy(static function(Package $package): string {
                 return $package->name()->vendor()->toString();
             })
-            ->values()
-            ->map(static fn($packages) => new self($packages));
+            ->map(static fn($name, $packages) => new self(
+                Vendor\Name::of($name),
+                $packages,
+            ))
+            ->values();
 
         return Set::of(...$vendors->toList());
     }
