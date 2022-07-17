@@ -10,7 +10,8 @@ use Innmind\DependencyGraph\{
     Package as PackageModel,
     Vendor as VendorModel,
 };
-use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\HttpTransport\Curl;
+use Innmind\TimeContinuum\Earth\Clock;
 use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
@@ -18,22 +19,21 @@ class DependentsTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = http()['default']();
+        $http = Curl::of(new Clock);
 
         $load = new Dependents(
             new Vendor(
                 $http,
-                new Package($http)
-            )
+                new Package($http),
+            ),
         );
 
         $packages = $load(
             PackageModel\Name::of('innmind/immutable'),
-            new VendorModel\Name('innmind')
+            Set::of(VendorModel\Name::of('innmind')),
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertSame(PackageModel::class, (string) $packages->type());
-        $this->assertCount(71, $packages);
+        $this->assertCount(75, $packages);
     }
 }

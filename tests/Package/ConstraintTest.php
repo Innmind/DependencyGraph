@@ -38,9 +38,9 @@ class ConstraintTest extends TestCase
     {
         $constraint = new Constraint('>1.0 <2.1');
 
-        $this->assertTrue($constraint->satisfiedBy(new Version('1.1')));
-        $this->assertTrue($constraint->satisfiedBy(new Version('2.0')));
-        $this->assertFalse($constraint->satisfiedBy(new Version('2.1')));
-        $this->assertFalse($constraint->satisfiedBy(new Version('1.0')));
+        $this->assertTrue($constraint->satisfiedBy(Version::of('1.1')));
+        $this->assertTrue($constraint->satisfiedBy(Version::of('2.0')));
+        $this->assertFalse($constraint->satisfiedBy(Version::of('2.1')));
+        $this->assertFalse($constraint->satisfiedBy(Version::of('1.0')));
     }
 }

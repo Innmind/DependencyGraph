@@ -13,21 +13,21 @@ class NameTest extends TestCase
 {
     public function testInterface()
     {
-        $name = new Name('vendor');
+        $name = Name::of('vendor');
 
         $this->assertSame('vendor', $name->toString());
     }
 
     public function testEquals()
     {
-        $this->assertTrue((new Name('foo'))->equals(new Name('foo')));
-        $this->assertFalse((new Name('foo'))->equals(new Name('bar')));
+        $this->assertTrue(Name::of('foo')->equals(Name::of('foo')));
+        $this->assertFalse(Name::of('foo')->equals(Name::of('bar')));
     }
 
     public function testThrowWhenEmptyVendor()
     {
         $this->expectException(DomainException::class);
 
-        new Name('');
+        Name::of('');
     }
 }

@@ -3,6 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph\Package;
 
+/**
+ * @psalm-immutable
+ */
 final class Relation
 {
     private Name $name;
@@ -12,6 +15,14 @@ final class Relation
     {
         $this->name = $name;
         $this->constraint = $constraint;
+    }
+
+    /**
+     * @psalm-pure
+     */
+    public static function of(Name $name, Constraint $constraint): self
+    {
+        return new self($name, $constraint);
     }
 
     public function name(): Name

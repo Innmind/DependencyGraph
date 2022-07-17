@@ -8,21 +8,21 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Vendor as Model,
 };
-use function Innmind\HttpTransport\bootstrap as http;
-use function Innmind\Immutable\unwrap;
+use Innmind\HttpTransport\Curl;
+use Innmind\TimeContinuum\Earth\Clock;
 use PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = http()['default']();
+        $http = Curl::of(new Clock);
         $load = new Vendor($http, new Package($http));
 
-        $vendor = $load(new Model\Name('innmind'));
+        $vendor = $load(Model\Name::of('innmind'));
 
         $this->assertInstanceOf(Model::class, $vendor);
         $this->assertSame('innmind', $vendor->name()->toString());
-        $this->assertCount(80, unwrap($vendor->packages()));
+        $this->assertCount(81, $vendor->packages()->toList());
     }
 }

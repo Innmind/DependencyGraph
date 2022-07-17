@@ -9,12 +9,15 @@ use Innmind\DependencyGraph\{
     Loader\Vendor as VendorLoader,
     Loader\Package,
     Render,
+    Save,
+    Display,
 };
 use Innmind\CLI\{
     Command,
     Command\Arguments,
     Command\Options,
     Environment,
+    Console,
 };
 use Innmind\Server\Control\Server\{
     Processes,
@@ -22,13 +25,14 @@ use Innmind\Server\Control\Server\{
     Process\ExitCode,
     Process\Output,
 };
-use function Innmind\HttpTransport\bootstrap as http;
-use Innmind\Url\Path;
-use Innmind\Stream\Writable;
+use Innmind\HttpTransport\Curl;
+use Innmind\TimeContinuum\Earth\Clock;
 use Innmind\Immutable\{
     Map,
-    Stream,
     Str,
+    Either,
+    SideEffect,
+    Sequence,
 };
 use PHPUnit\Framework\TestCase;
 
@@ -38,10 +42,10 @@ class VendorTest extends TestCase
 
     public function setUp(): void
     {
-        $http = http()['default']();
+        $http = Curl::of(new Clock);
         $this->loader = new VendorDependencies(
             new VendorLoader($http, new Package($http)),
-            new Package($http)
+            new Package($http),
         );
     }
 
@@ -51,16 +55,22 @@ class VendorTest extends TestCase
             Command::class,
             new Vendor(
                 $this->loader,
-                new Render,
-                $this->createMock(Processes::class)
-            )
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
+                new Display(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
+            ),
         );
     }
 
     public function testUsage()
     {
         $expected = <<<USAGE
-vendor vendor
+vendor vendor --output
 
 Generate a graph of all packages of a vendor and their dependencies
 USAGE;
@@ -69,9 +79,15 @@ USAGE;
             $expected,
             (new Vendor(
                 $this->loader,
-                new Render,
-                $this->createMock(Processes::class)
-            ))->toString(),
+                new Save(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
+                new Display(
+                    new Render,
+                    $this->createMock(Processes::class),
+                ),
+            ))->usage(),
         );
     }
 
@@ -79,41 +95,54 @@ USAGE;
     {
         $command = new Vendor(
             $this->loader,
-            new Render,
-            $processes = $this->createMock(Processes::class)
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
                 return $command->toString() === "dot '-Tsvg' '-o' 'innmind.svg'" &&
-                    $command->workingDirectory()->toString() === __DIR__.'/../../fixtures' &&
-                    $command->input()->toString() !== '';
+                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ) &&
+                    null !== $command->input()->match(
+                        static fn($input) => $input->toString(),
+                        static fn() => null,
+                    );
             }))
             ->willReturn($process = $this->createMock(Process::class));
         $process
             ->expects($this->once())
-            ->method('wait');
-        $process
-            ->expects($this->once())
-            ->method('exitCode')
-            ->willReturn(new ExitCode(0));
-        $env = $this->createMock(Environment::class);
-        $env
-            ->expects($this->any())
-            ->method('workingDirectory')
-            ->willReturn(Path::of(__DIR__.'/../../fixtures'));
-        $env
-            ->expects($this->never())
-            ->method('exit');
-
-        $this->assertNull($command(
-            $env,
-            new Arguments(
-                Map::of('string', 'string')
-                    ('vendor', 'innmind')
+            ->method('wait')
+            ->willReturn(Either::right(new SideEffect));
+        $console = Console::of(
+            Environment\InMemory::of(
+                [],
+                true,
+                ['innmind'],
+                [],
+                __DIR__.'/../../fixtures',
             ),
-            new Options
+            new Arguments(Map::of(['vendor', 'innmind'])),
+            new Options,
+        );
+
+        $console = $command($console);
+        $this->assertSame(
+            ["innmind.svg\n"],
+            $console->environment()->outputs(),
+        );
+        $this->assertNull($console->environment()->exitCode()->match(
+            static fn($code) => $code,
+            static fn() => null,
         ));
     }
 
@@ -121,61 +150,123 @@ USAGE;
     {
         $command = new Vendor(
             $this->loader,
-            new Render,
-            $processes = $this->createMock(Processes::class)
+            new Save(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
         );
         $processes
             ->expects($this->once())
             ->method('execute')
             ->with($this->callback(static function($command): bool {
                 return $command->toString() === "dot '-Tsvg' '-o' 'innmind.svg'" &&
-                    $command->workingDirectory()->toString() === __DIR__.'/../../fixtures' &&
-                    $command->input()->toString() !== '';
+                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ) &&
+                    null !== $command->input()->match(
+                        static fn($input) => $input->toString(),
+                        static fn() => null,
+                    );
             }))
             ->willReturn($process = $this->createMock(Process::class));
         $process
             ->expects($this->once())
-            ->method('wait');
-        $process
-            ->expects($this->once())
-            ->method('exitCode')
-            ->willReturn(new ExitCode(1));
+            ->method('wait')
+            ->willReturn(Either::left(new ExitCode(1)));
         $process
             ->expects($this->once())
             ->method('output')
-            ->willReturn($output = $this->createMock(Output::class));
-        $output
-            ->expects($this->once())
-            ->method('toString')
-            ->willReturn('foo');
-        $env = $this->createMock(Environment::class);
-        $env
-            ->expects($this->any())
-            ->method('workingDirectory')
-            ->willReturn(Path::of(__DIR__.'/../../fixtures'));
-        $env
-            ->expects($this->once())
-            ->method('exit')
-            ->with(1);
-        $env
-            ->expects($this->once())
-            ->method('error')
-            ->willReturn($error = $this->createMock(Writable::class));
-        $error
-            ->expects($this->once())
-            ->method('write')
-            ->with(Str::of('foo'));
-        $env
-            ->expects($this->never())
-            ->method('output');
-
-        $this->assertNull($command(
-            $env,
-            new Arguments(
-                Map::of('string', 'string')
-                    ('vendor', 'innmind')
+            ->willReturn(new Output\Output(Sequence::of(
+                [Str::of('foo'), Output\Type::output],
+            )));
+        $console = Console::of(
+            Environment\InMemory::of(
+                [],
+                true,
+                ['innmind'],
+                [],
+                __DIR__.'/../../fixtures',
             ),
-            new Options
+            new Arguments(Map::of(['vendor', 'innmind'])),
+            new Options,
+        );
+
+        $console = $command($console);
+        $this->assertSame([], $console->environment()->outputs());
+        $this->assertSame(
+            ['foo'],
+            $console->environment()->errors(),
+        );
+        $this->assertSame(1, $console->environment()->exitCode()->match(
+            static fn($code) => $code->toInt(),
+            static fn() => null,
+        ));
+    }
+
+    public function testOutputSvg()
+    {
+        $command = new Vendor(
+            $this->loader,
+            new Save(
+                new Render,
+                $this->createMock(Processes::class),
+            ),
+            new Display(
+                new Render,
+                $processes = $this->createMock(Processes::class),
+            ),
+        );
+        $processes
+            ->expects($this->once())
+            ->method('execute')
+            ->with($this->callback(static function($command): bool {
+                return $command->toString() === "dot '-Tsvg'" &&
+                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ) &&
+                    null !== $command->input()->match(
+                        static fn($input) => $input->toString(),
+                        static fn() => null,
+                    );
+            }))
+            ->willReturn($process = $this->createMock(Process::class));
+        $process
+            ->expects($this->once())
+            ->method('wait')
+            ->willReturn(Either::right(new SideEffect));
+        $process
+            ->expects($this->once())
+            ->method('output')
+            ->willReturn(new Output\Output(Sequence::of(
+                [Str::of('<svg>'), Output\Type::output],
+                [Str::of('</svg>'), Output\Type::output],
+            )));
+        $console = Console::of(
+            Environment\InMemory::of(
+                [],
+                true,
+                ['innmind', '--output'],
+                [],
+                __DIR__.'/../../fixtures',
+            ),
+            new Arguments(Map::of(['vendor', 'innmind'])),
+            new Options(Map::of(['output', ''])),
+        );
+
+        $console = $command($console);
+        $this->assertSame(
+            ['<svg>', '</svg>'],
+            $console->environment()->outputs(),
+        );
+        $this->assertNull($console->environment()->exitCode()->match(
+            static fn($code) => $code,
+            static fn() => null,
         ));
     }
 }

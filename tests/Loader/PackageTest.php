@@ -7,33 +7,41 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Package as Model,
 };
-use function Innmind\HttpTransport\bootstrap as http;
+use Innmind\HttpTransport\Curl;
+use Innmind\TimeContinuum\Earth\Clock;
 use PHPUnit\Framework\TestCase;
 
 class PackageTest extends TestCase
 {
     public function testInvokation()
     {
-        $load = new Package(http()['default']());
+        $load = new Package(Curl::of(new Clock));
 
-        $package = $load(Model\Name::of('innmind/url'));
+        $package = $load(Model\Name::of('innmind/url'))->match(
+            static fn($package) => $package,
+            static fn() => null,
+        );
 
         $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('innmind/url', $package->name()->toString());
-        $this->assertSame('3.6.0', $package->version()->toString());
+        $this->assertSame('4.1.0', $package->version()->toString());
         $this->assertSame(
             'https://packagist.org/packages/innmind/url',
             $package->packagist()->toString(),
         );
-        $this->assertCount(2, $package->relations());
+        $this->assertCount(3, $package->relations());
     }
 
     public function testMostRecentVersionIsLoaded()
     {
-        $load = new Package(http()['default']());
+        $load = new Package(Curl::of(new Clock));
 
-        $package = $load(Model\Name::of('guzzlehttp/guzzle'));
+        $package = $load(Model\Name::of('guzzlehttp/guzzle'))->match(
+            static fn($package) => $package,
+            static fn() => null,
+        );
 
-        $this->assertSame('7.0.1', $package->version()->toString());
+        $this->assertInstanceOf(Model::class, $package);
+        $this->assertSame('7.4.5', $package->version()->toString());
     }
 }

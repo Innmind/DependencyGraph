@@ -3,17 +3,15 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph;
 
-use Innmind\DependencyGraph\{
-    Package\Relation,
-    Exception\LogicException,
-};
 use Innmind\Url\Url;
 use Innmind\Immutable\{
     Set,
     Map,
 };
-use function Innmind\Immutable\unwrap;
 
+/**
+ * @psalm-immutable
+ */
 final class Vendor
 {
     private Vendor\Name $name;
@@ -21,37 +19,38 @@ final class Vendor
     private Set $packages;
     private Url $packagist;
 
-    public function __construct(Package $first, Package ...$others)
+    /**
+     * @param Set<Package> $packages
+     */
+    public function __construct(Vendor\Name $name, Set $packages)
     {
-        $this->name = $first->name()->vendor();
-        /** @var Set<Package> */
-        $this->packages = Set::of(Package::class, $first, ...$others);
+        $this->name = $name;
+        $this->packages = $packages->filter(
+            static fn($package) => $package->name()->vendor()->equals($name),
+        );
         $this->packagist = Url::of("https://packagist.org/packages/{$this->name->toString()}/");
-
-        $this->packages->foreach(function(Package $package): void {
-            if (!$package->name()->vendor()->equals($this->name)) {
-                throw new LogicException;
-            }
-        });
     }
 
     /**
+     * @psalm-pure
+     *
+     * @param Set<Package> $packages
+     *
      * @return Set<self>
      */
-    public static function group(Package ...$packages): Set
+    public static function group(Set $packages): Set
     {
-        /** @var Set<self> */
-        return Set::of(Package::class, ...$packages)
+        $vendors = $packages
             ->groupBy(static function(Package $package): string {
                 return $package->name()->vendor()->toString();
             })
-            ->values()
-            ->toSetOf(
-                self::class,
-                static fn(Set $packages): \Generator => yield new self(
-                    ...unwrap($packages),
-                ),
-            );
+            ->map(static fn($name, $packages) => new self(
+                Vendor\Name::of($name),
+                $packages,
+            ))
+            ->values();
+
+        return Set::of(...$vendors->toList());
     }
 
     public function name(): Vendor\Name
