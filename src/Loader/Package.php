@@ -15,7 +15,6 @@ use Innmind\Json\Json;
 use Innmind\Immutable\{
     Set,
     Map,
-    Str,
     Sequence,
     Maybe,
 };
@@ -57,7 +56,7 @@ final class Package
         return $this
             ->mostRecentVersion($content['versions'])
             ->map(fn($version) => new Model(
-                Model\Name::of($content['name']),
+                $name,
                 new Model\Version($version['version']),
                 Url::of("https://packagist.org/packages/{$name->toString()}"),
                 $this->loadRelations($version),
@@ -105,14 +104,12 @@ final class Package
         $relations = Set::of();
 
         foreach ($version['require'] ?? [] as $relation => $constraint) {
-            if (!Str::of($relation)->matches('~.+/.+~')) {
-                continue;
-            }
-
-            $relations = ($relations)(new Model\Relation(
-                Model\Name::of($relation),
-                new Model\Constraint($constraint),
-            ));
+            $relations = Maybe::all(Model\Name::maybe($relation), Model\Constraint::maybe($constraint))
+                ->map(Model\Relation::of(...))
+                ->match(
+                    static fn($relation) => ($relations)($relation),
+                    static fn() => $relations,
+                );
         }
 
         return $relations;

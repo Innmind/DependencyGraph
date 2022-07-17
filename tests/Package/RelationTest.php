@@ -16,7 +16,7 @@ class RelationTest extends TestCase
     public function testInterface()
     {
         $relation = new Relation(
-            $name = new Name(new Vendor\Name('foo'), 'bar'),
+            $name = Name::of('foo/bar'),
             $constraint = new Constraint('~1.0'),
         );
 

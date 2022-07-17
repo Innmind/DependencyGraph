@@ -14,6 +14,11 @@ final class Relation
         $this->constraint = $constraint;
     }
 
+    public static function of(Name $name, Constraint $constraint): self
+    {
+        return new self($name, $constraint);
+    }
+
     public function name(): Name
     {
         return $this->name;

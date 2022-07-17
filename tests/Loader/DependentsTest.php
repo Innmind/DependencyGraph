@@ -30,7 +30,7 @@ class DependentsTest extends TestCase
 
         $packages = $load(
             PackageModel\Name::of('innmind/immutable'),
-            Set::of(new VendorModel\Name('innmind')),
+            Set::of(VendorModel\Name::of('innmind')),
         );
 
         $this->assertInstanceOf(Set::class, $packages);

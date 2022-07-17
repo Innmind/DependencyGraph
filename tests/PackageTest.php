@@ -20,11 +20,11 @@ class PackageTest extends TestCase
     public function testInterface()
     {
         $package = new Package(
-            $name = new Name(new Vendor\Name('foo'), 'bar'),
+            $name = Name::of('foo/bar'),
             $version = new Version('1.0.0'),
             $packagist = Url::of('http://example.com'),
             $relations = Set::of(new Relation(
-                new Name(new Vendor\Name('bar'), 'baz'),
+                Name::of('bar/baz'),
                 new Constraint('~1.0'),
             )),
         );

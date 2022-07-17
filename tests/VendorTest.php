@@ -23,13 +23,13 @@ class VendorTest extends TestCase
         $vendor = new Vendor(
             Set::of(
                 $bar = new Package(
-                    new Name(new Vendor\Name('foo'), 'bar'),
+                    Name::of('foo/bar'),
                     new Version('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 $baz = new Package(
-                    new Name(new Vendor\Name('foo'), 'baz'),
+                    Name::of('foo/baz'),
                     new Version('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
@@ -51,13 +51,13 @@ class VendorTest extends TestCase
         new Vendor(
             Set::of(
                 new Package(
-                    new Name(new Vendor\Name('foo'), 'bar'),
+                    Name::of('foo/bar'),
                     new Version('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 new Package(
-                    new Name(new Vendor\Name('bar'), 'baz'),
+                    Name::of('bar/baz'),
                     new Version('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
@@ -71,13 +71,13 @@ class VendorTest extends TestCase
         $vendors = Vendor::group(
             Set::of(
                 $foo = new Package(
-                    new Name(new Vendor\Name('foo'), 'bar'),
+                    Name::of('foo/bar'),
                     new Version('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),
                 ),
                 $bar = new Package(
-                    new Name(new Vendor\Name('bar'), 'baz'),
+                    Name::of('bar/baz'),
                     new Version('1.0.0'),
                     Url::of('http://example.com'),
                     Set::of(),

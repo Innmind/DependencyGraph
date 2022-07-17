@@ -34,7 +34,7 @@ final class DependsOn implements Command
 
     public function __invoke(Console $console): Console
     {
-        /** @psalm-suppress MixedArgument Due to the reduce */
+        /** @psalm-suppress MixedArgumentTypeCoercion Due to the reduce */
         $vendors = $console
             ->arguments()
             ->pack()
@@ -42,7 +42,7 @@ final class DependsOn implements Command
                 Set::of($console->arguments()->get('vendor')),
                 static fn(Set $vendors, $vendor) => ($vendors)($vendor),
             )
-            ->map(static fn($vendor) => new Vendor\Name($vendor));
+            ->map(Vendor\Name::of(...));
         $packages = ($this->load)(
             $package = Package\Name::of($console->arguments()->get('package')),
             $vendors,

@@ -7,14 +7,17 @@ use Innmind\DependencyGraph\{
     Vendor,
     Exception\DomainException,
 };
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Maybe,
+};
 
 final class Name
 {
     private Vendor\Name $vendor;
     private string $package;
 
-    public function __construct(Vendor\Name $vendor, string $package)
+    private function __construct(Vendor\Name $vendor, string $package)
     {
         if (Str::of($package)->empty()) {
             throw new DomainException;
@@ -29,8 +32,28 @@ final class Name
         [$vendor, $package] = Str::of($name)->split('/')->toList();
 
         return new self(
-            new Vendor\Name($vendor->toString()),
+            Vendor\Name::of($vendor->toString()),
             $package->toString(),
+        );
+    }
+
+    /**
+     * @return Maybe<self>
+     */
+    public static function maybe(string $name): Maybe
+    {
+        $parts = Str::of($name)->split('/');
+        $vendor = $parts
+            ->first()
+            ->map(static fn($value) => $value->toString())
+            ->flatMap(Vendor\Name::maybe(...));
+        $package = $parts
+            ->get(1)
+            ->filter(static fn($value) => !$value->empty())
+            ->map(static fn($value) => $value->toString());
+
+        return Maybe::all($vendor, $package)->map(
+            static fn(Vendor\Name $vendor, string $package) => new self($vendor, $package),
         );
     }
 

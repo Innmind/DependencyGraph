@@ -19,7 +19,7 @@ class VendorTest extends TestCase
         $http = Curl::of(new Clock);
         $load = new Vendor($http, new Package($http));
 
-        $vendor = $load(new Model\Name('innmind'));
+        $vendor = $load(Model\Name::of('innmind'));
 
         $this->assertInstanceOf(Model::class, $vendor);
         $this->assertSame('innmind', $vendor->name()->toString());

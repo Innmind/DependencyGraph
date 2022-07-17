@@ -23,6 +23,7 @@ use Innmind\Filesystem\{
 use Innmind\Immutable\{
     Set,
     Str,
+    Maybe,
 };
 
 /**
@@ -74,39 +75,32 @@ final class ComposerLock
         $packages = Set::of();
 
         foreach ($composer['packages'] as $package) {
-            if (!$this->accepted($package['name'])) {
-                continue;
-            }
-
             /** @var Set<Relation> */
             $relations = Set::of();
 
             foreach ($package['require'] ?? [] as $require => $constraint) {
-                if (!$this->accepted($require)) {
-                    continue;
-                }
-
-                $relations = ($relations)(new Relation(
-                    Name::of($require),
-                    new Constraint($constraint),
-                ));
+                $relations = Maybe::all(Name::maybe($require), Constraint::maybe($constraint))
+                    ->map(Relation::of(...))
+                    ->match(
+                        static fn($relation) => ($relations)($relation),
+                        static fn() => $relations,
+                    );
             }
 
-            $packages = ($packages)(new Package(
-                Name::of($package['name']),
-                new Version($package['version']),
-                Url::of('https://packagist.org/packages/'.$package['name']),
-                $relations,
-            ));
+            $packages = Name::maybe($package['name'])
+                ->map(static fn($name) => new Package(
+                    $name,
+                    new Version($package['version']),
+                    Url::of('https://packagist.org/packages/'.$package['name']),
+                    $relations,
+                ))
+                ->match(
+                    static fn($package) => ($packages)($package),
+                    static fn() => $packages,
+                );
         }
 
         return $this->removeVirtualRelations($packages);
-    }
-
-    private function accepted(string $name): bool
-    {
-        // do not accept extensions and php versions in the dependency graph
-        return Str::of($name)->matches('~.+\/.+~');
     }
 
     /**

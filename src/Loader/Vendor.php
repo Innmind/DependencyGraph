@@ -64,10 +64,12 @@ final class Vendor
                 continue;
             }
 
-            $packages = ($this->load)(PackageModel\Name::of($result['name']))->match(
-                static fn($package) => ($packages)($package),
-                static fn() => $packages,
-            );
+            $packages = PackageModel\Name::maybe($result['name'])
+                ->flatMap($this->load)
+                ->match(
+                    static fn($package) => ($packages)($package),
+                    static fn() => $packages,
+                );
         }
 
         return new VendorModel($packages);

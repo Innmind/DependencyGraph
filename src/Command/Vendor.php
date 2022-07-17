@@ -30,7 +30,7 @@ final class Vendor implements Command
 
     public function __invoke(Console $console): Console
     {
-        $packages = ($this->load)($vendor = new Name($console->arguments()->get('vendor')));
+        $packages = ($this->load)($vendor = Name::of($console->arguments()->get('vendor')));
         $fileName = Str::of("{$vendor->toString()}.svg");
 
         return $console
