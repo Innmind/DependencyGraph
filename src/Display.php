@@ -28,10 +28,14 @@ final class Display
         Console $console,
         Set $packages,
     ): Console {
+        /** @psalm-suppress ArgumentTypeCoercion */
         $process = $this
             ->processes
             ->execute(
                 Command::foreground('dot')
+                    ->withEnvironments($console->variables()->filter(
+                        static fn($name) => $name === 'PATH',
+                    ))
                     ->withShortOption('Tsvg')
                     ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(($this->render)($packages)),

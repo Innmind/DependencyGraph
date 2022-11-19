@@ -32,10 +32,14 @@ final class Save
         Str $file,
         Set $packages,
     ): Console {
+        /** @psalm-suppress ArgumentTypeCoercion */
         $process = $this
             ->processes
             ->execute(
                 Command::foreground('dot')
+                    ->withEnvironments($console->variables()->filter(
+                        static fn($name) => $name === 'PATH',
+                    ))
                     ->withShortOption('Tsvg')
                     ->withShortOption('o', $file->toString())
                     ->withWorkingDirectory($console->workingDirectory())
