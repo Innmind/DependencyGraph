@@ -42,6 +42,6 @@ class PackageTest extends TestCase
         );
 
         $this->assertInstanceOf(Model::class, $package);
-        $this->assertSame('7.4.5', $package->version()->toString());
+        $this->assertSame('7.5.0', $package->version()->toString());
     }
 }

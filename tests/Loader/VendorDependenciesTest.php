@@ -29,6 +29,6 @@ class VendorDependenciesTest extends TestCase
         $vendor = $load(Name::of('innmind'));
 
         $this->assertInstanceOf(Set::class, $vendor);
-        $this->assertCount(184, $vendor);
+        $this->assertCount(179, $vendor);
     }
 }

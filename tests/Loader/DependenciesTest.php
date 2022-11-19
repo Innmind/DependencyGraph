@@ -31,7 +31,7 @@ digraph packages {
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"
-    innmind__immutable [label="immutable@4.4.0"];
+    innmind__immutable [label="immutable@4.6.0"];
     innmind__url [label="url@4.1.0"];
     }
     subgraph cluster_league {
@@ -51,7 +51,7 @@ digraph packages {
     innmind__url -> innmind__immutable [color="#085cd3", label="~4.0"];
     innmind__url -> league__uri_parser [color="#085cd3", label="~1.2"];
     innmind__url -> league__uri_components [color="#085cd3", label="~2.0"];
-    innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://packagist.org/packages/innmind/immutable#4.4.0"];
+    innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://packagist.org/packages/innmind/immutable#4.6.0"];
     league__uri_parser [shape="ellipse", width="0.75", height="0.5", color="#bcf2f6", URL="https://packagist.org/packages/league/uri-parser#1.4.1"];
     league__uri_interfaces [shape="ellipse", width="0.75", height="0.5", color="#22ca7d", URL="https://packagist.org/packages/league/uri-interfaces#2.3.0"];
     psr__http_message [shape="ellipse", width="0.75", height="0.5", color="#8da3f1", URL="https://packagist.org/packages/psr/http-message#1.0.1"];
