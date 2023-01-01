@@ -8,7 +8,10 @@ use Innmind\DependencyGraph\{
     Package\Relation,
     Package\Name,
 };
-use Innmind\Graphviz\Node;
+use Innmind\Graphviz\{
+    Node,
+    Edge,
+};
 use Innmind\Colour\{
     Colour,
     RGBA,
@@ -73,13 +76,15 @@ final class PackageNode
                 self::of($relation->name())->name(),
                 static fn($edge) => $packages
                     ->find(static fn($package) => $package->name()->equals($relation->name()))
-                    ->map(static fn($package) => $package->version())
-                    ->filter(static fn($version) => $relation->constraint()->satisfiedBy($version))
+                    ->map(static fn($package) => self::edgeStyle(
+                        $package,
+                        $relation,
+                        $edge->useColor($colour), // by default use the package colour
+                    ))
                     ->match(
-                        static fn() => $edge->useColor($colour),
-                        static fn() => $edge->bold()->useColor(Colour::red->toRGBA()),
-                    )
-                    ->displayAs($relation->constraint()->toString()),
+                        static fn($edge) => $edge,
+                        static fn() => $edge->dotted()->bold()->useColor(Colour::red->toRGBA()),
+                    ),
             ),
         );
     }
@@ -95,5 +100,24 @@ final class PackageNode
         $blue = $hash->drop(4)->take(2)->toString();
 
         return RGBA::of($red.$green.$blue);
+    }
+
+    /**
+     * @psalm-pure
+     */
+    private static function edgeStyle(
+        Package $package,
+        Relation $relation,
+        Edge $edge,
+    ): Edge {
+        if ($package->abandoned()) {
+            $edge = $edge->dotted();
+        }
+
+        if (!$relation->constraint()->satisfiedBy($package->version())) {
+            $edge = $edge->bold()->useColor(Colour::red->toRGBA());
+        }
+
+        return $edge->displayAs($relation->constraint()->toString());
     }
 }
