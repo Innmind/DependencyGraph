@@ -55,17 +55,19 @@ final class Package
 
         $version = $this->mostRecentVersion($content['versions']);
         $relations = $version->map($this->loadRelations(...));
+        $abandoned = $version->map(static fn($version) => ($version['abandoned'] ?? false) !== false);
         $version = $version
             ->map(static fn($version) => $version['version'])
             ->flatMap(Model\Version::maybe(...));
 
         /** @psalm-suppress MixedArgumentTypeCoercion */
-        return Maybe::all($version, $relations)
-            ->map(static fn(Model\Version $version, Set $relations) => new Model(
+        return Maybe::all($version, $relations, $abandoned)
+            ->map(static fn(Model\Version $version, Set $relations, bool $abandoned) => new Model(
                 $name,
                 $version,
                 Url::of("https://packagist.org/packages/{$name->toString()}"),
                 $relations,
+                $abandoned,
             ));
     }
 
@@ -83,13 +85,9 @@ final class Package
             $published = ($published)($key, $value);
         }
 
-        $published = $published
-            ->filter(static function(string $version): bool {
-                return VersionParser::parseStability($version) === 'stable';
-            })
-            ->filter(static function(string $_, array $version): bool {
-                return !($version['abandoned'] ?? false);
-            });
+        $published = $published->filter(static function(string $version): bool {
+            return VersionParser::parseStability($version) === 'stable';
+        });
 
         $versions = Sequence::of(...\array_values(Semver::rsort($published->keys()->toList())));
 

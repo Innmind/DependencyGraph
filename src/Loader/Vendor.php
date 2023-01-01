@@ -66,6 +66,7 @@ final class Vendor
 
             $packages = PackageModel\Name::maybe($result['name'])
                 ->flatMap($this->load)
+                ->filter(static fn($package) => !$package->abandoned())
                 ->match(
                     static fn($package) => ($packages)($package),
                     static fn() => $packages,

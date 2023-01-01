@@ -22,6 +22,7 @@ final class Package
     private Url $packagist;
     /** @var Set<Relation> */
     private Set $relations;
+    private bool $abandoned;
 
     /**
      * @param Set<Relation> $relations
@@ -31,11 +32,13 @@ final class Package
         Version $version,
         Url $packagist,
         Set $relations,
+        bool $abandoned = false,
     ) {
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
         $this->relations = $relations;
+        $this->abandoned = $abandoned;
     }
 
     public function name(): Name
@@ -59,6 +62,11 @@ final class Package
     public function relations(): Set
     {
         return $this->relations;
+    }
+
+    public function abandoned(): bool
+    {
+        return $this->abandoned;
     }
 
     public function dependsOn(Name $name): bool
