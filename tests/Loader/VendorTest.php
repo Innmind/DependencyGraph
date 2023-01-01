@@ -30,7 +30,6 @@ class VendorTest extends TestCase
                 'innmind/ark',
                 'innmind/black-box',
                 'innmind/cli',
-                'innmind/cli-framework',
                 'innmind/coding-standard',
                 'innmind/colour',
                 'innmind/crawler',

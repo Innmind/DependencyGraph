@@ -40,7 +40,6 @@ class DependentsTest extends TestCase
                 'innmind/amqp',
                 'innmind/ark',
                 'innmind/cli',
-                'innmind/cli-framework',
                 'innmind/colour',
                 'innmind/crawler',
                 'innmind/crawler-app',
