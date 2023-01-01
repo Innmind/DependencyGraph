@@ -51,7 +51,6 @@ class VendorTest extends TestCase
                 'innmind/html',
                 'innmind/http',
                 'innmind/http-authentication',
-                'innmind/http-framework',
                 'innmind/http-server',
                 'innmind/http-session',
                 'innmind/http-transport',
