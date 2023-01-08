@@ -16,19 +16,19 @@
     },
     "require": {
         "php": "~8.1",
-        "innmind/immutable": "~4.4",
+        "innmind/immutable": "~4.6",
         "innmind/url": "~4.1",
         "innmind/operating-system": "~3.1",
         "innmind/json": "^1.1",
         "innmind/graphviz": "~3.1",
         "innmind/cli": "~3.0",
-        "composer/semver": "~3.0"
+        "composer/semver": "~3.0",
+        "innmind/framework": "^1.0"
     },
     "autoload": {
         "psr-4": {
             "Innmind\\DependencyGraph\\": "src/"
-        },
-        "files": ["src/bootstrap.php"]
+        }
     },
     "autoload-dev": {
         "psr-4": {

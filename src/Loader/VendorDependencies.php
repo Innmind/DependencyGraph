@@ -12,6 +12,7 @@ use Innmind\Immutable\{
     Set,
     Map,
     Maybe,
+    Predicate\Instance,
 };
 
 final class VendorDependencies
@@ -63,16 +64,14 @@ final class VendorDependencies
      */
     private function lookup(PackageModel\Name $relation): Set
     {
-        /** @psalm-suppress InvalidArgument Because it doesn't understand the filter */
         return $this
             ->cache
             ->get($relation->toString())
-            ->filter(static fn($ref) => \is_object($ref->get()))
             ->map(static fn($ref) => $ref->get())
+            ->keep(Instance::of(PackageModel::class))
             ->otherwise(fn() => $this->fetch($relation))
-            ->map($this->loadRelations(...))
             ->match(
-                static fn($packages) => $packages,
+                static fn($package) => Set::of($package),
                 static fn() => Set::of(),
             );
     }

@@ -33,40 +33,30 @@ final class Vendor
 
     public function __invoke(VendorModel\Name $name): VendorModel
     {
-        $url = "https://packagist.org/search.json?q={$name->toString()}/";
-        $results = [];
+        $url = "https://packagist.org/packages/list.json?vendor={$name->toString()}&fields[]=abandoned";
 
-        do {
-            $request = new Request(
-                Url::of($url),
-                Method::get,
-                ProtocolVersion::v20,
-            );
-            $response = ($this->fulfill)($request)->match(
-                static fn($success) => $success->response(),
-                static fn() => throw new \RuntimeException,
-            );
-            /** @var array{results: list<array{name: string, description: string, url: string, repository: string, virtual?: bool}>, total: int, next?: string} */
-            $content = Json::decode($response->body()->toString());
-            $results = \array_merge($results, $content['results']);
-            $url = $content['next'] ?? null;
-        } while (!\is_null($url));
+        $request = new Request(
+            Url::of($url),
+            Method::get,
+            ProtocolVersion::v20,
+        );
+        $response = ($this->fulfill)($request)->match(
+            static fn($success) => $success->response(),
+            static fn() => throw new \RuntimeException,
+        );
+        /** @var array{packages: array<string, array{abandoned: bool|string}>} */
+        $content = Json::decode($response->body()->toString());
 
         /** @var Set<PackageModel> */
         $packages = Set::of();
 
-        foreach ($results as $result) {
-            if (!Str::of($result['name'])->matches("~^{$name->toString()}/~")) {
+        foreach ($content['packages'] as $packageName => $detail) {
+            if ($detail['abandoned'] !== false) {
                 continue;
             }
 
-            if ($result['virtual'] ?? false === true) {
-                continue;
-            }
-
-            $packages = PackageModel\Name::maybe($result['name'])
+            $packages = PackageModel\Name::maybe($packageName)
                 ->flatMap($this->load)
-                ->filter(static fn($package) => !$package->abandoned())
                 ->match(
                     static fn($package) => ($packages)($package),
                     static fn() => $packages,

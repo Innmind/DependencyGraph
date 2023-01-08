@@ -14,23 +14,16 @@ foreach ($paths as $file) {
     }
 }
 
-use function Innmind\DependencyGraph\bootstrap;
-use Innmind\CLI\{
-    Main,
-    Environment,
+use Innmind\Framework\{
+    Main\Cli,
+    Application,
 };
-use Innmind\OperatingSystem\OperatingSystem;
+use Innmind\DependencyGraph\Kernel;
 
-new class extends Main {
-    protected function main(Environment $env, OperatingSystem $os): Environment
+new class extends Cli {
+    protected function configure(Application $app): Application
     {
-        $run = bootstrap(
-            $os->filesystem(),
-            $os->control()->processes(),
-            $os->remote()->http()
-        );
-
-        return $run($env);
+        return $app->map(new Kernel);
     }
 };
 
