@@ -44,4 +44,16 @@ class PackageTest extends TestCase
         $this->assertInstanceOf(Model::class, $package);
         $this->assertSame('7.5.0', $package->version()->toString());
     }
+
+    public function testReturnNothingWhenThePackageDoesNotExist()
+    {
+        $load = new Package(Curl::of(new Clock));
+
+        $package = $load(Model\Name::of('psr/http-message-implementation'))->match(
+            static fn($package) => $package,
+            static fn() => null,
+        );
+
+        $this->assertNull($package);
+    }
 }

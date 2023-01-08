@@ -7,6 +7,7 @@ use Innmind\DependencyGraph\Package as Model;
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Message\Request\Request,
+    Message\Response,
     Message\Method,
     ProtocolVersion,
 };
@@ -45,10 +46,17 @@ final class Package
             Method::get,
             ProtocolVersion::v20,
         );
-        $response = ($this->fulfill)($request)->match(
-            static fn($success) => $success->response(),
-            static fn() => throw new \RuntimeException,
-        );
+
+        return ($this->fulfill)($request)
+            ->maybe()
+            ->flatMap(fn($success) => $this->parse($success->response(), $name));
+    }
+
+    /**
+     * @return Maybe<Model>
+     */
+    private function parse(Response $response, Model\Name $name): Maybe
+    {
         /** @var array{package: array{name: string, versions: array<string, Definition>}} */
         $body = Json::decode($response->body()->toString());
         $content = $body['package'];
