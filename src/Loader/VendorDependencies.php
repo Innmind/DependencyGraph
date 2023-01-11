@@ -86,7 +86,12 @@ final class VendorDependencies
             static fn($_, $ref) => \is_object($ref->get()),
         );
 
-        return ($this->loadPackage)($relation)->map($this->cache(...));
+        return ($this->loadPackage)($relation)
+            ->map($this->cache(...))
+            ->map(static fn($package) => match ($package->abandoned()) {
+                true => $package->keep(Set::of()), // remove dependencies to reduce clutter
+                false => $package,
+            });
     }
 
     private function cache(PackageModel $package): PackageModel

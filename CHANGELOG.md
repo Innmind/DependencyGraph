@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.0 - 2023-01-11
+
+### Changed
+
+- Abandoned packages dependencies are no longer displayed in the vendor graph
+
 ## 3.2.0 - 2023-01-08
 
 ### Changed
