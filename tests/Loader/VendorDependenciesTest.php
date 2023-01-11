@@ -137,7 +137,6 @@ class VendorDependenciesTest extends TestCase
                 'symfony/var-dumper',
                 'symfony/yaml',
                 'twig/twig',
-                'willdurand/negotiation',
             ],
             $vendor
                 ->map(static fn($package) => $package->name()->toString())

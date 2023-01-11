@@ -78,8 +78,6 @@ class VendorTest extends TestCase
                 'innmind/profiler',
                 'innmind/rabbitmq-management',
                 'innmind/reflection',
-                'innmind/rest-client',
-                'innmind/rest-server',
                 'innmind/robots-txt',
                 'innmind/router',
                 'innmind/s3',
