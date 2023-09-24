@@ -19,7 +19,7 @@ class DependentsTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = Curl::of(new Clock);
+        $http = Curl::of(new Clock)->maxConcurrency(20);
 
         $load = new Dependents(
             new Vendor(

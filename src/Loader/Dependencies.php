@@ -47,14 +47,20 @@ final class Dependencies
         return $dependency
             ->relations()
             ->map(static fn($relation) => $relation->name())
-            ->flatMap($this->lookup(...))
+            ->map($this->lookup(...))
+            ->flatMap(
+                static fn($packages) => $packages
+                    ->toSequence()
+                    ->toSet()
+                    ->flatMap(static fn($packages) => $packages),
+            )
             ->add($dependency);
     }
 
     /**
-     * @return Set<Model>
+     * @return Maybe<Model>
      */
-    private function lookup(Model\Name $relation): Set
+    private function lookup(Model\Name $relation): Maybe
     {
         /** @psalm-suppress InvalidArgument Because it doesn't understand the filter */
         return $this
@@ -63,11 +69,7 @@ final class Dependencies
             ->filter(static fn($ref) => \is_object($ref->get()))
             ->map(static fn($ref) => $ref->get())
             ->otherwise(fn() => $this->fetch($relation))
-            ->map($this->loadRelations(...))
-            ->match(
-                static fn($packages) => $packages,
-                static fn() => Set::of(),
-            );
+            ->map($this->loadRelations(...));
     }
 
     /**

@@ -19,7 +19,7 @@ class DependenciesTest extends TestCase
     public function testInvokation()
     {
         $load = new Dependencies(
-            new Package(Curl::of(new Clock)),
+            new Package(Curl::of(new Clock)->maxConcurrency(20)),
         );
 
         $packages = $load(PackageModel\Name::of('innmind/url'));

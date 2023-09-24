@@ -6,6 +6,10 @@
 
 - Support for `innmind/immutable:~5.0`
 
+### Changed
+
+- It uses asynchronous HTTP calls to fetch package details faster
+
 ### Removed
 
 - Support for PHP `8.1`

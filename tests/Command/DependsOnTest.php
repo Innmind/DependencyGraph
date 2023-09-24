@@ -42,7 +42,7 @@ class DependsOnTest extends TestCase
 
     public function setUp(): void
     {
-        $this->http = Curl::of(new Clock);
+        $this->http = Curl::of(new Clock)->maxConcurrency(20);
     }
 
     public function testInterface()

@@ -19,7 +19,7 @@ class VendorDependenciesTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = Curl::of(new Clock);
+        $http = Curl::of(new Clock)->maxConcurrency(20);
         $package = new Package($http);
         $load = new VendorDependencies(
             new Vendor($http, $package),

@@ -19,8 +19,12 @@ use Innmind\Framework\{
     Application,
 };
 use Innmind\DependencyGraph\Kernel;
+use Innmind\OperatingSystem\Config;
 
-new class extends Cli {
+$config = Config::of()
+    ->limitHttpConcurrencyTo(20);
+
+new class($config) extends Cli {
     protected function configure(Application $app): Application
     {
         return $app->map(new Kernel);
