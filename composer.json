@@ -18,7 +18,7 @@
         "php": "~8.2",
         "innmind/immutable": "~4.14|~5.0",
         "innmind/url": "~4.1",
-        "innmind/operating-system": "~3.1",
+        "innmind/operating-system": "~3.6",
         "innmind/json": "^1.1",
         "innmind/graphviz": "~3.1",
         "innmind/cli": "~3.0",
