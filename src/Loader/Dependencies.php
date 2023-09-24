@@ -58,7 +58,7 @@ final class Dependencies
     }
 
     /**
-     * @return Maybe<Model>
+     * @return Maybe<Set<Model>>
      */
     private function lookup(Model\Name $relation): Maybe
     {
