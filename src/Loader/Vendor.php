@@ -47,7 +47,7 @@ final class Vendor
         /** @var array{packages: array<string, array{abandoned: bool|string}>} */
         $content = Json::decode($response->body()->toString());
 
-        /** @var Set<PackageModel> */
+        /** @var Set<string> */
         $packages = Set::of();
 
         foreach ($content['packages'] as $packageName => $detail) {
@@ -55,14 +55,20 @@ final class Vendor
                 continue;
             }
 
-            $packages = PackageModel\Name::maybe($packageName)
-                ->flatMap($this->load)
-                ->match(
-                    static fn($package) => ($packages)($package),
-                    static fn() => $packages,
-                );
+            $packages = ($packages)($packageName);
         }
 
-        return new VendorModel($name, $packages);
+        return new VendorModel(
+            $name,
+            $packages
+                ->map(fn($name) => PackageModel\Name::maybe($name)->flatMap(
+                    $this->load,
+                ))
+                ->flatMap(
+                    static fn($package) => $package
+                        ->toSequence()
+                        ->toSet(),
+                ),
+        );
     }
 }

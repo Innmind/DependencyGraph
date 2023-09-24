@@ -55,25 +55,26 @@ final class VendorDependencies
         return $dependency
             ->relations()
             ->map(static fn($relation) => $relation->name())
-            ->flatMap($this->lookup(...))
+            ->map($this->lookup(...))
+            ->flatMap(
+                static fn($package) => $package
+                    ->toSequence()
+                    ->toSet(),
+            )
             ->add($dependency);
     }
 
     /**
-     * @return Set<PackageModel>
+     * @return Maybe<PackageModel>
      */
-    private function lookup(PackageModel\Name $relation): Set
+    private function lookup(PackageModel\Name $relation): Maybe
     {
         return $this
             ->cache
             ->get($relation->toString())
             ->map(static fn($ref) => $ref->get())
             ->keep(Instance::of(PackageModel::class))
-            ->otherwise(fn() => $this->fetch($relation))
-            ->match(
-                static fn($package) => Set::of($package),
-                static fn() => Set::of(),
-            );
+            ->otherwise(fn() => $this->fetch($relation));
     }
 
     /**

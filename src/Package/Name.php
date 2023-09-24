@@ -35,6 +35,7 @@ final class Name
      */
     public static function of(string $name): self
     {
+        /** @psalm-suppress PossiblyUndefinedArrayOffset */
         [$vendor, $package] = Str::of($name)->split('/')->toList();
 
         return new self(

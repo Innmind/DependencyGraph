@@ -97,6 +97,7 @@ final class Package
             return VersionParser::parseStability($version) === 'stable';
         });
 
+        /** @var Sequence<string> */
         $versions = Sequence::of(...\array_values(Semver::rsort($published->keys()->toList())));
 
         /** @var Maybe<Definition> */

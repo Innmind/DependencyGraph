@@ -42,7 +42,7 @@ class VendorTest extends TestCase
 
     public function setUp(): void
     {
-        $http = Curl::of(new Clock);
+        $http = Curl::of(new Clock)->maxConcurrency(20);
         $this->loader = new VendorDependencies(
             new VendorLoader($http, new Package($http)),
             new Package($http),

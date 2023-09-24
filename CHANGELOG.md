@@ -1,5 +1,19 @@
 # Changelog
 
+## 3.4.0 - 2023-09-24
+
+### Added
+
+- Support for `innmind/immutable:~5.0`
+
+### Changed
+
+- It uses asynchronous HTTP calls to fetch package details faster
+
+### Removed
+
+- Support for PHP `8.1`
+
 ## 3.3.0 - 2023-01-11
 
 ### Changed
