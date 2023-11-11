@@ -11,6 +11,7 @@ use Innmind\Immutable\{
     Set,
     Map,
     Maybe,
+    Predicate\Instance,
 };
 
 final class Dependencies
@@ -62,12 +63,9 @@ final class Dependencies
      */
     private function lookup(Model\Name $relation): Maybe
     {
-        /** @psalm-suppress InvalidArgument Because it doesn't understand the filter */
-        return $this
-            ->cache
-            ->get($relation->toString())
-            ->filter(static fn($ref) => \is_object($ref->get()))
+        return Maybe::defer(fn() => $this->cache->get($relation->toString()))
             ->map(static fn($ref) => $ref->get())
+            ->keep(Instance::of(Model::class))
             ->otherwise(fn() => $this->fetch($relation))
             ->map($this->loadRelations(...));
     }

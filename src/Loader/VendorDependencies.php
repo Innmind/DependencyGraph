@@ -69,9 +69,7 @@ final class VendorDependencies
      */
     private function lookup(PackageModel\Name $relation): Maybe
     {
-        return $this
-            ->cache
-            ->get($relation->toString())
+        return Maybe::defer(fn() => $this->cache->get($relation->toString()))
             ->map(static fn($ref) => $ref->get())
             ->keep(Instance::of(PackageModel::class))
             ->otherwise(fn() => $this->fetch($relation));

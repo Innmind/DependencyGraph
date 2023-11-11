@@ -34,16 +34,13 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
+        $this->assertCount(75, $packages);
         $this->assertSame(
             [
                 'innmind/acl',
                 'innmind/amqp',
                 'innmind/ark',
                 'innmind/async-http-server',
-                'innmind/async-operating-system',
-                'innmind/async-socket',
-                'innmind/async-stream',
-                'innmind/async-time-warp',
                 'innmind/cli',
                 'innmind/colour',
                 'innmind/crawler',
@@ -52,6 +49,7 @@ class DependentsTest extends TestCase
                 'innmind/debug',
                 'innmind/dependency-graph',
                 'innmind/doctrine',
+                'innmind/encoding',
                 'innmind/file-watch',
                 'innmind/filesystem',
                 'innmind/framework',
@@ -85,8 +83,6 @@ class DependentsTest extends TestCase
                 'innmind/mantle',
                 'innmind/math',
                 'innmind/media-type',
-                'innmind/neo4j-dbal',
-                'innmind/neo4j-onm',
                 'innmind/object-graph',
                 'innmind/operating-system',
                 'innmind/process-manager',
@@ -112,6 +108,7 @@ class DependentsTest extends TestCase
                 'innmind/url',
                 'innmind/url-resolver',
                 'innmind/url-template',
+                'innmind/validation',
                 'innmind/virtual-machine',
                 'innmind/warden',
                 'innmind/xml',
