@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Same relation was displayed multiple times
+
 ## 3.4.0 - 2023-09-24
 
 ### Added

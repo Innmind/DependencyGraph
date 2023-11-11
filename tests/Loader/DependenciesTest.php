@@ -69,4 +69,16 @@ DOT;
 
         $this->assertSame($expected, (new Render)($packages)->toString());
     }
+
+    public function testDuplicatedRelationsRegression()
+    {
+        $load = new Dependencies(
+            new Package(Curl::of(new Clock)->maxConcurrency(20)),
+        );
+
+        $packages = $load(PackageModel\Name::of('innmind/http-transport'));
+
+        $this->assertInstanceOf(Set::class, $packages);
+        $this->assertCount(23, $packages);
+    }
 }

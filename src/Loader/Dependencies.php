@@ -63,9 +63,7 @@ final class Dependencies
     private function lookup(Model\Name $relation): Maybe
     {
         /** @psalm-suppress InvalidArgument Because it doesn't understand the filter */
-        return $this
-            ->cache
-            ->get($relation->toString())
+        return Maybe::defer(fn() => $this->cache->get($relation->toString()))
             ->filter(static fn($ref) => \is_object($ref->get()))
             ->map(static fn($ref) => $ref->get())
             ->otherwise(fn() => $this->fetch($relation))
