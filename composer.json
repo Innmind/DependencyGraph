@@ -8,7 +8,7 @@
     "authors": [
         {
             "name": "Baptiste Langlade",
-            "email": "langlade.baptiste@gmail.com"
+            "email": "baptiste.langlade@hey.com"
         }
     ],
     "support": {
@@ -16,14 +16,13 @@
     },
     "require": {
         "php": "~8.2",
-        "innmind/immutable": "~4.14|~5.0",
+        "innmind/immutable": "~5.2",
         "innmind/url": "~4.1",
-        "innmind/operating-system": "~3.6",
+        "innmind/operating-system": "~4.1",
         "innmind/json": "^1.1",
         "innmind/graphviz": "~3.1",
-        "innmind/cli": "~3.0",
         "composer/semver": "~3.0",
-        "innmind/framework": "^1.0"
+        "innmind/framework": "~2.0"
     },
     "autoload": {
         "psr-4": {

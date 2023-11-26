@@ -1,5 +1,13 @@
 # Changelog
 
+## 3.5.0 - 2023-11-26
+
+### Changed
+
+- Requires `innmind/immutable:~5.2`
+- Requires `innmind/operating-system:~4.1`
+- Requires `innmind/framework:~2.0`
+
 ## 3.4.1 - 2023-11-11
 
 ### Fixed
