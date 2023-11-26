@@ -9,10 +9,7 @@ use Innmind\DependencyGraph\{
     Loader\ComposerLock,
     Package,
 };
-use Innmind\OperatingSystem\Filesystem\Generic;
-use Innmind\Server\Control\Server\Processes;
-use Innmind\TimeWarp\Halt;
-use Innmind\TimeContinuum\Clock;
+use Innmind\OperatingSystem\Factory;
 use Innmind\Filesystem\File\Content;
 use Innmind\Url\{
     Url,
@@ -23,15 +20,11 @@ use PHPUnit\Framework\TestCase;
 
 class RenderTest extends TestCase
 {
-    private Generic $filesystem;
+    private $filesystem;
 
     public function setUp(): void
     {
-        $this->filesystem = Generic::of(
-            $this->createMock(Processes::class),
-            $this->createMock(Halt::class),
-            $this->createMock(Clock::class),
-        );
+        $this->filesystem = Factory::build()->filesystem();
     }
 
     public function testInvokation()

@@ -24,6 +24,7 @@ use Innmind\Immutable\{
     Set,
     Str,
     Maybe,
+    Predicate\Instance,
 };
 
 /**
@@ -46,7 +47,8 @@ final class ComposerLock
         return $this
             ->filesystem
             ->mount($path)
-            ->get(new FileName('composer.lock'))
+            ->get(FileName::of('composer.lock'))
+            ->keep(Instance::of(File::class))
             ->map($this->decode(...))
             ->map($this->denormalize(...))
             ->match(

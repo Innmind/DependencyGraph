@@ -17,15 +17,13 @@ use Innmind\CLI\{
     Environment,
     Console,
 };
-use Innmind\OperatingSystem\Filesystem\Generic;
+use Innmind\OperatingSystem\Factory;
 use Innmind\Server\Control\Server\{
     Processes,
     Process,
     Process\ExitCode,
     Process\Output,
 };
-use Innmind\TimeWarp\Halt;
-use Innmind\TimeContinuum\Clock;
 use Innmind\Immutable\{
     Str,
     Either,
@@ -37,15 +35,11 @@ use PHPUnit\Framework\TestCase;
 
 class FromLockTest extends TestCase
 {
-    private Generic $filesystem;
+    private $filesystem;
 
     public function setUp(): void
     {
-        $this->filesystem = Generic::of(
-            $this->createMock(Processes::class),
-            $this->createMock(Halt::class),
-            $this->createMock(Clock::class),
-        );
+        $this->filesystem = Factory::build()->filesystem();
     }
 
     public function testInterface()

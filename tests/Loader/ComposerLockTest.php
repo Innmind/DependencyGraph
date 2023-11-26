@@ -8,10 +8,7 @@ use Innmind\DependencyGraph\{
     Package,
     Render,
 };
-use Innmind\OperatingSystem\Filesystem\Generic;
-use Innmind\Server\Control\Server\Processes;
-use Innmind\TimeWarp\Halt;
-use Innmind\TimeContinuum\Clock;
+use Innmind\OperatingSystem\Factory;
 use Innmind\Url\Path;
 use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
@@ -20,11 +17,7 @@ class ComposerLockTest extends TestCase
 {
     public function testInterface()
     {
-        $load = new ComposerLock(Generic::of(
-            $this->createMock(Processes::class),
-            $this->createMock(Halt::class),
-            $this->createMock(Clock::class),
-        ));
+        $load = new ComposerLock(Factory::build()->filesystem());
 
         $packages = $load(Path::of(__DIR__.'/../../fixtures/'));
 

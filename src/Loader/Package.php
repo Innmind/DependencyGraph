@@ -6,9 +6,9 @@ namespace Innmind\DependencyGraph\Loader;
 use Innmind\DependencyGraph\Package as Model;
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
-    Message\Request\Request,
-    Message\Response,
-    Message\Method,
+    Request,
+    Response,
+    Method,
     ProtocolVersion,
 };
 use Innmind\Url\Url;
@@ -41,7 +41,7 @@ final class Package
      */
     public function __invoke(Model\Name $name): Maybe
     {
-        $request = new Request(
+        $request = Request::of(
             Url::of("https://packagist.org/packages/{$name->toString()}.json"),
             Method::get,
             ProtocolVersion::v20,

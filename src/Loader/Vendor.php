@@ -9,8 +9,8 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
-    Message\Request\Request,
-    Message\Method,
+    Request,
+    Method,
     ProtocolVersion,
 };
 use Innmind\Url\Url;
@@ -35,7 +35,7 @@ final class Vendor
     {
         $url = "https://packagist.org/packages/list.json?vendor={$name->toString()}&fields[]=abandoned";
 
-        $request = new Request(
+        $request = Request::of(
             Url::of($url),
             Method::get,
             ProtocolVersion::v20,
