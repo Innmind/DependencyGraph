@@ -78,7 +78,6 @@ class VendorTest extends TestCase
                 'innmind/media-type',
                 'innmind/object-graph',
                 'innmind/operating-system',
-                'innmind/process-manager',
                 'innmind/profiler',
                 'innmind/rabbitmq-management',
                 'innmind/reflection',
