@@ -38,7 +38,7 @@ digraph packages {
         label="league"
         URL="https://packagist.org/packages/league/"
     league__uri_parser [label="uri-parser@1.4.1"];
-    league__uri_interfaces [label="uri-interfaces@7.3.0"];
+    league__uri_interfaces [label="uri-interfaces@7.4.0"];
     league__uri [label="uri@7.3.0"];
     league__uri_components [label="uri-components@7.3.0"];
     }
@@ -60,7 +60,7 @@ digraph packages {
     league__uri_parser [shape="ellipse", width="0.75", height="0.5", color="#bcf2f6", URL="https://packagist.org/packages/league/uri-parser#1.4.1"];
     psr__http_message [shape="ellipse", width="0.75", height="0.5", color="#8da3f1", URL="https://packagist.org/packages/psr/http-message#2.0"];
     psr__http_factory [shape="ellipse", width="0.75", height="0.5", color="#8ac267", URL="https://packagist.org/packages/psr/http-factory#1.0.2"];
-    league__uri_interfaces [shape="ellipse", width="0.75", height="0.5", color="#22ca7d", URL="https://packagist.org/packages/league/uri-interfaces#7.3.0"];
+    league__uri_interfaces [shape="ellipse", width="0.75", height="0.5", color="#22ca7d", URL="https://packagist.org/packages/league/uri-interfaces#7.4.0"];
     league__uri [shape="ellipse", width="0.75", height="0.5", color="#ef36b1", URL="https://packagist.org/packages/league/uri#7.3.0"];
     league__uri_components [shape="ellipse", width="0.75", height="0.5", color="#de64b9", URL="https://packagist.org/packages/league/uri-components#7.3.0"];
     innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="https://packagist.org/packages/innmind/url#4.3.0"];
