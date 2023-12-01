@@ -28,6 +28,10 @@ final class Kernel implements Middleware
                 $os->remote()->http(),
                 $get('package'),
             ))
+            ->mapCommand(static fn($command, $_, $os) => new Command\CheckDotInstalled(
+                $command,
+                $os->control()->processes(),
+            ))
             ->command(static fn($get, $os) => new Command\FromLock(
                 new Loader\ComposerLock($os->filesystem()),
                 $get('save'),
