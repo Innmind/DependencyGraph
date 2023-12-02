@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.5.1 - 2023-12-02
+
+### Fixed
+
+- When `dot` is not installed it displays a message telling so instead of crashing
+
 ## 3.5.0 - 2023-11-26
 
 ### Changed

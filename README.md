@@ -8,6 +8,9 @@ Tool to help visualize the various dependencies between packages.
 
 It has been created to help maintain the many packages inside this organisation.
 
+> [!NOTE]
+> This package needs [graphviz (`dot` command line tool)](https://graphviz.org) to be installed on your machine
+
 ## Installation
 
 ```sh
