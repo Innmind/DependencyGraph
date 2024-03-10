@@ -5,7 +5,6 @@ namespace Innmind\DependencyGraph\Loader;
 
 use Innmind\DependencyGraph\{
     Package as PackageModel,
-    Package\Relation,
     Vendor as VendorModel,
 };
 use Innmind\Immutable\{

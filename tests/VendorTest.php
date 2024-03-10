@@ -10,7 +10,6 @@ use Innmind\DependencyGraph\{
     Package\Name,
     Package\Version,
     Package\Constraint,
-    Exception\LogicException,
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;

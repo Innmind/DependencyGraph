@@ -5,7 +5,6 @@ namespace Tests\Innmind\DependencyGraph\Loader;
 
 use Innmind\DependencyGraph\{
     Loader\ComposerLock,
-    Package,
     Render,
 };
 use Innmind\OperatingSystem\Factory;

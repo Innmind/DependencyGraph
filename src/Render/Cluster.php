@@ -3,15 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph\Render;
 
-use Innmind\DependencyGraph\{
-    Package,
-    Vendor,
-};
+use Innmind\DependencyGraph\Vendor;
 use Innmind\Graphviz\Graph;
-use Innmind\Immutable\{
-    Set,
-    Str,
-};
+use Innmind\Immutable\Str;
 
 final class Cluster
 {

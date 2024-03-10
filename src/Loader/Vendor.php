@@ -15,10 +15,7 @@ use Innmind\Http\{
 };
 use Innmind\Url\Url;
 use Innmind\Json\Json;
-use Innmind\Immutable\{
-    Str,
-    Set,
-};
+use Innmind\Immutable\Set;
 
 final class Vendor
 {

@@ -22,7 +22,6 @@ use Innmind\Filesystem\{
 };
 use Innmind\Immutable\{
     Set,
-    Str,
     Maybe,
     Predicate\Instance,
 };

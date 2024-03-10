@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph\Loader\Dependents;
 
-use Innmind\DependencyGraph\{
-    Package,
-    Package\Name,
-};
+use Innmind\DependencyGraph\Package;
 use Innmind\Immutable\Set;
 
 final class Graph

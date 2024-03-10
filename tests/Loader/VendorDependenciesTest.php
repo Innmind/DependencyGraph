@@ -8,7 +8,6 @@ use Innmind\DependencyGraph\{
     Loader\Vendor,
     Loader\Package,
     Vendor\Name,
-    Package as Model,
 };
 use Innmind\HttpTransport\Curl;
 use Innmind\TimeContinuum\Earth\Clock;
