@@ -7,7 +7,6 @@ use Innmind\DependencyGraph\{
     Package\Name,
     Package\Version,
     Package\Relation,
-    Vendor,
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;

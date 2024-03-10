@@ -5,7 +5,6 @@ namespace Tests\Innmind\DependencyGraph\Package;
 
 use Innmind\DependencyGraph\{
     Package\Name,
-    Vendor,
     Exception\DomainException,
 };
 use PHPUnit\Framework\TestCase;

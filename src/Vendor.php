@@ -4,10 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\DependencyGraph;
 
 use Innmind\Url\Url;
-use Innmind\Immutable\{
-    Set,
-    Map,
-};
+use Innmind\Immutable\Set;
 
 /**
  * @psalm-immutable

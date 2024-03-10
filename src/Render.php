@@ -3,16 +3,13 @@ declare(strict_types = 1);
 
 namespace Innmind\DependencyGraph;
 
-use Innmind\DependencyGraph\{
-    Package\Relation,
-    Package\Name,
-    Render\PackageNode,
-    Render\Cluster,
-    Render\Locate,
+use Innmind\DependencyGraph\Render\{
+    PackageNode,
+    Cluster,
+    Locate,
 };
 use Innmind\Graphviz\{
     Graph,
-    Graph\Rankdir,
     Node,
     Layout\Dot,
 };

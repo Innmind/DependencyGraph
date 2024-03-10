@@ -7,7 +7,6 @@ use Innmind\DependencyGraph\{
     Package\Relation,
     Package\Constraint,
     Package\Name,
-    Vendor,
 };
 use PHPUnit\Framework\TestCase;
 

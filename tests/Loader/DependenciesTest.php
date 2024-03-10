@@ -79,6 +79,6 @@ DOT;
         $packages = $load(PackageModel\Name::of('innmind/http-transport'));
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(23, $packages);
+        $this->assertCount(25, $packages);
     }
 }
