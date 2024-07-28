@@ -19,6 +19,7 @@ final class Package
     private Name $name;
     private Version $version;
     private Url $packagist;
+    private Url $repository;
     /** @var Set<Relation> */
     private Set $relations;
     private bool $abandoned;
@@ -30,12 +31,14 @@ final class Package
         Name $name,
         Version $version,
         Url $packagist,
+        Url $repository,
         Set $relations,
         bool $abandoned = false,
     ) {
         $this->name = $name;
         $this->version = $version;
         $this->packagist = $packagist;
+        $this->repository = $repository;
         $this->relations = $relations;
         $this->abandoned = $abandoned;
     }
@@ -53,6 +56,11 @@ final class Package
     public function packagist(): Url
     {
         return $this->packagist;
+    }
+
+    public function repository(): Url
+    {
+        return $this->repository;
     }
 
     /**

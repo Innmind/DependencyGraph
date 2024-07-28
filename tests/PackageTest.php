@@ -22,6 +22,7 @@ class PackageTest extends TestCase
             $name = Name::of('foo/bar'),
             $version = Version::of('1.0.0'),
             $packagist = Url::of('http://example.com'),
+            $repository = Url::of('http://example.com'),
             $relations = Set::of(new Relation(
                 Name::of('bar/baz'),
                 new Constraint('~1.0'),
@@ -31,6 +32,7 @@ class PackageTest extends TestCase
         $this->assertSame($name, $package->name());
         $this->assertSame($version, $package->version());
         $this->assertSame($packagist, $package->packagist());
+        $this->assertSame($repository, $package->repository());
         $this->assertInstanceOf(Set::class, $package->relations());
         $this->assertSame($relations, $package->relations());
     }
@@ -40,6 +42,7 @@ class PackageTest extends TestCase
         $package = new Package(
             Name::of('foo/bar'),
             Version::of('1.0.0'),
+            Url::of('http://example.com'),
             Url::of('http://example.com'),
             Set::of(
                 new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
@@ -55,6 +58,7 @@ class PackageTest extends TestCase
         $package = new Package(
             Name::of('foo/bar'),
             Version::of('1.0.0'),
+            Url::of('http://example.com'),
             Url::of('http://example.com'),
             Set::of(
                 $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),
@@ -77,6 +81,7 @@ class PackageTest extends TestCase
         $package = new Package(
             Name::of('foo/bar'),
             Version::of('1.0.0'),
+            Url::of('http://example.com'),
             Url::of('http://example.com'),
             Set::of(
                 $bar = new Relation(Name::of('bar/baz'), new Constraint('~1.0')),

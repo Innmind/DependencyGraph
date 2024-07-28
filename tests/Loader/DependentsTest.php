@@ -34,13 +34,15 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(74, $packages);
+        $this->assertCount(77, $packages);
         $this->assertSame(
             [
                 'innmind/acl',
                 'innmind/amqp',
                 'innmind/ark',
                 'innmind/async-http-server',
+                'innmind/black-box',
+                'innmind/black-box-symfony',
                 'innmind/cli',
                 'innmind/colour',
                 'innmind/crawler',
@@ -75,6 +77,7 @@ class DependentsTest extends TestCase
                 'innmind/io',
                 'innmind/ip',
                 'innmind/ipc',
+                'innmind/json',
                 'innmind/kalmiya',
                 'innmind/lab-station',
                 'innmind/library',

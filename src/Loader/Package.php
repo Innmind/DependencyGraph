@@ -57,7 +57,14 @@ final class Package
      */
     private function parse(Response $response, Model\Name $name): Maybe
     {
-        /** @var array{package: array{name: string, versions: array<array-key, Definition>}} */
+        /** @var array{
+         *      package: array{
+         *          name: string,
+         *          versions: array<array-key, Definition>,
+         *          repository: non-empty-string,
+         *      }
+         *  }
+         */
         $body = Json::decode($response->body()->toString());
         $content = $body['package'];
 
@@ -67,13 +74,20 @@ final class Package
         $version = $version
             ->map(static fn($version) => $version['version'])
             ->flatMap(Model\Version::maybe(...));
+        $repository = Url::maybe(\rtrim($content['repository'], '/').'/');
 
         /** @psalm-suppress MixedArgumentTypeCoercion */
-        return Maybe::all($version, $relations, $abandoned)
-            ->map(static fn(Model\Version $version, Set $relations, bool $abandoned) => new Model(
+        return Maybe::all($version, $relations, $abandoned, $repository)
+            ->map(static fn(
+                Model\Version $version,
+                Set $relations,
+                bool $abandoned,
+                Url $repository,
+            ) => new Model(
                 $name,
                 $version,
                 Url::of("https://packagist.org/packages/{$name->toString()}"),
+                $repository,
                 $relations,
                 $abandoned,
             ));
