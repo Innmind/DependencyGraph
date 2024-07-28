@@ -16,12 +16,16 @@ final class Dependencies
     private Package $load;
     /** @var Map<string, \WeakReference<Model>> */
     private Map $cache;
+    /** @var Set<string> */
+    private Set $loading;
 
     public function __construct(Package $load)
     {
         $this->load = $load;
         /** @var Map<string, \WeakReference<Model>> */
         $this->cache = Map::of();
+        /** @var Set<string> */
+        $this->loading = Set::of();
     }
 
     /**
@@ -42,7 +46,12 @@ final class Dependencies
      */
     private function loadRelations(Model $dependency): Set
     {
-        return $dependency
+        if ($this->loading->contains($dependency->name()->toString())) {
+            return Set::of($dependency);
+        }
+
+        $this->loading = ($this->loading)($dependency->name()->toString());
+        $packages = $dependency
             ->relations()
             ->map(static fn($relation) => $relation->name())
             ->map($this->lookup(...))
@@ -53,6 +62,9 @@ final class Dependencies
                     ->flatMap(static fn($packages) => $packages),
             )
             ->add($dependency);
+        $this->loading = $this->loading->remove($dependency->name()->toString());
+
+        return $packages;
     }
 
     /**
