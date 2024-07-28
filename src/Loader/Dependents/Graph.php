@@ -50,6 +50,7 @@ final class Graph
         return $package->relations()->any(
             static fn($relation) => $packages
                 ->find(static fn($package) => $package->name()->equals($relation->name()))
+                ->filter(static fn($relation) => !$relation->dependsOn($package->name()))
                 ->match(
                     static fn($package) => self::dependsOn($root, $package, $packages),
                     static fn() => false,

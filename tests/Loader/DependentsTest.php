@@ -121,4 +121,23 @@ class DependentsTest extends TestCase
                 ->toList(),
         );
     }
+    public function testCircularDependencyRegression()
+    {
+        $http = Curl::of(new Clock)->maxConcurrency(20);
+
+        $load = new Dependents(
+            new Vendor(
+                $http,
+                new Package($http),
+            ),
+        );
+
+        $packages = $load(
+            PackageModel\Name::of('league/climate'),
+            Set::of(VendorModel\Name::of('league')),
+        );
+
+        $this->assertInstanceOf(Set::class, $packages);
+        $this->assertCount(1, $packages);
+    }
 }
