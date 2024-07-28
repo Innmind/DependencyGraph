@@ -81,4 +81,16 @@ DOT;
         $this->assertInstanceOf(Set::class, $packages);
         $this->assertCount(25, $packages);
     }
+
+    public function testCircularDependencyRegression()
+    {
+        $load = new Dependencies(
+            new Package(Curl::of(new Clock)->maxConcurrency(20)),
+        );
+
+        $packages = $load(PackageModel\Name::of('laravel/browser-kit-testing'));
+
+        $this->assertInstanceOf(Set::class, $packages);
+        $this->assertCount(106, $packages);
+    }
 }

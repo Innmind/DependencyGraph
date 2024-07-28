@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.7.1 - 2024-07-28
+
+### Fixed
+
+- Circular dependency crashing the `of` command by memory exhaustion
+
 ## 3.7.0 - 2024-07-28
 
 ### Added
