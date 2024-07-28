@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Circular dependency crashing the `depends-on` command by memory exhaustion
+
 ## 3.7.1 - 2024-07-28
 
 ### Fixed
