@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## 3.7.1 - 2024-07-28
 
 ### Fixed
 
