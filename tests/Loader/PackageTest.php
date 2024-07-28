@@ -42,7 +42,7 @@ class PackageTest extends TestCase
         );
 
         $this->assertInstanceOf(Model::class, $package);
-        $this->assertSame('7.8.1', $package->version()->toString());
+        $this->assertSame('7.9.2', $package->version()->toString());
     }
 
     public function testReturnNothingWhenThePackageDoesNotExist()
