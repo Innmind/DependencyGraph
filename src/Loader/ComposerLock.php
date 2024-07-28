@@ -27,7 +27,14 @@ use Innmind\Immutable\{
 };
 
 /**
- * @psalm-type Lock = array{packages: list<array{name: string, version: string, require?: array<string, string>}>}
+ * @psalm-type Lock = array{
+ *     packages: list<array{
+ *         name: string,
+ *         source: array{url: non-empty-string},
+ *         version: string,
+ *         require?: array<string, string>
+ *     }>
+ * }
  */
 final class ComposerLock
 {
@@ -91,11 +98,18 @@ final class ComposerLock
             $packages = Maybe::all(
                 Name::maybe($package['name']),
                 Version::maybe($package['version']),
+                Maybe::of($package['source'] ?? null)
+                    ->filter(\is_array(...))
+                    ->flatMap(static fn(array $source) => Maybe::of($source['url'] ?? null))
+                    ->filter(\is_string(...))
+                    ->map(static fn(string $url) => \rtrim($url, '.git').'/')
+                    ->flatMap(Url::maybe(...)),
             )
-                ->map(static fn(Name $name, Version $version) => new Package(
+                ->map(static fn(Name $name, Version $version, Url $repository) => new Package(
                     $name,
                     $version,
                     Url::of('https://packagist.org/packages/'.$package['name']),
+                    $repository,
                     $relations,
                 ))
                 ->match(

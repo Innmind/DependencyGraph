@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `Innmind\DependencyGraph\Package::repository()`
+
 ## 3.6.0 - 2024-03-10
 
 ### Added
