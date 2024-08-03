@@ -55,17 +55,28 @@ final class Vendor
             $packages = ($packages)($packageName);
         }
 
+        // We chunk the packages by 100 to prevent keeping more than 100 http
+        // responses in memory at a time. If unlimited the process may exhaust
+        // the maximum number of opened files. This is the case when fetching
+        // all Symfony dependencies (at the time of witing this comment it's
+        // around 250 packages). On a macbook pro m1 the soft number of allowed
+        // opened files is 256.
+        // Obviously this limit could be raised but this means this tool can't
+        // be used in some scenarii unless the user change the environment.
         return new VendorModel(
             $name,
             $packages
-                ->map(fn($name) => PackageModel\Name::maybe($name)->flatMap(
-                    $this->load,
-                ))
+                ->unsorted()
+                ->chunk(100)
                 ->flatMap(
-                    static fn($package) => $package
-                        ->toSequence()
-                        ->toSet(),
-                ),
+                    fn($chunk) => $chunk
+                        ->map(
+                            fn($name) => PackageModel\Name::maybe($name)
+                                ->flatMap($this->load),
+                        )
+                        ->flatMap(static fn($package) => $package->toSequence()),
+                )
+                ->toSet(),
         );
     }
 }
