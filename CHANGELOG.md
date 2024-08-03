@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.7.3 - 2024-08-03
+
+### Fixed
+
+- Max opened files exhaustion when loading a vendor with a lot of packages
+
 ## 3.7.2 - 2024-07-28
 
 ### Fixed
