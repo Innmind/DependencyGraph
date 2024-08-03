@@ -16,7 +16,7 @@
     },
     "require": {
         "php": "~8.2",
-        "innmind/immutable": "~5.2",
+        "innmind/immutable": "~5.9",
         "innmind/url": "~4.1",
         "innmind/operating-system": "~4.1|~5.0",
         "innmind/json": "^1.1",
