@@ -115,4 +115,15 @@ class VendorTest extends TestCase
                 ->toList(),
         );
     }
+
+    public function testMaxOpenedFilesRegression()
+    {
+        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $load = new Vendor($http, new Package($http));
+
+        $vendor = $load(Model\Name::of('symfony'));
+
+        $this->assertInstanceOf(Model::class, $vendor);
+        $this->assertCount(247, $vendor->packages());
+    }
 }
