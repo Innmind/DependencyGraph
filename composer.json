@@ -16,13 +16,14 @@
     },
     "require": {
         "php": "~8.2",
-        "innmind/immutable": "~5.9",
+        "innmind/immutable": "~5.10",
         "innmind/url": "~4.1",
         "innmind/operating-system": "~4.1|~5.0",
         "innmind/json": "^1.1",
         "innmind/graphviz": "~3.1",
         "composer/semver": "~3.0",
-        "innmind/framework": "~2.0"
+        "innmind/framework": "~2.0",
+        "innmind/validation": "~1.5"
     },
     "autoload": {
         "psr-4": {

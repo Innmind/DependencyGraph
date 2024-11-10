@@ -7,26 +7,29 @@ use Innmind\DependencyGraph\Package as Model;
 use Innmind\HttpTransport\Transport;
 use Innmind\Http\{
     Request,
-    Response,
     Method,
     ProtocolVersion,
 };
 use Innmind\Url\Url;
+use Innmind\Validation\{
+    Is,
+    Of,
+    Failure,
+};
 use Innmind\Json\Json;
 use Innmind\Immutable\{
     Set,
     Map,
     Sequence,
     Maybe,
+    Validation,
+    Predicate\Instance,
 };
 use Composer\Semver\{
     VersionParser,
     Semver,
 };
 
-/**
- * @psalm-type Definition = array{version: string, abandoned?: bool, require?: array<string, string>}
- */
 final class Package
 {
     private Transport $fulfill;
@@ -49,96 +52,111 @@ final class Package
 
         return ($this->fulfill)($request)
             ->maybe()
-            ->flatMap(fn($success) => $this->parse($success->response(), $name));
+            ->map(static fn($success) => $success->response()->body()->toString())
+            ->map(Json::decode(...))
+            ->flatMap(fn($response) => $this->parse($response, $name));
     }
 
     /**
      * @return Maybe<Model>
      */
-    private function parse(Response $response, Model\Name $name): Maybe
+    private function parse(mixed $response, Model\Name $name): Maybe
     {
-        /** @var array{
-         *      package: array{
-         *          name: string,
-         *          versions: array<array-key, Definition>,
-         *          repository: non-empty-string,
-         *      }
-         *  }
+        /**
+         * @psalm-suppress ArgumentTypeCoercion
+         * @psalm-suppress MixedArgumentTypeCoercion
+         * @psalm-suppress MixedArrayAccess
+         * @psalm-suppress MixedArgument
+         * @psalm-suppress MixedAssignment
+         * @psalm-suppress InvalidArgument
          */
-        $body = Json::decode($response->body()->toString());
-        $content = $body['package'];
+        $validate = Is::shape(
+            'package',
+            Is::shape('name', Is::string())
+                ->with(
+                    'repository',
+                    Is::string()
+                        ->map(static fn($value) => \rtrim($value, '/').'/')
+                        ->and(Of::callable(
+                            static fn(string $url) => Url::maybe($url)->match(
+                                Validation::success(...),
+                                static fn() => Validation::fail(Failure::of('Invalid repository url')),
+                            ),
+                        )),
+                )
+                ->with(
+                    'versions',
+                    Is::associativeArray(
+                        Is::string(),
+                        Is::shape('version', Is::string())
+                            ->optional('abandoned', Is::string()->or(Is::bool()))
+                            ->optional(
+                                'require',
+                                Is::associativeArray(
+                                    Is::string(),
+                                    Is::string(),
+                                )
+                                    ->map(static fn(Map $requires) => $requires->map(
+                                        static fn(string $relation, string $constraint) => Maybe::all(
+                                            Model\Name::maybe($relation),
+                                            Model\Constraint::maybe($constraint),
+                                        )
+                                            ->map(Model\Relation::of(...)),
+                                    ))
+                                    ->map(
+                                        static fn(Map $requires) => $requires
+                                            ->values()
+                                            ->flatMap(static fn(Maybe $relation) => $relation->toSequence())
+                                            ->toSet(),
+                                    ),
+                            )
+                            ->map(static function(array $version) {
+                                $version['require'] ??= Set::of();
 
-        $version = $this->mostRecentVersion($content['versions']);
-        $relations = $version->map($this->loadRelations(...));
-        $abandoned = $version->map(static fn($version) => ($version['abandoned'] ?? false) !== false);
-        $version = $version
-            ->map(static fn($version) => $version['version'])
-            ->flatMap(Model\Version::maybe(...));
-        $repository = Url::maybe(\rtrim($content['repository'], '/').'/');
+                                return $version;
+                            })
+                            ->and(Of::callable(
+                                static fn(array $version) => Model\Version::maybe($version['version'])->match(
+                                    static function($model) use ($version) {
+                                        $version['version'] = $model;
 
-        /** @psalm-suppress MixedArgumentTypeCoercion */
-        return Maybe::all($version, $relations, $abandoned, $repository)
-            ->map(static fn(
-                Model\Version $version,
-                Set $relations,
-                bool $abandoned,
-                Url $repository,
-            ) => new Model(
-                $name,
-                $version,
-                Url::of("https://packagist.org/packages/{$name->toString()}"),
-                $repository,
-                $relations,
-                $abandoned,
-            ));
-    }
+                                        return Validation::success($version);
+                                    },
+                                    static fn() => Validation::fail(Failure::of('Invalid version format')),
+                                ),
+                            )),
+                    )
+                        ->map(static fn(Map $versions) => $versions->filter(
+                            static fn(string $version) => VersionParser::parseStability($version) === 'stable',
+                        ))
+                        ->map(static function(Map $versions) {
+                            $sorted = Sequence::of(...\array_values(
+                                Semver::rsort(
+                                    $versions->keys()->toList(),
+                                ),
+                            ));
 
-    /**
-     * @param array<array-key, Definition> $versions
-     *
-     * @return Maybe<Definition>
-     */
-    private function mostRecentVersion(array $versions): Maybe
-    {
-        /** @var Map<string, Definition> */
-        $published = Map::of();
+                            return $sorted
+                                ->first()
+                                ->flatmap($versions->get(...));
+                        })
+                        ->and(Of::callable(static fn(Maybe $version) => $version->match(
+                            static fn(array $version) => Validation::success($version),
+                            static fn() => Validation::fail(Failure::of('No version found')),
+                        ))),
+                )
+                ->map(static fn($package) => new Model(
+                    $name,
+                    $package['versions']['version'],
+                    Url::of("https://packagist.org/packages/{$name->toString()}"),
+                    $package['repository'],
+                    $package['versions']['require'],
+                    ($package['versions']['abandoned'] ?? false) !== false,
+                )),
+        )->map(static fn($content): mixed => $content['package']);
 
-        foreach ($versions as $key => $value) {
-            $published = ($published)((string) $key, $value);
-        }
-
-        $published = $published->filter(static function(string $version): bool {
-            return VersionParser::parseStability($version) === 'stable';
-        });
-
-        /** @var Sequence<string> */
-        $versions = Sequence::of(...\array_values(Semver::rsort($published->keys()->toList())));
-
-        /** @var Maybe<Definition> */
-        return $versions
-            ->first()
-            ->flatMap(static fn($version) => $published->get($version));
-    }
-
-    /**
-     * @param Definition $version
-     *
-     * @return Set<Model\Relation>
-     */
-    private function loadRelations(array $version): Set
-    {
-        /** @var Set<Model\Relation> */
-        $relations = Set::of();
-
-        foreach ($version['require'] ?? [] as $relation => $constraint) {
-            $relations = Maybe::all(Model\Name::maybe($relation), Model\Constraint::maybe($constraint))
-                ->map(Model\Relation::of(...))
-                ->match(
-                    static fn($relation) => ($relations)($relation),
-                    static fn() => $relations,
-                );
-        }
-
-        return $relations;
+        return $validate($response)
+            ->maybe()
+            ->keep(Instance::of(Model::class));
     }
 }
