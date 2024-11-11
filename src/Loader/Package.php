@@ -11,18 +11,13 @@ use Innmind\Http\{
     ProtocolVersion,
 };
 use Innmind\Url\Url;
-use Innmind\Validation\{
-    Is,
-    Of,
-    Failure,
-};
+use Innmind\Validation\Is;
 use Innmind\Json\Json;
 use Innmind\Immutable\{
     Set,
     Map,
     Sequence,
     Maybe,
-    Validation,
     Predicate\Instance,
 };
 use Composer\Semver\{
@@ -63,7 +58,6 @@ final class Package
     private function parse(mixed $response, Model\Name $name): Maybe
     {
         /**
-         * @psalm-suppress ArgumentTypeCoercion
          * @psalm-suppress MixedArgumentTypeCoercion
          * @psalm-suppress MixedArrayAccess
          * @psalm-suppress MixedArgument
@@ -77,18 +71,19 @@ final class Package
                     'repository',
                     Is::string()
                         ->map(static fn($value) => \rtrim($value, '/').'/')
-                        ->and(Of::callable(
-                            static fn(string $url) => Url::maybe($url)->match(
-                                Validation::success(...),
-                                static fn() => Validation::fail(Failure::of('Invalid repository url')),
-                            ),
-                        )),
+                        ->map(Url::maybe(...))
+                        ->and(Is::just()),
                 )
                 ->with(
                     'versions',
                     Is::associativeArray(
                         Is::string(),
-                        Is::shape('version', Is::string())
+                        Is::shape(
+                            'version',
+                            Is::string()
+                                ->map(Model\Version::maybe(...))
+                                ->and(Is::just()),
+                        )
                             ->optional('abandoned', Is::string()->or(Is::bool()))
                             ->optional(
                                 'require',
@@ -110,21 +105,7 @@ final class Package
                                             ->toSet(),
                                     ),
                             )
-                            ->map(static function(array $version) {
-                                $version['require'] ??= Set::of();
-
-                                return $version;
-                            })
-                            ->and(Of::callable(
-                                static fn(array $version) => Model\Version::maybe($version['version'])->match(
-                                    static function($model) use ($version) {
-                                        $version['version'] = $model;
-
-                                        return Validation::success($version);
-                                    },
-                                    static fn() => Validation::fail(Failure::of('Invalid version format')),
-                                ),
-                            )),
+                            ->default('require', Set::of()),
                     )
                         ->map(static fn(Map $versions) => $versions->filter(
                             static fn(string $version) => VersionParser::parseStability($version) === 'stable',
@@ -138,20 +119,18 @@ final class Package
 
                             return $sorted
                                 ->first()
-                                ->flatmap($versions->get(...));
+                                ->flatMap($versions->get(...));
                         })
-                        ->and(Of::callable(static fn(Maybe $version) => $version->match(
-                            static fn(array $version) => Validation::success($version),
-                            static fn() => Validation::fail(Failure::of('No version found')),
-                        ))),
+                        ->and(Is::just()),
                 )
+                ->rename('versions', 'mostRecent')
                 ->map(static fn($package) => new Model(
                     $name,
-                    $package['versions']['version'],
+                    $package['mostRecent']['version'],
                     Url::of("https://packagist.org/packages/{$name->toString()}"),
                     $package['repository'],
-                    $package['versions']['require'],
-                    ($package['versions']['abandoned'] ?? false) !== false,
+                    $package['mostRecent']['require'],
+                    ($package['mostRecent']['abandoned'] ?? false) !== false,
                 )),
         )->map(static fn($content): mixed => $content['package']);
 
