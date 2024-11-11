@@ -79,7 +79,39 @@ DOT;
         $packages = $load(PackageModel\Name::of('innmind/http-transport'));
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(25, $packages);
+        $this->assertSame(
+            [
+                'brick/math',
+                'innmind/filesystem',
+                'innmind/http',
+                'innmind/http-transport',
+                'innmind/immutable',
+                'innmind/io',
+                'innmind/ip',
+                'innmind/media-type',
+                'innmind/socket',
+                'innmind/stream',
+                'innmind/time-continuum',
+                'innmind/time-warp',
+                'innmind/url',
+                'league/uri',
+                'league/uri-components',
+                'league/uri-interfaces',
+                'league/uri-parser',
+                'psr/http-factory',
+                'psr/http-message',
+                'psr/log',
+                'ramsey/collection',
+                'ramsey/uuid',
+                'symfony/filesystem',
+                'symfony/polyfill-ctype',
+                'symfony/polyfill-mbstring',
+            ],
+            $packages
+                ->map(static fn($package) => $package->name()->toString())
+                ->sort(static fn($a, $b) => $a <=> $b)
+                ->toList(),
+        );
     }
 
     public function testCircularDependencyRegression()
