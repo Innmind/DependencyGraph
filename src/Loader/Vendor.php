@@ -14,8 +14,15 @@ use Innmind\Http\{
     ProtocolVersion,
 };
 use Innmind\Url\Url;
+use Innmind\Validation\{
+    Is,
+    Constraint,
+};
 use Innmind\Json\Json;
-use Innmind\Immutable\Set;
+use Innmind\Immutable\{
+    Set,
+    Map,
+};
 
 final class Vendor
 {
@@ -31,29 +38,33 @@ final class Vendor
     public function __invoke(VendorModel\Name $name): VendorModel
     {
         $url = "https://packagist.org/packages/list.json?vendor={$name->toString()}&fields[]=abandoned";
+        /** @var Constraint<mixed, Set<string>> */
+        $validate = Is::shape(
+            'packages',
+            Is::associativeArray(
+                Is::string(),
+                Is::shape('abandoned', Is::string()->or(Is::bool())),
+            )
+                ->map(static fn($packages) => $packages->filter(
+                    static fn($_, $detail) => $detail['abandoned'] === false,
+                ))
+                ->map(static fn(Map $packages) => $packages->keys()),
+        )->map(static fn($content): mixed => $content['packages']);
 
         $request = Request::of(
             Url::of($url),
             Method::get,
             ProtocolVersion::v20,
         );
-        $response = ($this->fulfill)($request)->match(
-            static fn($success) => $success->response(),
-            static fn() => throw new \RuntimeException,
-        );
-        /** @var array{packages: array<string, array{abandoned: bool|string}>} */
-        $content = Json::decode($response->body()->toString());
-
-        /** @var Set<string> */
-        $packages = Set::of();
-
-        foreach ($content['packages'] as $packageName => $detail) {
-            if ($detail['abandoned'] !== false) {
-                continue;
-            }
-
-            $packages = ($packages)($packageName);
-        }
+        $packages = ($this->fulfill)($request)
+            ->maybe()
+            ->map(static fn($success) => $success->response()->body()->toString())
+            ->map(Json::decode(...))
+            ->flatMap(static fn($content) => $validate($content)->maybe())
+            ->match(
+                static fn($packages) => $packages,
+                static fn() => throw new \RuntimeException,
+            );
 
         // We chunk the packages by 100 to prevent keeping more than 100 http
         // responses in memory at a time. If unlimited the process may exhaust
