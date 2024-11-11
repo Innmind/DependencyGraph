@@ -58,7 +58,6 @@ final class Package
     private function parse(mixed $response, Model\Name $name): Maybe
     {
         /**
-         * @psalm-suppress MixedArgumentTypeCoercion
          * @psalm-suppress MixedArrayAccess
          * @psalm-suppress MixedArgument
          * @psalm-suppress MixedAssignment
@@ -85,6 +84,7 @@ final class Package
                                 ->and(Is::just()),
                         )
                             ->optional('abandoned', Is::string()->or(Is::bool()))
+                            ->default('abandoned', false)
                             ->optional(
                                 'require',
                                 Is::associativeArray(
@@ -130,7 +130,7 @@ final class Package
                     Url::of("https://packagist.org/packages/{$name->toString()}"),
                     $package['repository'],
                     $package['mostRecent']['require'],
-                    ($package['mostRecent']['abandoned'] ?? false) !== false,
+                    $package['mostRecent']['abandoned'] !== false,
                 )),
         )->map(static fn($content): mixed => $content['package']);
 
