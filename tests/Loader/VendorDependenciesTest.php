@@ -116,6 +116,7 @@ class VendorDependenciesTest extends TestCase
                 'innmind/time-warp',
                 'innmind/tower',
                 'innmind/type',
+                'innmind/ui',
                 'innmind/url',
                 'innmind/url-resolver',
                 'innmind/url-template',

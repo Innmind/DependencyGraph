@@ -20,22 +20,16 @@ use Innmind\Filesystem\{
     File,
     Name as FileName,
 };
+use Innmind\Validation\{
+    Is,
+    Constraint as Rule,
+};
 use Innmind\Immutable\{
     Set,
     Maybe,
     Predicate\Instance,
 };
 
-/**
- * @psalm-type Lock = array{
- *     packages: list<array{
- *         name: string,
- *         source: array{url: non-empty-string},
- *         version: string,
- *         require?: array<string, string>
- *     }>
- * }
- */
 final class ComposerLock
 {
     private Filesystem $filesystem;
@@ -50,90 +44,100 @@ final class ComposerLock
      */
     public function __invoke(Path $path): Set
     {
+        /**
+         * @psalm-suppress MixedArgument
+         * @var Rule<mixed, Set<Package>>
+         */
+        $validate = Is::shape(
+            'packages',
+            Is::list(
+                Is::shape(
+                    'name',
+                    Is::string()
+                        ->map(Name::maybe(...)),
+                )
+                    ->optional(
+                        'source',
+                        Is::shape(
+                            'url',
+                            Is::string()
+                                ->map(static fn($value) => \rtrim($value, '.git').'/')
+                                ->map(Url::maybe(...)),
+                        )
+                            ->optional('url')
+                            ->default('url', null)
+                            ->map(static fn($source) => Maybe::of($source['url']))
+                            ->map(static fn($source) => $source->flatMap(
+                                static fn(Maybe $source) => $source,
+                            )),
+                    )
+                    ->with(
+                        'version',
+                        Is::string()
+                            ->map(Version::maybe(...)),
+                    )
+                    ->optional(
+                        'require',
+                        Is::associativeArray(
+                            Is::string()->map(Name::maybe(...)),
+                            Is::string()->map(Constraint::maybe(...)),
+                        )
+                            ->map(
+                                static fn($requires) => $requires
+                                    ->map(Maybe::all(...))
+                                    ->values()
+                                    ->flatMap(
+                                        static fn($maybe) => $maybe
+                                            ->map(Relation::of(...))
+                                            ->toSequence(),
+                                    )
+                                    ->toSet(),
+                            ),
+                    )
+                    ->rename('require', 'relations')
+                    ->map(
+                        static fn($package) => Maybe::all(
+                            $package['name'],
+                            $package['version'],
+                            $package['source'],
+                        )->map(static fn(Name $name, Version $version, Url $repository) => new Package(
+                            $name,
+                            $version,
+                            Url::of('https://packagist.org/packages/'.$name->toString()),
+                            $repository,
+                            $package['relations'],
+                        )),
+                    ),
+            )->map(
+                static fn($packages) => Set::of(...$packages)->flatMap(
+                    static fn($package) => $package
+                        ->toSequence()
+                        ->toSet(),
+                ),
+            ),
+        )
+            ->map(static fn($content): mixed => $content['packages'])
+            ->map(static function(Set $packages) {
+                $installed = $packages->map(
+                    static fn(Package $package): Name => $package->name(),
+                );
+
+                return $packages->map(
+                    static fn(Package $package): Package => $package->keep($installed),
+                );
+            });
+
         return $this
             ->filesystem
             ->mount($path)
             ->get(FileName::of('composer.lock'))
             ->keep(Instance::of(File::class))
-            ->map($this->decode(...))
-            ->map($this->denormalize(...))
+            ->map(static fn($file) => $file->content()->toString())
+            ->map(Json::decode(...))
+            ->flatMap(static fn($lock) => $validate($lock)->maybe())
             ->match(
                 static fn($packages) => $packages,
                 static fn() => Set::of(),
             );
-    }
-
-    /**
-     * @return Lock
-     */
-    private function decode(File $file): array
-    {
-        /** @var Lock */
-        return Json::decode($file->content()->toString());
-    }
-
-    /**
-     * @param Lock $composer
-     *
-     * @return Set<Package>
-     */
-    private function denormalize(array $composer): Set
-    {
-        /** @var Set<Package> */
-        $packages = Set::of();
-
-        foreach ($composer['packages'] as $package) {
-            /** @var Set<Relation> */
-            $relations = Set::of();
-
-            foreach ($package['require'] ?? [] as $require => $constraint) {
-                $relations = Maybe::all(Name::maybe($require), Constraint::maybe($constraint))
-                    ->map(Relation::of(...))
-                    ->match(
-                        static fn($relation) => ($relations)($relation),
-                        static fn() => $relations,
-                    );
-            }
-
-            $packages = Maybe::all(
-                Name::maybe($package['name']),
-                Version::maybe($package['version']),
-                Maybe::of($package['source'] ?? null)
-                    ->filter(\is_array(...))
-                    ->flatMap(static fn(array $source) => Maybe::of($source['url'] ?? null))
-                    ->filter(\is_string(...))
-                    ->map(static fn(string $url) => \rtrim($url, '.git').'/')
-                    ->flatMap(Url::maybe(...)),
-            )
-                ->map(static fn(Name $name, Version $version, Url $repository) => new Package(
-                    $name,
-                    $version,
-                    Url::of('https://packagist.org/packages/'.$package['name']),
-                    $repository,
-                    $relations,
-                ))
-                ->match(
-                    static fn($package) => ($packages)($package),
-                    static fn() => $packages,
-                );
-        }
-
-        return $this->removeVirtualRelations($packages);
-    }
-
-    /**
-     * @param Set<Package> $packages
-     *
-     * @return Set<Package>
-     */
-    private function removeVirtualRelations(Set $packages): Set
-    {
-        $installed = $packages->map(
-            static fn(Package $package): Name => $package->name(),
-        );
-
-        return $packages->map(
-            static fn(Package $package): Package => $package->keep($installed),
-        );
     }
 }

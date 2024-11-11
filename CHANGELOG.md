@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.8.0 - 2024-11-11
+
+### Changed
+
+- Uses `innmind/validation` internally to make sure the data retrieved from Packagist is of the expected format.
+
 ## 3.7.3 - 2024-08-03
 
 ### Fixed

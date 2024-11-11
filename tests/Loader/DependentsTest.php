@@ -34,7 +34,7 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(77, $packages);
+        $this->assertCount(78, $packages);
         $this->assertSame(
             [
                 'innmind/acl',
@@ -107,6 +107,7 @@ class DependentsTest extends TestCase
                 'innmind/time-continuum',
                 'innmind/time-warp',
                 'innmind/tower',
+                'innmind/ui',
                 'innmind/url',
                 'innmind/url-resolver',
                 'innmind/url-template',
