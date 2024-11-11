@@ -61,7 +61,6 @@ final class Package
          * @psalm-suppress MixedArrayAccess
          * @psalm-suppress MixedArgument
          * @psalm-suppress MixedAssignment
-         * @psalm-suppress InvalidArgument
          */
         $validate = Is::shape(
             'package',
