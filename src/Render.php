@@ -24,7 +24,7 @@ final class Render
 {
     private Locate $locate;
 
-    public function __construct(Locate $locate = null)
+    public function __construct(?Locate $locate = null)
     {
         $this->locate = $locate ?? new class implements Locate {
             /**
