@@ -21,7 +21,7 @@
         "innmind/operating-system": "~4.1|~5.0",
         "innmind/json": "^1.1",
         "innmind/graphviz": "~3.1",
-        "composer/semver": "~3.4",
+        "composer/semver": "^3.4.4",
         "innmind/framework": "~2.0",
         "innmind/validation": "~1.7"
     },
