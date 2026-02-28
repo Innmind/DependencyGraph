@@ -26,7 +26,7 @@ use Innmind\Immutable\{
     Attempt,
     Map,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class FromLockTest extends TestCase
 {

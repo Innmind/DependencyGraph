@@ -10,7 +10,7 @@ use Innmind\DependencyGraph\{
 use Innmind\OperatingSystem\Factory;
 use Innmind\Url\Path;
 use Innmind\Immutable\Set;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class ComposerLockTest extends TestCase
 {

@@ -20,9 +20,9 @@ use Innmind\Immutable\{
     Str,
     Attempt,
 };
-use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
+    PHPUnit\Framework\TestCase,
     Set,
 };
 
@@ -30,11 +30,11 @@ class CheckDotInstalledTest extends TestCase
 {
     use BlackBox;
 
-    public function testCallCommandIfInstalled()
+    public function testCallCommandIfInstalled(): BlackBox\Proof
     {
-        $this
+        return $this
             ->forAll(Set::of('some', 'command', 'name'))
-            ->then(function($usage) {
+            ->prove(function($usage) {
                 $inner = new class($usage) implements Command {
                     public function __construct(private string $usage)
                     {
@@ -85,11 +85,11 @@ class CheckDotInstalledTest extends TestCase
             });
     }
 
-    public function testReturnErrorWhenNotInstalled()
+    public function testReturnErrorWhenNotInstalled(): BlackBox\Proof
     {
-        $this
+        return $this
             ->forAll(Set::of('some', 'command', 'name'))
-            ->then(function($usage) {
+            ->prove(function($usage) {
                 $inner = new class($usage) implements Command {
                     public function __construct(private string $usage)
                     {
@@ -149,11 +149,11 @@ class CheckDotInstalledTest extends TestCase
             });
     }
 
-    public function testUsage()
+    public function testUsage(): BlackBox\Proof
     {
-        $this
+        return $this
             ->forAll(Set::of('some', 'command', 'name'))
-            ->then(function($usage) {
+            ->prove(function($usage) {
                 $inner = new class($usage) implements Command {
                     public function __construct(private string $usage)
                     {

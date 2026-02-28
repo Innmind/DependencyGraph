@@ -29,7 +29,7 @@ use Innmind\Immutable\{
     Map,
     Attempt,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class DependsOnTest extends TestCase
 {

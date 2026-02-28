@@ -8,9 +8,9 @@ use Innmind\DependencyGraph\{
     Package\Version,
     Exception\DomainException,
 };
-use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
+    PHPUnit\Framework\TestCase,
     Set,
 };
 
@@ -18,11 +18,11 @@ class ConstraintTest extends TestCase
 {
     use BlackBox;
 
-    public function testInterface()
+    public function testInterface(): BlackBox\Proof
     {
-        $this
+        return $this
             ->forAll(Set\Strings::any()->filter(static fn($string) => $string !== ''))
-            ->then(function(string $string): void {
+            ->prove(function(string $string): void {
                 $this->assertSame($string, (new Constraint($string))->toString());
             });
     }

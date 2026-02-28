@@ -10,7 +10,7 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\HttpTransport\Transport;
 use Innmind\Time\Clock;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
 {
