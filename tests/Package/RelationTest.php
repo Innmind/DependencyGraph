@@ -8,7 +8,7 @@ use Innmind\DependencyGraph\{
     Package\Constraint,
     Package\Name,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class RelationTest extends TestCase
 {

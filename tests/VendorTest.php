@@ -13,7 +13,7 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
 {
