@@ -79,7 +79,6 @@ class VendorDependenciesTest extends TestCase
                 'innmind/lab-station',
                 'innmind/log-reader',
                 'innmind/logger',
-                'innmind/mantle',
                 'innmind/math',
                 'innmind/media-type',
                 'innmind/mutable',
