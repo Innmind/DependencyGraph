@@ -24,8 +24,8 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/root'),
                 Version::of('1.0.0'),
-                Url::of('http://example.com'),
-                Url::of('http://example.com'),
+                Url::of('http://example.com/'),
+                Url::of('http://example.com/'),
                 Set::of(new Relation(
                     Name::of('rand/om'),
                     new Constraint('~1.0'),
@@ -35,8 +35,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('vendor/libA'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(
                         new Relation(
                             Name::of('vendor/root'),
@@ -51,8 +51,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('vendor/libB'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(
                         new Relation(
                             Name::of('vendor/root'),
@@ -67,8 +67,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('watev/foo'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(
                         new Relation(
                             Name::of('vendor/libA'),
@@ -87,8 +87,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('vendor/libC'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(),
                 ),
             ),
