@@ -15,6 +15,7 @@ use Composer\Semver\Semver;
  */
 final class Constraint
 {
+    /** @var non-empty-string */
     private string $value;
 
     public function __construct(string $value)
@@ -23,6 +24,7 @@ final class Constraint
             throw new DomainException;
         }
 
+        /** @var non-empty-string */
         $this->value = $value;
     }
 
@@ -44,6 +46,9 @@ final class Constraint
         return Semver::satisfies($version->toString(), $this->value);
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return $this->value;

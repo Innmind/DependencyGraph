@@ -8,15 +8,17 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Vendor as Model,
 };
-use Innmind\HttpTransport\Curl;
-use Innmind\TimeContinuum\Earth\Clock;
+use Innmind\HttpTransport\Transport;
+use Innmind\Time\Clock;
 use PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
         $load = new Vendor($http, new Package($http));
 
         $vendor = $load(Model\Name::of('innmind'));
@@ -35,7 +37,6 @@ class VendorTest extends TestCase
                 'innmind/coding-standard',
                 'innmind/colour',
                 'innmind/crawler',
-                'innmind/crawler-app',
                 'innmind/cron',
                 'innmind/debug',
                 'innmind/dependency-graph',
@@ -63,11 +64,11 @@ class VendorTest extends TestCase
                 'innmind/json',
                 'innmind/kalmiya',
                 'innmind/lab-station',
-                'innmind/library',
                 'innmind/log-reader',
                 'innmind/logger',
                 'innmind/math',
                 'innmind/media-type',
+                'innmind/mutable',
                 'innmind/object-graph',
                 'innmind/operating-system',
                 'innmind/profiler',
@@ -82,8 +83,7 @@ class VendorTest extends TestCase
                 'innmind/specification',
                 'innmind/stack-trace',
                 'innmind/static-analysis',
-                'innmind/time-continuum',
-                'innmind/time-warp',
+                'innmind/time',
                 'innmind/type',
                 'innmind/ui',
                 'innmind/url',
@@ -104,12 +104,14 @@ class VendorTest extends TestCase
 
     public function testMaxOpenedFilesRegression()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
         $load = new Vendor($http, new Package($http));
 
         $vendor = $load(Model\Name::of('symfony'));
 
         $this->assertInstanceOf(Model::class, $vendor);
-        $this->assertCount(264, $vendor->packages());
+        $this->assertSame(350, $vendor->packages()->size());
     }
 }

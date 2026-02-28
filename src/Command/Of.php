@@ -11,9 +11,13 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
+    Command\Usage,
     Console,
 };
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Attempt,
+};
 
 final class Of implements Command
 {
@@ -28,31 +32,35 @@ final class Of implements Command
         $this->display = $display;
     }
 
-    public function __invoke(Console $console): Console
+    #[\Override]
+    public function __invoke(Console $console): Attempt
     {
         $packages = ($this->load)(Name::of($console->arguments()->get('package')));
         $fileName = Str::of($console->arguments()->get('package'))
             ->replace('/', '_')
             ->append('_dependencies.svg');
 
-        return $console
-            ->options()
-            ->maybe('output')
-            ->match(
-                fn() => ($this->display)($console, $packages),
-                fn() => ($this->save)($console, $fileName, $packages),
-            );
+        return Attempt::result(
+            $console
+                ->options()
+                ->maybe('output')
+                ->match(
+                    fn() => ($this->display)($console, $packages),
+                    fn() => ($this->save)($console, $fileName, $packages),
+                ),
+        );
     }
 
     /**
      * @psalm-pure
      */
-    public function usage(): string
+    #[\Override]
+    public function usage(): Usage
     {
-        return <<<USAGE
+        return Usage::parse(<<<USAGE
 of package --output
 
 Generate the dependency graph of the given package
-USAGE;
+USAGE);
     }
 }

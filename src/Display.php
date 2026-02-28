@@ -39,13 +39,14 @@ final class Display
                     ->withShortOption('Tsvg')
                     ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(($this->render)($packages)),
-            );
+            )
+            ->unwrap();
         $console = $process
             ->output()
-            ->reduce(
-                $console,
-                static fn(Console $console, $output) => $console->output($output),
-            );
+            ->map(static fn($chunk) => $chunk->data())
+            ->sink($console)
+            ->attempt(static fn($console, $output) => $console->output($output))
+            ->unwrap();
 
         return $process
             ->wait()

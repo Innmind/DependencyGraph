@@ -10,8 +10,8 @@ use Innmind\DependencyGraph\{
     Package as PackageModel,
     Vendor as VendorModel,
 };
-use Innmind\HttpTransport\Curl;
-use Innmind\TimeContinuum\Earth\Clock;
+use Innmind\HttpTransport\Transport;
+use Innmind\Time\Clock;
 use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
@@ -19,7 +19,9 @@ class DependentsTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
 
         $load = new Dependents(
             new Vendor(
@@ -34,19 +36,17 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(64, $packages);
+        $this->assertSame(61, $packages->size());
         $this->assertSame(
             [
                 'innmind/acl',
                 'innmind/amqp',
                 'innmind/async',
                 'innmind/async-http-server',
-                'innmind/black-box',
                 'innmind/black-box-symfony',
                 'innmind/cli',
                 'innmind/colour',
                 'innmind/crawler',
-                'innmind/crawler-app',
                 'innmind/cron',
                 'innmind/debug',
                 'innmind/dependency-graph',
@@ -74,11 +74,11 @@ class DependentsTest extends TestCase
                 'innmind/json',
                 'innmind/kalmiya',
                 'innmind/lab-station',
-                'innmind/library',
                 'innmind/log-reader',
                 'innmind/logger',
                 'innmind/math',
                 'innmind/media-type',
+                'innmind/mutable',
                 'innmind/object-graph',
                 'innmind/operating-system',
                 'innmind/profiler',
@@ -91,8 +91,7 @@ class DependentsTest extends TestCase
                 'innmind/server-status',
                 'innmind/signals',
                 'innmind/stack-trace',
-                'innmind/time-continuum',
-                'innmind/time-warp',
+                'innmind/time',
                 'innmind/ui',
                 'innmind/url',
                 'innmind/url-resolver',
@@ -110,7 +109,9 @@ class DependentsTest extends TestCase
     }
     public function testCircularDependencyRegression()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
 
         $load = new Dependents(
             new Vendor(
@@ -125,6 +126,6 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(1, $packages);
+        $this->assertSame(1, $packages->size());
     }
 }

@@ -46,6 +46,7 @@ final class PackageNode
      */
     public static function of(Name $name): Node
     {
+        /** @var non-empty-string */
         $name = Str::of($name->toString())
             ->replace('-', '_')
             ->replace('.', '_')

@@ -44,18 +44,21 @@ final class Save
                     ->withShortOption('o', $file->toString())
                     ->withWorkingDirectory($console->workingDirectory())
                     ->withInput(($this->render)($packages)),
-            );
+            )
+            ->unwrap();
 
         return $process
             ->wait()
             ->match(
-                static fn() => $console->output($file->append("\n")),
+                static fn() => $console
+                    ->output($file->append("\n"))
+                    ->unwrap(),
                 static fn() => $process
                     ->output()
-                    ->reduce(
-                        $console,
-                        static fn(Console $console, $output) => $console->error($output),
-                    )
+                    ->map(static fn($chunk) => $chunk->data())
+                    ->sink($console)
+                    ->attempt(static fn($console, $output) => $console->error($output))
+                    ->unwrap()
                     ->exit(1),
             );
     }

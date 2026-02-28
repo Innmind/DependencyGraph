@@ -30,6 +30,7 @@ final class Render
             /**
              * @psalm-pure
              */
+            #[\Override]
             public function __invoke(Package $package): Url
             {
                 return $package->packagist()->withFragment(Fragment::of(

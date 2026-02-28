@@ -9,8 +9,8 @@ use Innmind\DependencyGraph\{
     Loader\Package,
     Vendor\Name,
 };
-use Innmind\HttpTransport\Curl;
-use Innmind\TimeContinuum\Earth\Clock;
+use Innmind\HttpTransport\Transport;
+use Innmind\Time\Clock;
 use Innmind\Immutable\Set;
 use PHPUnit\Framework\TestCase;
 
@@ -18,7 +18,9 @@ class VendorDependenciesTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
         $package = new Package($http);
         $load = new VendorDependencies(
             new Vendor($http, $package),
@@ -46,15 +48,12 @@ class VendorDependenciesTest extends TestCase
                 'innmind/cli-framework',
                 'innmind/coding-standard',
                 'innmind/colour',
-                'innmind/command-bus',
                 'innmind/crawler',
-                'innmind/crawler-app',
                 'innmind/cron',
                 'innmind/debug',
                 'innmind/dependency-graph',
                 'innmind/di',
                 'innmind/encoding',
-                'innmind/event-bus',
                 'innmind/file-watch',
                 'innmind/filesystem',
                 'innmind/foundation',
@@ -64,51 +63,43 @@ class VendorDependenciesTest extends TestCase
                 'innmind/git-release',
                 'innmind/graphviz',
                 'innmind/hash',
-                'innmind/homeostasis',
                 'innmind/html',
                 'innmind/http',
                 'innmind/http-authentication',
-                'innmind/http-framework',
                 'innmind/http-parser',
                 'innmind/http-server',
                 'innmind/http-session',
                 'innmind/http-transport',
                 'innmind/immutable',
-                'innmind/installation-monitor',
                 'innmind/io',
                 'innmind/ip',
                 'innmind/ipc',
                 'innmind/json',
                 'innmind/kalmiya',
                 'innmind/lab-station',
-                'innmind/library',
                 'innmind/log-reader',
                 'innmind/logger',
                 'innmind/mantle',
                 'innmind/math',
                 'innmind/media-type',
-                'innmind/neo4j-onm',
+                'innmind/mutable',
                 'innmind/object-graph',
                 'innmind/operating-system',
                 'innmind/profiler',
                 'innmind/rabbitmq-management',
                 'innmind/reflection',
-                'innmind/rest-client',
-                'innmind/rest-server',
                 'innmind/robots-txt',
                 'innmind/router',
                 'innmind/s3',
                 'innmind/server-control',
                 'innmind/server-status',
                 'innmind/signals',
-                'innmind/silent-cartographer',
                 'innmind/socket',
                 'innmind/specification',
-                'innmind/stack',
                 'innmind/stack-trace',
                 'innmind/static-analysis',
+                'innmind/time',
                 'innmind/time-continuum',
-                'innmind/time-warp',
                 'innmind/type',
                 'innmind/ui',
                 'innmind/url',
@@ -118,9 +109,6 @@ class VendorDependenciesTest extends TestCase
                 'innmind/virtual-machine',
                 'innmind/warden',
                 'innmind/xml',
-                'jeremykendall/php-domain-parser',
-                'league/uri-components',
-                'league/uri-parser',
                 'monolog/monolog',
                 'music-companion/apple-music',
                 'phpunit/php-code-coverage',
@@ -129,9 +117,6 @@ class VendorDependenciesTest extends TestCase
                 'psr/log',
                 'ramsey/uuid',
                 'symfony/browser-kit',
-                'symfony/dom-crawler',
-                'symfony/dotenv',
-                'symfony/filesystem',
                 'symfony/framework-bundle',
                 'symfony/http-foundation',
                 'symfony/http-kernel',

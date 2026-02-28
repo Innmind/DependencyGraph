@@ -10,9 +10,13 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
+    Command\Usage,
     Console,
 };
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Attempt,
+};
 
 final class FromLock implements Command
 {
@@ -27,38 +31,42 @@ final class FromLock implements Command
         $this->display = $display;
     }
 
-    public function __invoke(Console $console): Console
+    #[\Override]
+    public function __invoke(Console $console): Attempt
     {
         $packages = ($this->load)($console->workingDirectory());
 
         if ($packages->empty()) {
             return $console
-                ->error(Str::of("No packages found\n"))
-                ->exit(1);
+                ->exit(1)
+                ->error(Str::of("No packages found\n"));
         }
 
         $fileName = Str::of('dependencies.svg');
 
-        return $console
-            ->options()
-            ->maybe('output')
-            ->match(
-                fn() => ($this->display)($console, $packages),
-                fn() => ($this->save)($console, $fileName, $packages),
-            );
+        return Attempt::result(
+            $console
+                ->options()
+                ->maybe('output')
+                ->match(
+                    fn() => ($this->display)($console, $packages),
+                    fn() => ($this->save)($console, $fileName, $packages),
+                ),
+        );
     }
 
     /**
      * @psalm-pure
      */
-    public function usage(): string
+    #[\Override]
+    public function usage(): Usage
     {
-        return <<<USAGE
+        return Usage::parse(<<<USAGE
 from-lock --output
 
 Generate the dependency graph out of a composer.lock
 
 It will look for a composer.lock in the working directory
-USAGE;
+USAGE);
     }
 }
