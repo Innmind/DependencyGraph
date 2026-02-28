@@ -12,11 +12,13 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
+    Command\Usage,
     Console,
 };
 use Innmind\Immutable\{
     Set,
     Str,
+    Attempt,
 };
 
 final class DependsOn implements Command
@@ -32,7 +34,8 @@ final class DependsOn implements Command
         $this->display = $display;
     }
 
-    public function __invoke(Console $console): Console
+    #[\Override]
+    public function __invoke(Console $console): Attempt
     {
         /** @psalm-suppress MixedArgumentTypeCoercion Due to the reduce */
         $vendors = $console
@@ -63,21 +66,24 @@ final class DependsOn implements Command
             $fileName = $fileName->prepend('direct_');
         }
 
-        return $console
-            ->options()
-            ->maybe('output')
-            ->match(
-                fn() => ($this->display)($console, $packages),
-                fn() => ($this->save)($console, $fileName, $packages),
-            );
+        return Attempt::result(
+            $console
+                ->options()
+                ->maybe('output')
+                ->match(
+                    fn() => ($this->display)($console, $packages),
+                    fn() => ($this->save)($console, $fileName, $packages),
+                ),
+        );
     }
 
     /**
      * @psalm-pure
      */
-    public function usage(): string
+    #[\Override]
+    public function usage(): Usage
     {
-        return <<<USAGE
+        return Usage::parse(<<<USAGE
 depends-on package vendor ...vendors --direct --output
 
 Generate a graph of all packages depending on a given package
@@ -85,6 +91,6 @@ Generate a graph of all packages depending on a given package
 The packages are searched in a given set of vendors. This restriction
 is due to the fact that packagist.org doesn't expose via an api the
 packages that depends on an other.
-USAGE;
+USAGE);
     }
 }

@@ -19,22 +19,17 @@ use Innmind\CLI\{
     Environment,
     Console,
 };
-use Innmind\Server\Control\Server\{
-    Processes,
-    Process,
-    Process\ExitCode,
-    Process\Output,
+use Innmind\Server\Control\{
+    Server,
+    Server\Process\Builder,
 };
-use Innmind\HttpTransport\Curl;
-use Innmind\TimeContinuum\Earth\Clock;
+use Innmind\HttpTransport\Transport;
+use Innmind\Time\Clock;
 use Innmind\Immutable\{
     Map,
-    Sequence,
-    Str,
-    Either,
-    SideEffect,
+    Attempt,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class DependsOnTest extends TestCase
 {
@@ -42,7 +37,9 @@ class DependsOnTest extends TestCase
 
     public function setUp(): void
     {
-        $this->http = Curl::of(new Clock)->maxConcurrency(20);
+        $this->http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
     }
 
     public function testInterface()
@@ -55,11 +52,11 @@ class DependsOnTest extends TestCase
                 ),
                 new Save(
                     new Render,
-                    $this->createMock(Processes::class),
+                    Server::via(static fn() => null)->processes(),
                 ),
                 new Display(
                     new Render,
-                    $this->createMock(Processes::class),
+                    Server::via(static fn() => null)->processes(),
                 ),
             ),
         );
@@ -68,7 +65,7 @@ class DependsOnTest extends TestCase
     public function testUsage()
     {
         $expected = <<<USAGE
-depends-on package vendor ...vendors --direct --output
+depends-on package vendor ...arguments --direct --output --help --no-interaction
 
 Generate a graph of all packages depending on a given package
 
@@ -88,18 +85,41 @@ USAGE;
                 ),
                 new Save(
                     new Render,
-                    $this->createMock(Processes::class),
+                    Server::via(static fn() => null)->processes(),
                 ),
                 new Display(
                     new Render,
-                    $this->createMock(Processes::class),
+                    Server::via(static fn() => null)->processes(),
                 ),
-            ))->usage(),
+            ))->usage()->toString(),
         );
     }
 
     public function testInvokation()
     {
+        $server = Server::via(
+            function($command) {
+                $this->assertSame(
+                    "dot '-Tsvg' '-o' 'innmind_immutable_dependents.svg'",
+                    $command->toString(),
+                );
+                $this->assertSame(
+                    __DIR__.'/../../fixtures/',
+                    $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ),
+                );
+                $this->assertNotNull($command->input()->match(
+                    static fn($input) => $input->toString(),
+                    static fn() => null,
+                ));
+
+                return Attempt::result(
+                    Builder::foreground(2)->build(),
+                );
+            },
+        );
         $command = new DependsOn(
             new Dependents(
                 new Vendor(
@@ -109,34 +129,15 @@ USAGE;
             ),
             new Save(
                 new Render,
-                $processes = $this->createMock(Processes::class),
+                $server->processes(),
             ),
             new Display(
                 new Render,
-                $this->createMock(Processes::class),
+                $server->processes(),
             ),
         );
-        $processes
-            ->expects($this->once())
-            ->method('execute')
-            ->with($this->callback(static function($command): bool {
-                return $command->toString() === "dot '-Tsvg' '-o' 'innmind_immutable_dependents.svg'" &&
-                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
-                        static fn($path) => $path->toString(),
-                        static fn() => null,
-                    ) &&
-                    null !== $command->input()->match(
-                        static fn($input) => $input->toString(),
-                        static fn() => null,
-                    );
-            }))
-            ->willReturn($process = $this->createMock(Process::class));
-        $process
-            ->expects($this->once())
-            ->method('wait')
-            ->willReturn(Either::right(new SideEffect));
         $console = Console::of(
-            Environment\InMemory::of(
+            Environment::inMemory(
                 [],
                 true,
                 ['innmind/immutable', 'innmind'],
@@ -147,10 +148,14 @@ USAGE;
             new Options,
         );
 
-        $console = $command($console);
+        $console = $command($console)->unwrap();
         $this->assertSame(
             ["innmind_immutable_dependents.svg\n"],
-            $console->environment()->outputs(),
+            $console
+                ->environment()
+                ->outputted()
+                ->map(static fn($chunk) => $chunk[0]->toString())
+                ->toList(),
         );
         $this->assertNull($console->environment()->exitCode()->match(
             static fn($code) => $code,
@@ -160,6 +165,29 @@ USAGE;
 
     public function testGenerateOnlyDirectDependents()
     {
+        $server = Server::via(
+            function($command) {
+                $this->assertSame(
+                    "dot '-Tsvg' '-o' 'direct_innmind_immutable_dependents.svg'",
+                    $command->toString(),
+                );
+                $this->assertSame(
+                    __DIR__.'/../../fixtures/',
+                    $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ),
+                );
+                $this->assertNotNull($command->input()->match(
+                    static fn($input) => $input->toString(),
+                    static fn() => null,
+                ));
+
+                return Attempt::result(
+                    Builder::foreground(2)->build(),
+                );
+            },
+        );
         $command = new DependsOn(
             new Dependents(
                 new Vendor(
@@ -169,34 +197,15 @@ USAGE;
             ),
             new Save(
                 new Render,
-                $processes = $this->createMock(Processes::class),
+                $server->processes(),
             ),
             new Display(
                 new Render,
-                $this->createMock(Processes::class),
+                $server->processes(),
             ),
         );
-        $processes
-            ->expects($this->once())
-            ->method('execute')
-            ->with($this->callback(static function($command): bool {
-                return $command->toString() === "dot '-Tsvg' '-o' 'direct_innmind_immutable_dependents.svg'" &&
-                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
-                        static fn($path) => $path->toString(),
-                        static fn() => null,
-                    ) &&
-                    null !== $command->input()->match(
-                        static fn($input) => $input->toString(),
-                        static fn() => null,
-                    );
-            }))
-            ->willReturn($process = $this->createMock(Process::class));
-        $process
-            ->expects($this->once())
-            ->method('wait')
-            ->willReturn(Either::right(new SideEffect));
         $console = Console::of(
-            Environment\InMemory::of(
+            Environment::inMemory(
                 [],
                 true,
                 ['innmind/immutable', 'innmind', '--direct'],
@@ -207,10 +216,14 @@ USAGE;
             new Options(Map::of(['direct', ''])),
         );
 
-        $console = $command($console);
+        $console = $command($console)->unwrap();
         $this->assertSame(
             ["direct_innmind_immutable_dependents.svg\n"],
-            $console->environment()->outputs(),
+            $console
+                ->environment()
+                ->outputted()
+                ->map(static fn($chunk) => $chunk[0]->toString())
+                ->toList(),
         );
         $this->assertNull($console->environment()->exitCode()->match(
             static fn($code) => $code,
@@ -220,6 +233,31 @@ USAGE;
 
     public function testExitWithProcessOutputWhenItFails()
     {
+        $server = Server::via(
+            function($command) {
+                $this->assertSame(
+                    "dot '-Tsvg' '-o' 'innmind_immutable_dependents.svg'",
+                    $command->toString(),
+                );
+                $this->assertSame(
+                    __DIR__.'/../../fixtures/',
+                    $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ),
+                );
+                $this->assertNotNull($command->input()->match(
+                    static fn($input) => $input->toString(),
+                    static fn() => null,
+                ));
+
+                return Attempt::result(
+                    Builder::foreground(2)
+                        ->failed(1, [['foo', 'output']])
+                        ->build(),
+                );
+            },
+        );
         $command = new DependsOn(
             new Dependents(
                 new Vendor(
@@ -229,40 +267,15 @@ USAGE;
             ),
             new Save(
                 new Render,
-                $processes = $this->createMock(Processes::class),
+                $server->processes(),
             ),
             new Display(
                 new Render,
-                $this->createMock(Processes::class),
+                $server->processes(),
             ),
         );
-        $processes
-            ->expects($this->once())
-            ->method('execute')
-            ->with($this->callback(static function($command): bool {
-                return $command->toString() === "dot '-Tsvg' '-o' 'innmind_immutable_dependents.svg'" &&
-                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
-                        static fn($path) => $path->toString(),
-                        static fn() => null,
-                    ) &&
-                    null !== $command->input()->match(
-                        static fn($input) => $input->toString(),
-                        static fn() => null,
-                    );
-            }))
-            ->willReturn($process = $this->createMock(Process::class));
-        $process
-            ->expects($this->once())
-            ->method('wait')
-            ->willReturn(Either::left(new ExitCode(1)));
-        $process
-            ->expects($this->once())
-            ->method('output')
-            ->willReturn(new Output\Output(Sequence::of(
-                [Str::of('foo'), Output\Type::output],
-            )));
         $console = Console::of(
-            Environment\InMemory::of(
+            Environment::inMemory(
                 [],
                 true,
                 ['innmind/immutable', 'innmind'],
@@ -273,9 +286,15 @@ USAGE;
             new Options,
         );
 
-        $console = $command($console);
-        $this->assertSame([], $console->environment()->outputs());
-        $this->assertSame(['foo'], $console->environment()->errors());
+        $console = $command($console)->unwrap();
+        $this->assertSame(
+            ['foo'],
+            $console
+                ->environment()
+                ->outputted()
+                ->map(static fn($chunk) => $chunk[0]->toString())
+                ->toList(),
+        );
         $this->assertSame(1, $console->environment()->exitCode()->match(
             static fn($code) => $code->toInt(),
             static fn() => null,
@@ -284,6 +303,34 @@ USAGE;
 
     public function testOutputSvg()
     {
+        $server = Server::via(
+            function($command) {
+                $this->assertSame(
+                    "dot '-Tsvg'",
+                    $command->toString(),
+                );
+                $this->assertSame(
+                    __DIR__.'/../../fixtures/',
+                    $command->workingDirectory()->match(
+                        static fn($path) => $path->toString(),
+                        static fn() => null,
+                    ),
+                );
+                $this->assertNotNull($command->input()->match(
+                    static fn($input) => $input->toString(),
+                    static fn() => null,
+                ));
+
+                return Attempt::result(
+                    Builder::foreground(2)
+                        ->success([
+                            ['<svg>', 'output'],
+                            ['</svg>', 'output'],
+                        ])
+                        ->build(),
+                );
+            },
+        );
         $command = new DependsOn(
             new Dependents(
                 new Vendor(
@@ -293,41 +340,15 @@ USAGE;
             ),
             new Save(
                 new Render,
-                $this->createMock(Processes::class),
+                $server->processes(),
             ),
             new Display(
                 new Render,
-                $processes = $this->createMock(Processes::class),
+                $server->processes(),
             ),
         );
-        $processes
-            ->expects($this->once())
-            ->method('execute')
-            ->with($this->callback(static function($command): bool {
-                return $command->toString() === "dot '-Tsvg'" &&
-                    __DIR__.'/../../fixtures/' === $command->workingDirectory()->match(
-                        static fn($path) => $path->toString(),
-                        static fn() => null,
-                    ) &&
-                    null !== $command->input()->match(
-                        static fn($input) => $input->toString(),
-                        static fn() => null,
-                    );
-            }))
-            ->willReturn($process = $this->createMock(Process::class));
-        $process
-            ->expects($this->once())
-            ->method('wait')
-            ->willReturn(Either::right(new SideEffect));
-        $process
-            ->expects($this->once())
-            ->method('output')
-            ->willReturn(new Output\Output(Sequence::of(
-                [Str::of('<svg>'), Output\Type::output],
-                [Str::of('</svg>'), Output\Type::output],
-            )));
         $console = Console::of(
-            Environment\InMemory::of(
+            Environment::inMemory(
                 [],
                 true,
                 ['innmind/immutable', 'innmind', '--output'],
@@ -338,10 +359,14 @@ USAGE;
             new Options(Map::of(['output', ''])),
         );
 
-        $console = $command($console);
+        $console = $command($console)->unwrap();
         $this->assertSame(
             ['<svg>', '</svg>'],
-            $console->environment()->outputs(),
+            $console
+                ->environment()
+                ->outputted()
+                ->map(static fn($chunk) => $chunk[0]->toString())
+                ->toList(),
         );
         $this->assertNull($console->environment()->exitCode()->match(
             static fn($code) => $code,

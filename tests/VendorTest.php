@@ -13,7 +13,7 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class VendorTest extends TestCase
 {
@@ -93,7 +93,7 @@ class VendorTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $vendors);
-        $this->assertCount(2, $vendors);
+        $this->assertSame(2, $vendors->size());
         $vendors = $vendors->toList();
         $this->assertSame([$foo], \current($vendors)->packages()->toList());
         \next($vendors);

@@ -10,7 +10,7 @@ use Innmind\DependencyGraph\{
 use Innmind\OperatingSystem\Factory;
 use Innmind\Url\Path;
 use Innmind\Immutable\Set;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class ComposerLockTest extends TestCase
 {
@@ -21,7 +21,7 @@ class ComposerLockTest extends TestCase
         $packages = $load(Path::of(__DIR__.'/../../fixtures/'));
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(19, $packages);
+        $this->assertSame(19, $packages->size());
         $expected = <<<DOT
 digraph packages {
     subgraph cluster_innmind {

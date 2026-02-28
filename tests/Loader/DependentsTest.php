@@ -10,16 +10,18 @@ use Innmind\DependencyGraph\{
     Package as PackageModel,
     Vendor as VendorModel,
 };
-use Innmind\HttpTransport\Curl;
-use Innmind\TimeContinuum\Earth\Clock;
+use Innmind\HttpTransport\Transport;
+use Innmind\Time\Clock;
 use Innmind\Immutable\Set;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class DependentsTest extends TestCase
 {
     public function testInvokation()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
 
         $load = new Dependents(
             new Vendor(
@@ -34,33 +36,30 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(78, $packages);
+        $this->assertSame(61, $packages->size());
         $this->assertSame(
             [
                 'innmind/acl',
                 'innmind/amqp',
-                'innmind/ark',
+                'innmind/async',
                 'innmind/async-http-server',
-                'innmind/black-box',
                 'innmind/black-box-symfony',
                 'innmind/cli',
                 'innmind/colour',
                 'innmind/crawler',
-                'innmind/crawler-app',
                 'innmind/cron',
                 'innmind/debug',
                 'innmind/dependency-graph',
-                'innmind/doctrine',
+                'innmind/di',
                 'innmind/encoding',
                 'innmind/file-watch',
                 'innmind/filesystem',
+                'innmind/foundation',
                 'innmind/framework',
-                'innmind/genome',
                 'innmind/git',
                 'innmind/git-release',
                 'innmind/graphviz',
                 'innmind/hash',
-                'innmind/homeostasis',
                 'innmind/html',
                 'innmind/http',
                 'innmind/http-authentication',
@@ -69,23 +68,17 @@ class DependentsTest extends TestCase
                 'innmind/http-session',
                 'innmind/http-transport',
                 'innmind/immutable',
-                'innmind/infrastructure',
-                'innmind/infrastructure-amqp',
-                'innmind/infrastructure-neo4j',
-                'innmind/infrastructure-nginx',
-                'innmind/installation-monitor',
                 'innmind/io',
                 'innmind/ip',
                 'innmind/ipc',
                 'innmind/json',
                 'innmind/kalmiya',
                 'innmind/lab-station',
-                'innmind/library',
                 'innmind/log-reader',
                 'innmind/logger',
-                'innmind/mantle',
                 'innmind/math',
                 'innmind/media-type',
+                'innmind/mutable',
                 'innmind/object-graph',
                 'innmind/operating-system',
                 'innmind/profiler',
@@ -94,19 +87,11 @@ class DependentsTest extends TestCase
                 'innmind/robots-txt',
                 'innmind/router',
                 'innmind/s3',
-                'innmind/scaleway-sdk',
                 'innmind/server-control',
                 'innmind/server-status',
                 'innmind/signals',
-                'innmind/silent-cartographer',
-                'innmind/socket',
-                'innmind/ssh-key-provider',
                 'innmind/stack-trace',
-                'innmind/stream',
-                'innmind/templating',
-                'innmind/time-continuum',
-                'innmind/time-warp',
-                'innmind/tower',
+                'innmind/time',
                 'innmind/ui',
                 'innmind/url',
                 'innmind/url-resolver',
@@ -124,7 +109,9 @@ class DependentsTest extends TestCase
     }
     public function testCircularDependencyRegression()
     {
-        $http = Curl::of(new Clock)->maxConcurrency(20);
+        $http = Transport::curl(Clock::live())->map(
+            static fn($config) => $config->limitConcurrencyTo(20),
+        );
 
         $load = new Dependents(
             new Vendor(
@@ -139,6 +126,6 @@ class DependentsTest extends TestCase
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(1, $packages);
+        $this->assertSame(1, $packages->size());
     }
 }

@@ -9,24 +9,20 @@ use Innmind\CLI\{
     Command,
     Command\Arguments,
     Command\Options,
+    Command\Usage,
     Environment,
 };
-use Innmind\Server\Control\Server\{
-    Processes,
-    Process,
-    Process\ExitCode,
-    Process\Failed,
-    Process\Output\Output,
+use Innmind\Server\Control\{
+    Server,
+    Server\Process\Builder,
 };
 use Innmind\Immutable\{
     Str,
-    Either,
-    SideEffect,
-    Sequence,
+    Attempt,
 };
-use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
+    PHPUnit\Framework\TestCase,
     Set,
 };
 
@@ -34,41 +30,38 @@ class CheckDotInstalledTest extends TestCase
 {
     use BlackBox;
 
-    public function testCallCommandIfInstalled()
+    public function testCallCommandIfInstalled(): BlackBox\Proof
     {
-        $this
-            ->forAll(Set\Strings::any())
-            ->then(function($usage) {
+        return $this
+            ->forAll(Set::of('some', 'command', 'name'))
+            ->prove(function($usage) {
                 $inner = new class($usage) implements Command {
                     public function __construct(private string $usage)
                     {
                     }
 
-                    public function __invoke(Console $console): Console
+                    public function __invoke(Console $console): Attempt
                     {
                         return $console->output(Str::of('all good'));
                     }
 
-                    public function usage(): string
+                    public function usage(): Usage
                     {
-                        return $this->usage;
+                        return Usage::parse($this->usage);
                     }
                 };
-                $processes = $this->createMock(Processes::class);
-                $processes
-                    ->expects($this->once())
-                    ->method('execute')
-                    ->with($this->callback(static function($command) {
-                        return $command->toString() === "dot '--help'";
-                    }))
-                    ->willReturn($process = $this->createMock(Process::class));
-                $process
-                    ->expects($this->once())
-                    ->method('wait')
-                    ->willReturn(Either::right(new SideEffect));
-                $command = new CheckDotInstalled($inner, $processes);
+                $server = Server::via(
+                    function($command) {
+                        $this->assertSame("dot '--help'", $command->toString());
+
+                        return Attempt::result(
+                            Builder::foreground(2)->build(),
+                        );
+                    },
+                );
+                $command = new CheckDotInstalled($inner, $server->processes());
                 $console = Console::of(
-                    Environment\InMemory::of(
+                    Environment::inMemory(
                         [],
                         true,
                         [],
@@ -79,53 +72,53 @@ class CheckDotInstalledTest extends TestCase
                     new Options,
                 );
 
-                $console = $command($console);
+                $console = $command($console)->unwrap();
 
                 $this->assertSame(
                     ['all good'],
-                    $console->environment()->outputs(),
+                    $console
+                        ->environment()
+                        ->outputted()
+                        ->map(static fn($chunk) => $chunk[0]->toString())
+                        ->toList(),
                 );
             });
     }
 
-    public function testReturnErrorWhenNotInstalled()
+    public function testReturnErrorWhenNotInstalled(): BlackBox\Proof
     {
-        $this
-            ->forAll(Set\Strings::any())
-            ->then(function($usage) {
+        return $this
+            ->forAll(Set::of('some', 'command', 'name'))
+            ->prove(function($usage) {
                 $inner = new class($usage) implements Command {
                     public function __construct(private string $usage)
                     {
                     }
 
-                    public function __invoke(Console $console): Console
+                    public function __invoke(Console $console): Attempt
                     {
                         return $console->output(Str::of('all good'));
                     }
 
-                    public function usage(): string
+                    public function usage(): Usage
                     {
-                        return $this->usage;
+                        return Usage::parse($this->usage);
                     }
                 };
-                $processes = $this->createMock(Processes::class);
-                $processes
-                    ->expects($this->once())
-                    ->method('execute')
-                    ->with($this->callback(static function($command) {
-                        return $command->toString() === "dot '--help'";
-                    }))
-                    ->willReturn($process = $this->createMock(Process::class));
-                $process
-                    ->expects($this->once())
-                    ->method('wait')
-                    ->willReturn(Either::left(new Failed(
-                        new ExitCode(127),
-                        new Output(Sequence::of()),
-                    )));
-                $command = new CheckDotInstalled($inner, $processes);
+                $server = Server::via(
+                    function($command) {
+                        $this->assertSame("dot '--help'", $command->toString());
+
+                        return Attempt::result(
+                            Builder::foreground(2)
+                                ->failed(127)
+                                ->build(),
+                        );
+                    },
+                );
+                $command = new CheckDotInstalled($inner, $server->processes());
                 $console = Console::of(
-                    Environment\InMemory::of(
+                    Environment::inMemory(
                         [],
                         true,
                         [],
@@ -136,7 +129,7 @@ class CheckDotInstalledTest extends TestCase
                     new Options,
                 );
 
-                $console = $command($console);
+                $console = $command($console)->unwrap();
 
                 $this->assertSame(
                     1,
@@ -147,37 +140,45 @@ class CheckDotInstalledTest extends TestCase
                 );
                 $this->assertSame(
                     ["Graphviz needs to be installed first\n"],
-                    $console->environment()->outputs(),
+                    $console
+                        ->environment()
+                        ->outputted()
+                        ->map(static fn($chunk) => $chunk[0]->toString())
+                        ->toList(),
                 );
             });
     }
 
-    public function testUsage()
+    public function testUsage(): BlackBox\Proof
     {
-        $this
-            ->forAll(Set\Strings::any())
-            ->then(function($usage) {
+        return $this
+            ->forAll(Set::of('some', 'command', 'name'))
+            ->prove(function($usage) {
                 $inner = new class($usage) implements Command {
                     public function __construct(private string $usage)
                     {
                     }
 
-                    public function __invoke(Console $console): Console
+                    public function __invoke(Console $console): Attempt
                     {
                         return $console;
                     }
 
-                    public function usage(): string
+                    public function usage(): Usage
                     {
-                        return $this->usage;
+                        return Usage::parse($this->usage);
                     }
                 };
-                $processes = $this->createMock(Processes::class);
-                $command = new CheckDotInstalled($inner, $processes);
+                $server = Server::via(
+                    static fn() => Attempt::result(
+                        Builder::foreground(2)->build(),
+                    ),
+                );
+                $command = new CheckDotInstalled($inner, $server->processes());
 
                 $this->assertSame(
-                    $usage,
-                    $command->usage(),
+                    "$usage --help --no-interaction",
+                    $command->usage()->toString(),
                 );
             });
     }

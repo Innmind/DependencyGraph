@@ -110,10 +110,8 @@ final class Package
                             static fn(string $version) => VersionParser::parseStability($version) === 'stable',
                         ))
                         ->map(static function(Map $versions) {
-                            $sorted = Sequence::of(...\array_values(
-                                Semver::rsort(
-                                    $versions->keys()->toList(),
-                                ),
+                            $sorted = Sequence::of(...Semver::rsort(
+                                $versions->keys()->toList(),
                             ));
 
                             return $sorted

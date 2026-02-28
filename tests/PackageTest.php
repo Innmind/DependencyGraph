@@ -12,7 +12,7 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\Url\Url;
 use Innmind\Immutable\Set;
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class PackageTest extends TestCase
 {
@@ -71,8 +71,8 @@ class PackageTest extends TestCase
 
         $this->assertInstanceOf(Package::class, $package2);
         $this->assertNotSame($package, $package2);
-        $this->assertCount(3, $package->relations());
-        $this->assertCount(2, $package2->relations());
+        $this->assertSame(3, $package->relations()->size());
+        $this->assertSame(2, $package2->relations()->size());
         $this->assertSame([$bar, $foo], $package2->relations()->toList());
     }
 
@@ -94,7 +94,7 @@ class PackageTest extends TestCase
 
         $this->assertInstanceOf(Package::class, $package2);
         $this->assertNotSame($package, $package2);
-        $this->assertCount(3, $package->relations());
-        $this->assertCount(0, $package2->relations());
+        $this->assertSame(3, $package->relations()->size());
+        $this->assertSame(0, $package2->relations()->size());
     }
 }

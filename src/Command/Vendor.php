@@ -11,9 +11,13 @@ use Innmind\DependencyGraph\{
 };
 use Innmind\CLI\{
     Command,
+    Command\Usage,
     Console,
 };
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Attempt,
+};
 
 final class Vendor implements Command
 {
@@ -28,29 +32,33 @@ final class Vendor implements Command
         $this->display = $display;
     }
 
-    public function __invoke(Console $console): Console
+    #[\Override]
+    public function __invoke(Console $console): Attempt
     {
         $packages = ($this->load)($vendor = Name::of($console->arguments()->get('vendor')));
         $fileName = Str::of("{$vendor->toString()}.svg");
 
-        return $console
-            ->options()
-            ->maybe('output')
-            ->match(
-                fn() => ($this->display)($console, $packages),
-                fn() => ($this->save)($console, $fileName, $packages),
-            );
+        return Attempt::result(
+            $console
+                ->options()
+                ->maybe('output')
+                ->match(
+                    fn() => ($this->display)($console, $packages),
+                    fn() => ($this->save)($console, $fileName, $packages),
+                ),
+        );
     }
 
     /**
      * @psalm-pure
      */
-    public function usage(): string
+    #[\Override]
+    public function usage(): Usage
     {
-        return <<<USAGE
+        return Usage::parse(<<<USAGE
 vendor vendor --output
 
 Generate a graph of all packages of a vendor and their dependencies
-USAGE;
+USAGE);
     }
 }

@@ -16,7 +16,7 @@ use Innmind\Url\{
     Path,
     Scheme,
 };
-use PHPUnit\Framework\TestCase;
+use Innmind\BlackBox\PHPUnit\Framework\TestCase;
 
 class RenderTest extends TestCase
 {

@@ -24,12 +24,13 @@ final class Render
 {
     private Locate $locate;
 
-    public function __construct(Locate $locate = null)
+    public function __construct(?Locate $locate = null)
     {
         $this->locate = $locate ?? new class implements Locate {
             /**
              * @psalm-pure
              */
+            #[\Override]
             public function __invoke(Package $package): Url
             {
                 return $package->packagist()->withFragment(Fragment::of(
