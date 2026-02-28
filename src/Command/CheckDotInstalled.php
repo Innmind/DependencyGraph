@@ -6,12 +6,16 @@ namespace Innmind\DependencyGraph\Command;
 use Innmind\CLI\{
     Console,
     Command,
+    Command\Usage,
 };
 use Innmind\Server\Control\Server\{
     Processes,
     Command as Process
 };
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Attempt,
+};
 
 final class CheckDotInstalled implements Command
 {
@@ -24,7 +28,8 @@ final class CheckDotInstalled implements Command
         $this->processes = $processes;
     }
 
-    public function __invoke(Console $console): Console
+    #[\Override]
+    public function __invoke(Console $console): Attempt
     {
         /** @psalm-suppress ArgumentTypeCoercion Due to the environment variables */
         return $this
@@ -36,19 +41,24 @@ final class CheckDotInstalled implements Command
                         static fn($name) => $name === 'PATH',
                     )),
             )
-            ->wait()
+            ->flatMap(
+                static fn($process) => $process
+                    ->wait()
+                    ->attempt(static fn() => new \Exception),
+            )
             ->match(
                 fn() => ($this->command)($console),
                 static fn() => $console
-                    ->output(Str::of("Graphviz needs to be installed first\n"))
-                    ->exit(1),
+                    ->exit(1)
+                    ->output(Str::of("Graphviz needs to be installed first\n")),
             );
     }
 
     /**
      * @psalm-mutation-free
      */
-    public function usage(): string
+    #[\Override]
+    public function usage(): Usage
     {
         return $this->command->usage();
     }

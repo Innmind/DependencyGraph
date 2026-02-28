@@ -18,6 +18,7 @@ use Innmind\Immutable\{
 final class Name
 {
     private Vendor\Name $vendor;
+    /** @var non-empty-string */
     private string $package;
 
     private function __construct(Vendor\Name $vendor, string $package)
@@ -27,6 +28,7 @@ final class Name
         }
 
         $this->vendor = $vendor;
+        /** @var non-empty-string */
         $this->package = $package;
     }
 
@@ -71,6 +73,9 @@ final class Name
         return $this->vendor;
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function package(): string
     {
         return $this->package;
@@ -81,6 +86,9 @@ final class Name
         return $this->toString() === $self->toString();
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return $this->vendor->toString().'/'.$this->package;

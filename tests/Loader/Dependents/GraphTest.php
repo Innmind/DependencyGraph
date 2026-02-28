@@ -24,8 +24,8 @@ class GraphTest extends TestCase
             new Package(
                 Name::of('vendor/root'),
                 Version::of('1.0.0'),
-                Url::of('http://example.com'),
-                Url::of('http://example.com'),
+                Url::of('http://example.com/'),
+                Url::of('http://example.com/'),
                 Set::of(new Relation(
                     Name::of('rand/om'),
                     new Constraint('~1.0'),
@@ -35,8 +35,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('vendor/libA'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(
                         new Relation(
                             Name::of('vendor/root'),
@@ -51,8 +51,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('vendor/libB'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(
                         new Relation(
                             Name::of('vendor/root'),
@@ -67,8 +67,8 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('watev/foo'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(
                         new Relation(
                             Name::of('vendor/libA'),
@@ -87,15 +87,15 @@ class GraphTest extends TestCase
                 new Package(
                     Name::of('vendor/libC'),
                     Version::of('1.0.0'),
-                    Url::of('http://example.com'),
-                    Url::of('http://example.com'),
+                    Url::of('http://example.com/'),
+                    Url::of('http://example.com/'),
                     Set::of(),
                 ),
             ),
         );
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertCount(4, $packages);
+        $this->assertSame(4, $packages->size());
 
         $expected = <<<DOT
 digraph packages {
@@ -115,10 +115,10 @@ digraph packages {
     vendor__libB -> vendor__root [color="#f76ead", label="~1.0"];
     watev__foo -> vendor__libA [color="#416be8", label="~1.0"];
     watev__foo -> vendor__libB [color="#416be8", label="~1.0"];
-    vendor__libA [shape="ellipse", width="0.75", height="0.5", color="#c34ca0", URL="http://example.com#1.0.0"];
-    vendor__libB [shape="ellipse", width="0.75", height="0.5", color="#f76ead", URL="http://example.com#1.0.0"];
-    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL="http://example.com#1.0.0"];
-    vendor__root [shape="ellipse", width="0.75", height="0.5", color="#39b791", URL="http://example.com#1.0.0"];
+    vendor__libA [shape="ellipse", width="0.75", height="0.5", color="#c34ca0", URL="http://example.com/#1.0.0"];
+    vendor__libB [shape="ellipse", width="0.75", height="0.5", color="#f76ead", URL="http://example.com/#1.0.0"];
+    watev__foo [shape="ellipse", width="0.75", height="0.5", color="#416be8", URL="http://example.com/#1.0.0"];
+    vendor__root [shape="ellipse", width="0.75", height="0.5", color="#39b791", URL="http://example.com/#1.0.0"];
 }
 DOT;
 

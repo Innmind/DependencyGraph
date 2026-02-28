@@ -26,6 +26,7 @@ use Innmind\Validation\{
 };
 use Innmind\Immutable\{
     Set,
+    Map,
     Maybe,
     Predicate\Instance,
 };
@@ -79,11 +80,15 @@ final class ComposerLock
                     ->optional(
                         'require',
                         Is::associativeArray(
-                            Is::string()->map(Name::maybe(...)),
+                            Is::string(),
                             Is::string()->map(Constraint::maybe(...)),
                         )
                             ->map(
                                 static fn($requires) => $requires
+                                    ->flatMap(static fn($name, $constraint) => Map::of([
+                                        Name::maybe($name),
+                                        $constraint,
+                                    ]))
                                     ->map(Maybe::all(...))
                                     ->values()
                                     ->flatMap(
@@ -130,7 +135,8 @@ final class ComposerLock
         return $this
             ->filesystem
             ->mount($path)
-            ->get(FileName::of('composer.lock'))
+            ->maybe()
+            ->flatMap(static fn($adapter) => $adapter->get(FileName::of('composer.lock')))
             ->keep(Instance::of(File::class))
             ->map(static fn($file) => $file->content()->toString())
             ->map(Json::decode(...))

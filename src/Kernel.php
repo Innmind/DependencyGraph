@@ -10,47 +10,53 @@ use Innmind\Framework\{
 
 final class Kernel implements Middleware
 {
+    #[\Override]
     public function __invoke(Application $app): Application
     {
         /** @psalm-suppress ArgumentTypeCoercion */
         return $app
-            ->service('render', static fn() => new Render)
-            ->service('save', static fn($get, $os) => new Save(
-                $get('render'),
+            ->service(Services::render, static fn() => new Render)
+            ->service(Services::save, static fn($get, $os) => new Save(
+                $get(Services::render),
                 $os->control()->processes(),
             ))
-            ->service('display', static fn($get, $os) => new Display(
-                $get('render'),
+            ->service(Services::display, static fn($get, $os) => new Display(
+                $get(Services::render),
                 $os->control()->processes(),
             ))
-            ->service('package', static fn($_, $os) => new Loader\Package($os->remote()->http()))
-            ->service('vendor', static fn($get, $os) => new Loader\Vendor(
+            ->service(Services::package, static fn($_, $os) => new Loader\Package($os->remote()->http()))
+            ->service(Services::vendor, static fn($get, $os) => new Loader\Vendor(
                 $os->remote()->http(),
-                $get('package'),
+                $get(Services::package()),
             ))
-            ->mapCommand(static fn($command, $_, $os) => new Command\CheckDotInstalled(
+            ->service(Services::filesystem, static fn($_, $os) => $os->filesystem())
+            ->service(Services::processes, static fn($_, $os) => $os->control()->processes())
+            ->mapCommand(static fn($command, $get) => new Command\CheckDotInstalled(
                 $command,
-                $os->control()->processes(),
+                $get(Services::processes()),
             ))
-            ->command(static fn($get, $os) => new Command\FromLock(
-                new Loader\ComposerLock($os->filesystem()),
-                $get('save'),
-                $get('display'),
+            ->command(static fn($get) => new Command\FromLock(
+                new Loader\ComposerLock($get(Services::filesystem())),
+                $get(Services::save()),
+                $get(Services::display()),
             ))
             ->command(static fn($get) => new Command\DependsOn(
-                new Loader\Dependents($get('vendor')),
-                $get('save'),
-                $get('display'),
+                new Loader\Dependents($get(Services::vendor())),
+                $get(Services::save()),
+                $get(Services::display()),
             ))
             ->command(static fn($get) => new Command\Of(
-                new Loader\Dependencies($get('package')),
-                $get('save'),
-                $get('display'),
+                new Loader\Dependencies($get(Services::package())),
+                $get(Services::save()),
+                $get(Services::display()),
             ))
             ->command(static fn($get) => new Command\Vendor(
-                new Loader\VendorDependencies($get('vendor'), $get('package')),
-                $get('save'),
-                $get('display'),
+                new Loader\VendorDependencies(
+                    $get(Services::vendor()),
+                    $get(Services::package()),
+                ),
+                $get(Services::save()),
+                $get(Services::display()),
             ));
     }
 }

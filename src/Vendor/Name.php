@@ -14,6 +14,7 @@ use Innmind\Immutable\{
  */
 final class Name
 {
+    /** @var non-empty-string */
     private string $value;
 
     private function __construct(string $value)
@@ -22,6 +23,7 @@ final class Name
             throw new DomainException;
         }
 
+        /** @var non-empty-string */
         $this->value = $value;
     }
 
@@ -50,6 +52,9 @@ final class Name
         return $this->toString() === $self->toString();
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function toString(): string
     {
         return $this->value;
