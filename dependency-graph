@@ -21,8 +21,11 @@ use Innmind\Framework\{
 use Innmind\DependencyGraph\Kernel;
 use Innmind\OperatingSystem\Config;
 
-$config = Config::of()
-    ->limitHttpConcurrencyTo(20);
+$config = Config::new()->mapHttpTransport(
+    static fn($transport) => $transport->map(
+        static fn($config) => $config->limitConcurrencyTo(20),
+    ),
+);
 
 new class($config) extends Cli {
     #[\Override]

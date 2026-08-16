@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `dependency-graph` binary crashed due to undefined method call
+
 ## 3.9.0 - 2026-02-28
 
 ### Changed
