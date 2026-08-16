@@ -25,9 +25,9 @@ $config = Config::of()
     ->limitHttpConcurrencyTo(20);
 
 new class($config) extends Cli {
+    #[\Override]
     protected function configure(Application $app): Application
     {
         return $app->map(new Kernel);
     }
 };
-
