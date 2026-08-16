@@ -35,12 +35,12 @@ digraph packages {
     subgraph cluster_innmind {
         label="innmind"
         URL="https://packagist.org/packages/innmind/"
-    innmind__immutable [label="immutable@6.0.0"];
-    innmind__url [label="url@5.1.0"];
+    innmind__immutable [label="immutable@6.3.0"];
+    innmind__url [label="url@5.4.0"];
     }
     innmind__url -> innmind__immutable [color="#085cd3", label="~6.0"];
-    innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://packagist.org/packages/innmind/immutable#6.0.0"];
-    innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="https://packagist.org/packages/innmind/url#5.1.0"];
+    innmind__immutable [shape="ellipse", width="0.75", height="0.5", color="#a7e599", URL="https://packagist.org/packages/innmind/immutable#6.3.0"];
+    innmind__url [shape="ellipse", width="0.75", height="0.5", color="#085cd3", URL="https://packagist.org/packages/innmind/url#5.4.0"];
 }
 DOT;
 
@@ -98,6 +98,6 @@ DOT;
         $packages = $load(PackageModel\Name::of('laravel/browser-kit-testing'));
 
         $this->assertInstanceOf(Set::class, $packages);
-        $this->assertSame(102, $packages->size());
+        $this->assertSame(104, $packages->size());
     }
 }

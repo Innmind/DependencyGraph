@@ -87,7 +87,6 @@ class VendorTest extends TestCase
                 'innmind/type',
                 'innmind/ui',
                 'innmind/url',
-                'innmind/url-resolver',
                 'innmind/url-template',
                 'innmind/validation',
                 'innmind/virtual-machine',
@@ -112,6 +111,6 @@ class VendorTest extends TestCase
         $vendor = $load(Model\Name::of('symfony'));
 
         $this->assertInstanceOf(Model::class, $vendor);
-        $this->assertSame(350, $vendor->packages()->size());
+        $this->assertSame(368, $vendor->packages()->size());
     }
 }
