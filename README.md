@@ -1,6 +1,6 @@
 # DependencyGraph
 
-[![Build Status](https://github.com/Innmind/DependencyGraph/workflows/CI/badge.svg?branch=master)](https://github.com/Innmind/DependencyGraph/actions?query=workflow%3ACI)
+[![CI](https://github.com/Innmind/DependencyGraph/actions/workflows/ci.yml/badge.svg)](https://github.com/Innmind/DependencyGraph/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/Innmind/DependencyGraph/branch/develop/graph/badge.svg)](https://codecov.io/gh/Innmind/DependencyGraph)
 [![Type Coverage](https://shepherd.dev/github/Innmind/DependencyGraph/coverage.svg)](https://shepherd.dev/github/Innmind/DependencyGraph)
 
