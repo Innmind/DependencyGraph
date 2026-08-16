@@ -5,6 +5,7 @@
 ### Fixed
 
 - `dependency-graph` binary crashed due to undefined method call
+- Trimming `.git` extension that may lead to invalid beahviours
 
 ## 3.9.0 - 2026-02-28
 
