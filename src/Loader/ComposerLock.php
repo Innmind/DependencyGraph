@@ -62,7 +62,11 @@ final class ComposerLock
                         Is::shape(
                             'url',
                             Is::string()
-                                ->map(static fn($value) => \rtrim($value, '.git').'/')
+                                ->map(static fn($value) => match (\str_ends_with($value, '.git')) {
+                                    true => \substr($value, 0, -4),
+                                    false => $value,
+                                })
+                                ->map(static fn($value) => $value.'/')
                                 ->map(Url::maybe(...)),
                         )
                             ->optional('url')
